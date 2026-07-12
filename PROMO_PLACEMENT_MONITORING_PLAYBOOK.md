@@ -5,6 +5,7 @@
 **Default timezone:** America/Chicago  
 **Stable profile:** Pregame MLB player hits  
 **Experimental pilot profiles:** Pregame WNBA full-game moneyline, non-push spread, and non-push total  
+**Specified disabled profiles:** Four NBA and three NFL pregame profiles registered for contract and credential-free fixture work only
 **Fair-probability method:** de-vigged, same-line market consensus
 
 ---
@@ -21,7 +22,7 @@ Document responsibilities:
 - `PROMO_ANALYSIS_PLAYBOOK.md` owns intake, analysis, QA, reason codes, decision-brief structure, and alert format.
 - This file owns active market profiles, signal tiers, refresh rules, material-change definitions, state effects, and explicit noise exclusions.
 - `SPORT_ADAPTERS/README.md` owns the sport-adapter catalog, lifecycle vocabulary, and adapter selection rules.
-- For a catalog entry whose authority is delegated under `SPORT_ADAPTERS/`, the selected adapter owns that sport's market identities, sport-specific signal registry, source policy, refresh cadence, profile-level gates, and validation fixtures. It may narrow this file's global rules but may not weaken or contradict them. The established MLB player-hits registry remains in Section 6 of this file.
+- For a catalog entry whose authority is delegated under `SPORT_ADAPTERS/`, the selected adapter owns that sport's market identities, sport-specific signal registry, source policy, refresh cadence, profile-level gates, and validation fixtures. WNBA, NBA, and NFL authority is delegated to `SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, and `SPORT_ADAPTERS/NFL.md`. Those adapters may narrow this file's global rules but may not weaken or contradict them. The established MLB player-hits registry remains in Section 6 of this file.
 
 AP Frankenstein remains a separate downstream system. If the user manually places a wager, its existing receipt-screenshot workflow may later handle spreadsheet logging and settlement. This project makes no AP Frankenstein edits, API calls, spreadsheet writes, or new integration contract in v0.1, and it does not treat a candidate as a placed wager.
 
@@ -51,7 +52,7 @@ Disabled until a later approved phase:
 
 - independent statistical prediction models;
 - manual probability overrides;
-- NBA candidate generation;
+- every registered NBA and NFL profile until its exact provider-validation evidence passes and activation is separately approved;
 - WNBA player points, rebounds, assists, and made-threes candidate generation until provider validation passes and activation is separately approved;
 - WNBA whole-number spread/total, team-total, alternate-line, combination, partial-game, and same-game-parlay profiles;
 - live betting or live game-state triggers;
@@ -456,11 +457,11 @@ Use deterministic promotion, odds, no-vig, EV, expected-dollar, freshness, and r
 
 ---
 
-## 7. Basketball profile registry
+## 7. Delegated basketball and football lifecycle registry
 
-`SPORT_ADAPTERS/WNBA.md` is the authoritative WNBA capability contract. It defines exact market identities, the complete ten-field Tier A/B/C signal registry, source compliance, WNBA-specific refresh behavior, model-only and noise boundaries, provider-validation evidence, and fixtures. This section records lifecycle state only; do not duplicate or weaken the adapter's rules here.
+`SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, and `SPORT_ADAPTERS/NFL.md` are the authoritative league capability contracts. They define exact market identities, complete ten-field Tier A/B/C signal registries, source compliance, league-specific refresh behavior, model-only and noise boundaries, provider-validation evidence, and fixtures. This section records lifecycle state only; do not duplicate or weaken adapter rules here.
 
-| Profile | Status | Active boundary |
+| Profile | Status | Current boundary |
 |---|---|---|
 | `wnba.full_game.moneyline` | `pilot_enabled` | pregame, full game, exact overtime/settlement match |
 | `wnba.full_game.spread` | `pilot_enabled` | pregame, full game, no push probability |
@@ -469,12 +470,15 @@ Use deterministic promotion, odds, no-vig, EV, expected-dollar, freshness, and r
 | `wnba.player.rebounds` | `disabled_provider_validation` | no polling or candidate generation |
 | `wnba.player.assists` | `disabled_provider_validation` | no polling or candidate generation |
 | `wnba.player.made_threes` | `disabled_provider_validation` | no polling or candidate generation |
-| `nba.player_points` | `disabled_provider_validation` | future profile |
-| `nba.player_rebounds` | `disabled_provider_validation` | future profile |
-| `nba.player_assists` | `disabled_provider_validation` | future profile |
-| `nba.player_threes` | `disabled_provider_validation` | future profile |
+| `nba.full_game.moneyline` | `disabled_provider_validation` | pregame, full game, exact overtime/settlement match; no polling or candidate generation |
+| `nba.full_game.spread` | `disabled_provider_validation` | pregame, full game, principal reciprocal half-point line only; no polling or candidate generation |
+| `nba.full_game.total` | `disabled_provider_validation` | pregame, full game, principal half-point total only; no polling or candidate generation |
+| `nba.player.points` | `disabled_provider_validation` | exact non-push full-game over/under or conditionally equivalent milestone; no polling or candidate generation |
+| `nfl.full_game.moneyline` | `disabled_provider_validation` | pregame, full game, tie and push proven impossible; no polling or candidate generation |
+| `nfl.full_game.spread` | `disabled_provider_validation` | pregame, full game, principal reciprocal half-point line only; no polling or candidate generation |
+| `nfl.full_game.total` | `disabled_provider_validation` | pregame, full game, principal half-point total only; no polling or candidate generation |
 
-No disabled profile may poll sources, produce candidates, generate alerts, or become actionable. WNBA pilot profiles run only on demand and produce a local decision brief; their `pilot_enabled` state does not activate recurring schedules, background monitoring, or outbound alerts.
+Together with `mlb.player_hits` in Section 6, the registry contains exactly fifteen profiles: one `active`, three `pilot_enabled`, and eleven `disabled_provider_validation`. No disabled profile may poll sources, produce candidates, generate alerts, or become actionable. WNBA pilot profiles run only on demand and produce a local decision brief; their `pilot_enabled` state does not activate recurring schedules, background monitoring, or outbound alerts.
 
 For WNBA game lines, a current official injury-report submission and post-change price batch are critical, while a league-wide confirmed starting five is not. Any official availability, roster, transaction, game-status, or confirmed role change newer than the quote batch changes affected candidates to `WATCH` and triggers synchronized target/comparison refreshes. The fact itself never changes probability. Exact WNBA player availability becomes a hard gate when a player-prop profile is later activated.
 
@@ -482,7 +486,11 @@ Whole-number spread and total lines remain disabled until deterministic push-awa
 
 All WNBA statistical features remain Tier D and uncollected until a named, calibrated model, licensed/permitted source, leak-free historical evaluation, and separate activation approval exist. Game-line movement may be registered as a future player-prop refresh trigger, but it may not substitute for exact prop consensus or create a narrative adjustment.
 
-The current official NBA injury-report entry point must be reverified by season before any NBA activation: <https://official.nba.com/nba-injury-report-2025-26-season/>. The WNBA adapter contains the current official WNBA sources and their compliance rules.
+The current official NBA injury-report entry point must be reverified by season before any NBA activation: <https://official.nba.com/nba-injury-report-2025-26-season/>. `SPORT_ADAPTERS/NBA.md` owns the NBA operational injury, availability, roster, role, player-status, settlement-equivalence, and post-change synchronization rules. Official NBA statistics remain excluded from gambling-related model use under the current NBA Terms. NBA rebounds, assists, and made-threes are unavailable by catalog absence.
+
+`SPORT_ADAPTERS/NFL.md` owns the NFL event, injury-report, availability, quarterback, inactive-list, roster, venue, operational-weather, tie-treatment, and post-change synchronization rules. NFL.com sources remain manual/on-demand references unless licensed. Schedule or flex changes are material event changes. NFL player props, including passing- and rushing-yard props, are unregistered.
+
+NBA and NFL adapters inherit the shared signals in Section 5, the 180-second target and 300-second comparison limits, the configured 300-second collection-skew limit, target exclusion, two independent pricing origins, per-book de-vigging, and all six standard refresh phases. They extend those rules through league-local signals and identity fields; they do not redefine the shared signals, global formulas, reason codes, `promotion_decision_brief_v2`, or the human-control boundary.
 
 ---
 
@@ -580,6 +588,7 @@ The documentation and later implementation must preserve these outcomes:
 | Comparison-source independence is unresolved | do not count the source toward the two-origin minimum |
 | One comparison book lacks the exact opposing side | exclude it as one-sided and non-de-viggable |
 | Candidate side comes from one book and opposing side from another | reject the synthetic pair; do not de-vig across books |
+| Event, participant, period, overtime, push, void, participation, stat-counting, or settlement rules do not match | `BLOCKED` with `MARKET_IDENTITY_MISMATCH` and/or `SETTLEMENT_RULE_MISMATCH`; never treat the markets as equivalent |
 | `1+ Hits` has no exact `No Hit` equivalent | do not infer the missing side; no fair probability or positive-EV label |
 | Two independent books supply fresh complete same-line markets | de-vig each book separately, then aggregate the source-level fair probabilities |
 | A comparison quote becomes stale, suspended, mismatched, or outside the collection-time skew | exclude it; downgrade to `WATCH` or `BLOCKED` if usable coverage falls below two |
@@ -598,7 +607,24 @@ The documentation and later implementation must preserve these outcomes:
 | WNBA starting five is not confirmed but the official availability submission and post-change game-line quotes are current | do not block solely for missing starting-five confirmation |
 | FanDuel target plus DraftKings as the only usable WNBA comparison | `WATCH` during research and `BLOCKED` at the final placement check; show break-even only |
 | WNBA player points, rebounds, assists, or made-threes request | `BLOCKED` with `disabled_provider_validation`; do not generate candidates |
-| NBA candidate request | `BLOCKED` with a clear note that the profile is disabled |
+| NBA `20+ Points` and `Over 19.5 Points` with exact player, event, period, overtime, participation, void, stat-counting, and settlement match | preserve both raw labels and accept the structural equivalence; because the profile is disabled, return `BLOCKED` with `ADAPTER_PROFILE_DISABLED` and do not calculate EV or rank |
+| NBA `Over 20 Points` or whole-number game spread/total | do not equate `Over 20` with `20+`; return `BLOCKED` with `PUSH_MODEL_UNAVAILABLE` and `ADAPTER_PROFILE_DISABLED` |
+| NBA official report is not due | structural `WATCH`; current result remains `BLOCKED` with `OFFICIAL_REPORT_NOT_DUE` and `ADAPTER_PROFILE_DISABLED` |
+| NBA official report is overdue or missing | structural `WATCH`, becoming `BLOCKED` at final check; current result includes `OFFICIAL_REPORT_MISSING` and `ADAPTER_PROFILE_DISABLED` |
+| NBA availability, roster, confirmed-role, or player-status fact is newer than affected quotes | invalidate the batch and require synchronized refetch with no direct probability adjustment; current result includes `MATERIAL_CONTEXT_NEWER_THAN_QUOTES` and `ADAPTER_PROFILE_DISABLED` |
+| NBA valid open post-change batch meets 180/300/300-second limits | record synchronization as true and clear only the synchronization blocker; remain `BLOCKED` with `ADAPTER_PROFILE_DISABLED`, with no EV or ranking |
+| Any otherwise structurally valid registered NBA request | `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; fixtures and provider exposure do not activate the profile |
+| NFL regular-season or preseason tie-capable moneyline | `BLOCKED` with `PUSH_MODEL_UNAVAILABLE`; a two-way display does not prove tie or push impossible |
+| NFL three-way, tie-option, or regulation-only moneyline | `BLOCKED` with `MARKET_IDENTITY_MISMATCH`; preserve `season_phase`, `tie_possible`, and `tie_treatment` in the local audit |
+| NFL whole-number spread or total | `BLOCKED` with `PUSH_MODEL_UNAVAILABLE`; do not assume zero push probability |
+| NFL injury report is not due | current run remains `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; after activation it would be preliminary `WATCH` and could not clear the final gate |
+| NFL required injury report is overdue or missing | current result includes `OFFICIAL_REPORT_MISSING` and `ADAPTER_PROFILE_DISABLED`; after activation it is `WATCH` during research and `BLOCKED` at final check |
+| NFL starting-quarterback change or inactive-list correction is newer than affected quotes | current lifecycle remains `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; after activation invalidate the batch, set `WATCH`, and refetch synchronously with no direct probability adjustment |
+| NFL authoritative quarterback conflict at final check | `BLOCKED` with `SOURCE_CONFLICT` in addition to the lifecycle audit |
+| NFL inactive list is not due | current run remains `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; after activation remain `WATCH` until official publication |
+| NFL event/flex, availability, quarterback, inactive, roster, venue, or operational-weather change is newer than quotes | current result is `BLOCKED` with `ADAPTER_PROFILE_DISABLED` and synchronization false; after activation set `WATCH`, refetch every affected quote, and block at final check if synchronization remains unavailable |
+| NFL synchronized open post-change batch meets 180/300/300-second limits | clear only the future context-sync blocker and value from refreshed Tier B prices after activation; current result remains `BLOCKED` with `ADAPTER_PROFILE_DISABLED` |
+| Any otherwise structurally valid registered NFL request | `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; fixtures and provider exposure do not activate the profile |
 | Live-betting request during v0.1 | `BLOCKED` with a clear note that live monitoring is deferred |
 
 ---

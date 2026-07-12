@@ -755,7 +755,7 @@ A top candidate should be downgraded or blocked when:
 
 This section is a broad roadmap hypothesis inventory, not an adapter catalog and not run authorization. Inclusion does not imply active collection, proven predictive value, an enabled model, provider permission, or a selectable profile. Current authority and lifecycle come only from `SPORT_ADAPTERS/README.md` and the selected adapter location.
 
-The currently registered adapter records are MLB player hits and WNBA pregame full-game markets. MLB Section 6 of `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md` and `SPORT_ADAPTERS/WNBA.md` define which of the ideas below are active, pilot-enabled, model-only, or excluded. All other sport sections remain conceptual.
+The current catalog contains four adapter records and fifteen profile records: one `active`, three `pilot_enabled`, and eleven `disabled_provider_validation`. MLB Section 6 of `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`, `SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, and `SPORT_ADAPTERS/NFL.md` define which of the ideas below are registered, runnable, disabled, model-only, or excluded. NBA and NFL are credential-free contract and fixture specifications only; all seven of their registered profiles remain disabled and cannot generate candidates. All other sport sections remain conceptual.
 
 ## 13.1 MLB
 
@@ -792,6 +792,8 @@ The currently registered adapter records are MLB player hits and WNBA pregame fu
 
 ## 13.2 NBA / WNBA
 
+The registered NBA profiles are `nba.full_game.moneyline`, `nba.full_game.spread`, `nba.full_game.total`, and `nba.player.points`. All four are `disabled_provider_validation`; NBA rebounds, assists, and made-threes are unavailable by catalog absence. The registered WNBA lifecycle remains unchanged: three full-game profiles are `pilot_enabled`, while four named player-prop profiles remain `disabled_provider_validation`. Exact NBA and WNBA authority comes from their selected adapters, not from the hypothesis list below.
+
 **Availability and role**
 
 - official injury status;
@@ -817,6 +819,8 @@ The currently registered adapter records are MLB player hits and WNBA pregame fu
 Recent-game averages should not override stable role and opportunity estimates without evidence.
 
 ## 13.3 NFL / NCAAF
+
+The registered NFL profiles are `nfl.full_game.moneyline`, `nfl.full_game.spread`, and `nfl.full_game.total`. All three are `disabled_provider_validation`. NFL player props, including passing- and rushing-yard props, are unregistered; the role and game-context ideas below remain future model or profile hypotheses unless `SPORT_ADAPTERS/NFL.md` explicitly uses them as operational gates. NCAAF remains concept-only and unregistered.
 
 **Availability and role**
 
