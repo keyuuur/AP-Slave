@@ -159,7 +159,7 @@ B. BUILD THE ELIGIBLE SLATE
 
 C. COLLECT TARGET AND COMPARISON PRICES
 1. Retrieve the exact target-book quote.
-2. Retrieve opposing-side and comparison-book quotes at the same line where possible.
+2. Retrieve each comparison book's complete, method-required source-level outcome set at the same market identity and line where possible. Existing MLB, WNBA, NBA, and NFL profiles require their exact binary opposing pair; a registered adapter may specify a larger mutually exclusive and exhaustive set without activating it.
 3. Record source timestamps and market status.
 4. If target-book API coverage is unavailable, use the user's screenshot or structured entry.
 5. If a screenshot field is low confidence, require verification before recommendation-grade analysis.
@@ -285,7 +285,7 @@ Include:
 - providers used;
 - retrieval timestamps;
 - freshness thresholds;
-- de-vig method;
+- source-level outcome-set shape and de-vig method;
 - promotion calculation method;
 - calculation/model version;
 - unresolved conflicts;
@@ -548,6 +548,9 @@ Use machine-readable reason codes alongside prose.
 - `MARKET_IDENTITY_MISMATCH`
 - `SETTLEMENT_RULE_MISMATCH`
 - `PUSH_MODEL_UNAVAILABLE`
+- `OUTCOME_SET_INCOMPLETE`
+- `DEAD_HEAT_RULE_UNRESOLVED`
+- `COMPETITION_RULE_UNRESOLVED`
 - `CONSENSUS_INSUFFICIENT`
 - `PRICING_ORIGIN_UNRESOLVED`
 - `QUOTE_BATCH_UNSYNCHRONIZED`
@@ -578,12 +581,15 @@ Use machine-readable reason codes alongside prose.
 
 ### Pricing/model
 
+- `PROBABILITY_METHOD_UNAVAILABLE`
 - `NO_VALIDATED_PROBABILITY`
 - `EV_BELOW_THRESHOLD`
 - `CONSERVATIVE_EV_NEGATIVE`
 - `UNCERTAINTY_TOO_HIGH`
 - `DOMINATED_BY_BETTER_TOKEN_USE`
 - `DATA_QUALITY_BELOW_THRESHOLD`
+
+`PROBABILITY_METHOD_UNAVAILABLE` means the exact market, payoff, or settlement shape has no supported structural probability method. `NO_VALIDATED_PROBABILITY` means a nominal method exists but the evidence, implementation, or validation required to use it is absent. Neither code permits positive-EV language or recommendation-grade candidate generation.
 
 ### State changes
 
@@ -597,7 +603,7 @@ Use machine-readable reason codes alongside prose.
 
 ## 10. JSON output contract
 
-A local application should request structured output in addition to the human-readable brief. The normalized additive contract is `promotion_decision_brief_v2`. Existing v1 fields remain present for compatibility; the new adapter, identity, consensus-audit, and monitoring blocks are local output/audit fields, not a persisted-schema migration.
+A local application should request structured output in addition to the human-readable brief. The normalized additive contract is `promotion_decision_brief_v2`. Existing v1 fields remain present for compatibility; the new adapter, identity, consensus-audit, and monitoring blocks are local output/audit fields, not a persisted-schema migration. Golf tournament-field and complete outcome-vector details remain adapter-local audit annotations during the disabled contract phase; this contract and the canonical persisted schemas are unchanged, and Golf activation requires separately reviewed schema evolution.
 
 ```json
 {

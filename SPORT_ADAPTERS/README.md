@@ -28,7 +28,7 @@ A sport adapter may narrow a global rule for its market, but it may not weaken o
 
 The established `mlb.player_hits` registry remains authoritative in Section 6 of `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`. It is cataloged here by reference rather than copied, so it cannot drift into two competing registries.
 
-The standalone league contracts are authoritative at `SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, and `SPORT_ADAPTERS/NFL.md`. NBA and NFL are registered specification-only adapters: every profile in those two documents remains `disabled_provider_validation`, so their detailed contracts and credential-free fixtures do not authorize polling or candidate generation.
+The standalone league and sport contracts are authoritative at `SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, `SPORT_ADAPTERS/NFL.md`, and `SPORT_ADAPTERS/GOLF.md`. NBA, NFL, and Golf are registered specification-only adapters: every profile in those three documents remains `disabled_provider_validation`, so their detailed contracts and credential-free fixtures do not authorize polling or candidate generation. A FanDuel or DraftKings Missouri offering discovers a possible Golf event; it does not establish profile support without the Golf adapter's exact competition, market, source, and settlement validation.
 
 ## 3. Lifecycle vocabulary
 
@@ -56,6 +56,7 @@ Adapter identity and profile lifecycle are separate records. Adapter versions de
 | `wnba.pregame_full_game_v0_1` | `0.2.0` | `adapter_contract_v1` | Basketball / WNBA | `SPORT_ADAPTERS/WNBA.md` | on-demand local brief | de-vigged exact-market consensus for pilot-enabled profiles |
 | `nba.pregame_full_game_v0_1` | `0.1.0` | `adapter_contract_v1` | Basketball / NBA | `SPORT_ADAPTERS/NBA.md` | specification only while profiles are disabled | de-vigged exact-market consensus after separate activation |
 | `nfl.pregame_full_game_v0_1` | `0.1.0` | `adapter_contract_v1` | Football / NFL | `SPORT_ADAPTERS/NFL.md` | specification only while profiles are disabled | de-vigged exact-market consensus after separate activation |
+| `golf.pregame_stroke_play_v0_1` | `0.1.0` | `adapter_contract_v1` | Golf / individual stroke play | `SPORT_ADAPTERS/GOLF.md` | specification only while profiles are disabled | profile-specific exact-market consensus after separate activation; multiway method remains inactive |
 
 ### 4.2 Profile records
 
@@ -76,12 +77,20 @@ Adapter identity and profile lifecycle are separate records. Adapter versions de
 | `nfl.full_game.moneyline` | `nfl.pregame_full_game_v0_1` | `disabled_provider_validation` | Pregame, full-game two-way moneyline only when tie and push are proven impossible | tie treatment, exact source coverage, and separate activation approval remain unvalidated |
 | `nfl.full_game.spread` | `nfl.pregame_full_game_v0_1` | `disabled_provider_validation` | Pregame, full-game principal reciprocal half-point line only | principal-line identity, exact two-sided source coverage, and separate activation approval remain unvalidated |
 | `nfl.full_game.total` | `nfl.pregame_full_game_v0_1` | `disabled_provider_validation` | Pregame, full-game principal half-point total only | principal-line identity, exact two-sided source coverage, and separate activation approval remain unvalidated |
+| `golf.player.make_cut` | `golf.pregame_stroke_play_v0_1` | `disabled_provider_validation` | Pregame Yes/No on the first official cut; no-cut or unresolved-cut events blocked | exact cut structure, DNS/WD/DQ and shortened-event settlement, source coverage, and separate activation approval remain unvalidated |
+| `golf.player.round_score_total` | `golf.pregame_stroke_play_v0_1` | `disabled_provider_validation` | Pregame exact player, round, course, and half-point 18-hole over/under | exact round/course identity, completion and settlement rules, two-sided source coverage, and separate activation approval remain unvalidated |
+| `golf.player.round_matchup` | `golf.pregame_stroke_play_v0_1` | `disabled_provider_validation` | Pregame exact two-player round matchup; two-way, tie-refund, and three-way variants remain distinct | participant, round/course, tie, completion, source-coverage, and separate activation requirements remain unvalidated |
+| `golf.player.tournament_matchup` | `golf.pregame_stroke_play_v0_1` | `disabled_provider_validation` | Pregame exact two-player whole-tournament matchup; two-way, tie-refund, and three-way variants remain distinct | cut, minimum-action, completion, DNS/WD/DQ, tie, source-coverage, and separate activation requirements remain unvalidated |
+| `golf.player.top_n_finish` | `golf.pregame_stroke_play_v0_1` | `disabled_provider_validation` | Pregame Top 5, Top 10, or Top 20 with exact standard, including-ties, OddsBoost, or Tourney Special wrapper preserved | exact wrapper, dead-heat treatment, complementary outcome or probability method, source coverage, and separate activation approval remain unvalidated |
+| `golf.tournament.outright_winner` | `golf.pregame_stroke_play_v0_1` | `disabled_provider_validation` | Pregame tournament winner with an exhaustive current field/outcome set | field completeness/version, DNS/all-in, playoff/dead-heat/shortened-event rules, multiway method, source coverage, and separate activation approval remain unvalidated |
 
-The catalog therefore contains exactly four adapter records and fifteen profile records: one `active`, three `pilot_enabled`, and eleven `disabled_provider_validation`.
+The catalog therefore contains exactly five adapter records and twenty-one profile records: one `active`, three `pilot_enabled`, and seventeen `disabled_provider_validation`.
 
 If a profile is absent from this catalog, treat it as `disabled_provider_validation`. Provider availability alone does not grant activation.
 
 NBA rebounds, assists, and made-threes profiles are absent and unavailable. NFL player-prop profiles, including passing- and rushing-yard props, are unregistered and unavailable. Do not recreate underscore-style NBA placeholders or infer any missing profile from provider exposure.
+
+Golf profiles outside the six registered records are absent and unavailable, including each-way, first-round-leader, group/3-ball/4-ball, live, parlay, team, match-play, Stableford, and skins shapes. A Missouri FanDuel or DraftKings listing is discovery evidence only and must not be treated as proof that any registered or absent Golf profile is supported.
 
 Soccer and World Cup concepts in `PROJECT_CONTEXT.md` are roadmap hypotheses only. They are not adapter or profile records and cannot be selected for a run. Their eventual discovery and design must begin as a separate phase using `ADAPTER_TEMPLATE.md`.
 
@@ -108,16 +117,18 @@ Shared signals remain authoritative only in Section 5 of `PROMO_PLACEMENT_MONITO
 
 Semantic roles make adapter behavior comparable without renaming or merging sport-specific signals.
 
-| semantic_role | purpose | MLB mapping | WNBA mapping | NBA mapping | NFL mapping |
-|---|---|---|---|---|---|
-| `event_identity_status` | verify exact event and current game state | `mlb_game_identity`, `mlb_game_status` | `wnba_event_identity_status` | `nba_event_identity_status` | `nfl_event_identity_status` |
-| `participant_availability` | verify participant eligibility or availability | `mlb_player_status` | `wnba_target_player_availability` for player profiles; `wnba_team_availability_delta` for team markets | `nba_target_player_status` for player points; `nba_team_availability_delta` for team markets | `nfl_team_availability_delta` |
-| `official_release_state` | track the sport's critical official release or confirmation | `mlb_starting_lineup`, `mlb_opposing_starter` | `wnba_injury_submission_state`, `wnba_starting_five_role_event` | `nba_injury_submission_state`, `nba_starting_five_role_event` | `nfl_injury_report_state`, `nfl_starting_quarterback_status`, `nfl_inactive_list_state` |
-| `material_context_delta` | invalidate prices after a registered confirmed change | lineup, starter, roof/weather, or allowlisted bullpen signals | availability, roster/transaction, event, or confirmed-role signals | event, injury/availability, roster/transaction, target-player, or confirmed-role signals | event, injury/availability, quarterback, inactive-list, roster/transaction, venue, or operational-weather signals |
-| `post_change_price_sync` | require target and comparison quotes newer than the change | shared quote signals after any MLB material change | shared quote signals after any WNBA material change | shared quote signals under `nba_post_change_price_sync_v1` | shared quote signals under `nfl_post_change_price_sync_v1` |
-| `consensus_valuation` | derive and audit fair probability | shared `comparison_quotes_same_line` under MLB configuration | shared `comparison_quotes_same_line` under `wnba_market_consensus_mean_v1` | shared `comparison_quotes_same_line` under `nba_market_consensus_mean_v1` | shared `comparison_quotes_same_line` under `nfl_market_consensus_mean_v1` |
+| semantic_role | purpose | MLB mapping | WNBA mapping | NBA mapping | NFL mapping | Golf mapping |
+|---|---|---|---|---|---|---|
+| `event_identity_status` | verify exact event and current game state | `mlb_game_identity`, `mlb_game_status` | `wnba_event_identity_status` | `nba_event_identity_status` | `nfl_event_identity_status` | `golf_event_identity_status` |
+| `participant_availability` | verify participant eligibility or availability | `mlb_player_status` | `wnba_target_player_availability` for player profiles; `wnba_team_availability_delta` for team markets | `nba_target_player_status` for player points; `nba_team_availability_delta` for team markets | `nfl_team_availability_delta` | `golf_field_entry_status`, `golf_player_tee_time_status` |
+| `official_release_state` | track the sport's critical official release or confirmation | `mlb_starting_lineup`, `mlb_opposing_starter` | `wnba_injury_submission_state`, `wnba_starting_five_role_event` | `nba_injury_submission_state`, `nba_starting_five_role_event` | `nfl_injury_report_state`, `nfl_starting_quarterback_status`, `nfl_inactive_list_state` | `golf_competition_format_cut_state`, `golf_field_entry_status`, `golf_player_tee_time_status` |
+| `material_context_delta` | invalidate prices after a registered confirmed change | lineup, starter, roof/weather, or allowlisted bullpen signals | availability, roster/transaction, event, or confirmed-role signals | event, injury/availability, roster/transaction, target-player, or confirmed-role signals | event, injury/availability, quarterback, inactive-list, roster/transaction, venue, or operational-weather signals | event identity, competition format/cut, field entry, tee time, round/course, settlement-rule, or operational-weather signals |
+| `post_change_price_sync` | require target and comparison quotes newer than the change | shared quote signals after any MLB material change | shared quote signals after any WNBA material change | shared quote signals under `nba_post_change_price_sync_v1` | shared quote signals under `nfl_post_change_price_sync_v1` | shared quote signals under `golf_post_change_price_sync_v1` |
+| `consensus_valuation` | derive and audit fair probability | shared `comparison_quotes_same_line` under MLB configuration | shared `comparison_quotes_same_line` under `wnba_market_consensus_mean_v1` | shared `comparison_quotes_same_line` under `nba_market_consensus_mean_v1` | shared `comparison_quotes_same_line` under `nfl_market_consensus_mean_v1` | shared `comparison_quotes_same_line` under `golf_binary_market_consensus_mean_v1`; dormant `golf_multiway_market_consensus_mean_v1` requires each comparison book's complete source-level outcome set |
 
 NFL candidates also retain adapter-local `season_phase`, `tie_possible`, and `tie_treatment` audit fields. These narrow the NFL identity contract without changing `promotion_decision_brief_v2` or any global schema.
+
+Golf candidates retain adapter-local organizer/tour, event-edition, format, scheduled-round/hole, field-version, player/tee-time, round/course, cut, participant-set, outcome-set, market-wrapper, minimum-action, DNS/WD/DQ, tie/playoff/dead-heat, shortened-event, house-rule-version, and official-finality audit fields. These narrow the Golf specification without changing `promotion_decision_brief_v2` or any current global schema. Activation requires a separately approved schema evolution because the current event and decision-brief structures cannot canonically carry the complete Golf identity and outcome vectors.
 
 ### 5.2 Standard refresh phases
 

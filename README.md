@@ -25,12 +25,13 @@ The system should reduce screen-watching and bookkeeping. It should not invent p
 - **`SPORT_ADAPTERS/WNBA.md`** — authoritative WNBA market identities, signal registry, source policy, refresh cadence, gates, and validation fixtures.
 - **`SPORT_ADAPTERS/NBA.md`** — authoritative NBA specification for registered disabled full-game and player-points profiles, including credential-free fixtures.
 - **`SPORT_ADAPTERS/NFL.md`** — authoritative NFL specification for registered disabled full-game profiles, tie handling, operational context, and credential-free fixtures.
+- **`SPORT_ADAPTERS/GOLF.md`** — authoritative Golf specification for registered disabled Missouri individual-stroke-play profiles, settlement variants, operational context, and credential-free fixtures.
 
-`SPORT_ADAPTERS/ADAPTER_TEMPLATE.md` is also the structural conformance contract for existing adapters, version `adapter_contract_v1`. The catalog separates four adapter records from their fifteen profile records so adapter versioning cannot be confused with profile lifecycle. The closed lifecycle distribution is one `active`, three `pilot_enabled`, and eleven `disabled_provider_validation`.
+`SPORT_ADAPTERS/ADAPTER_TEMPLATE.md` is also the structural conformance contract for existing adapters, version `adapter_contract_v1`. The catalog separates five adapter records from their twenty-one profile records so adapter versioning cannot be confused with profile lifecycle. The closed lifecycle distribution is one `active`, three `pilot_enabled`, and seventeen `disabled_provider_validation`.
 
 For an active run, never use the reusable prompt in `PROMO_ANALYSIS_PLAYBOOK.md` alone. Pair it with `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`, `SPORT_ADAPTERS/README.md`, and the selected sport adapter. Statistical/manual probability, Tier D feature collection, live monitoring, automated alerts, and settlement language in the broad prompt remain future roadmap context.
 
-The monitoring playbook owns global valuation, freshness, material-change, and candidate-state rules. The adapter location named by the catalog owns sport-specific market identity, sources, signals, cadence, gates, and fixtures. WNBA, NBA, and NFL authority is delegated to `SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, and `SPORT_ADAPTERS/NFL.md`; the established MLB player-hits registry remains in Section 6 of the monitoring playbook. An adapter may narrow global rules but cannot replace existing formulas, canonical schemas, decision-brief contracts, or human-control boundaries.
+The monitoring playbook owns global valuation, freshness, material-change, and candidate-state rules. The adapter location named by the catalog owns sport-specific market identity, sources, signals, cadence, gates, and fixtures. WNBA, NBA, NFL, and Golf authority is delegated to `SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, `SPORT_ADAPTERS/NFL.md`, and `SPORT_ADAPTERS/GOLF.md`; the established MLB player-hits registry remains in Section 6 of the monitoring playbook. An adapter may narrow global rules but cannot replace existing formulas, canonical schemas, decision-brief contracts, or human-control boundaries.
 
 ## Stable product and experimental pilot
 
@@ -50,6 +51,8 @@ The additional experimental pilot covers on-demand WNBA promotion analysis for p
 
 NBA and NFL now have standalone `adapter_contract_v1` specifications, but no profile in either adapter is runnable. The registered NBA profiles are full-game moneyline, principal half-point spread, principal half-point total, and exact non-push player points. The registered NFL profiles are full-game moneyline, principal half-point spread, and principal half-point total. All seven remain `disabled_provider_validation` pending real promotion evidence, exact source and settlement validation, and separate activation approval. NBA rebounds, assists, and made-threes are unavailable by catalog absence; NFL player props, including passing- and rushing-yard props, are unregistered.
 
+Golf has a standalone `adapter_contract_v1` specification for `golf.player.make_cut`, `golf.player.round_score_total`, `golf.player.round_matchup`, `golf.player.tournament_matchup`, `golf.player.top_n_finish`, and `golf.tournament.outright_winner`. All six remain `disabled_provider_validation`. The discovery scope is an individual stroke-play tournament offered by FanDuel or DraftKings in Missouri, but a book listing does not establish adapter support: exact organizer, event format, field, competition, market-wrapper, and settlement rules still must pass the Golf contract. Each-way, first-round-leader, group/3-ball/4-ball, live, parlay, team, match-play, Stableford, skins, and other absent Golf profiles remain unavailable by catalog absence.
+
 There is no registered soccer or World Cup adapter. Soccer references in `PROJECT_CONTEXT.md` are concept-only roadmap hypotheses and cannot produce a run or candidate. World Cup discovery/design remains a separate future phase.
 
 ## Current operating posture
@@ -58,6 +61,7 @@ There is no registered soccer or World Cup adapter. Soccer references in `PROJEC
 - Pregame WNBA full-game moneyline, non-push spread, and non-push total are `pilot_enabled` for supervised, on-demand analysis.
 - NBA `nba.full_game.moneyline`, `nba.full_game.spread`, `nba.full_game.total`, and `nba.player.points` are registered but `disabled_provider_validation`; their contract and fixtures do not authorize candidate generation.
 - NFL `nfl.full_game.moneyline`, `nfl.full_game.spread`, and `nfl.full_game.total` are registered but `disabled_provider_validation`; their contract and fixtures do not authorize candidate generation.
+- Golf `golf.player.make_cut`, `golf.player.round_score_total`, `golf.player.round_matchup`, `golf.player.tournament_matchup`, `golf.player.top_n_finish`, and `golf.tournament.outright_winner` are registered but `disabled_provider_validation`; Missouri book availability is discovery evidence only, and their contract and fixtures do not authorize candidate generation.
 - Fair probability comes from de-vigged, same-line market consensus. The pilot requires at least two usable comparison books from two distinct configured pricing-origin groups, and the target sportsbook never counts toward that minimum.
 - One comparison book is an outlier or staleness cross-check, not consensus. A one-sided ladder without an exact opposing price at that source is non-de-viggable and cannot count as a recommendation-grade comparison pair. A conditionally equivalent target milestone still requires complete exact pairs from two independent non-target pricing origins.
 - The promotion or boost is expected to supply most of the opportunity value.
@@ -65,7 +69,7 @@ There is no registered soccer or World Cup adapter. Soccer references in `PROJEC
 - Starter-workload, plate-appearance, player-skill, matchup, bullpen-projection, park/atmosphere, defense/catcher, and stolen-base features remain disabled Tier D inputs until a named validated model consumes them.
 - The WNBA pilot uses official availability and game-state facts to invalidate stale price batches; missing league-wide starting-five confirmation alone does not block a full-game market.
 - WNBA points, rebounds, assists, and made-threes remain `disabled_provider_validation`; whole-number spread/total and other unavailable WNBA profiles must not generate candidates.
-- Every structurally valid NBA or NFL case still returns `BLOCKED` with `ADAPTER_PROFILE_DISABLED` until its exact profile receives separate activation approval. Synthetic fixtures document fail-closed behavior and never establish provider certification or promotion evidence.
+- Every structurally valid NBA, NFL, or Golf case still returns `BLOCKED` with `ADAPTER_PROFILE_DISABLED` until its exact profile receives separate activation approval. Synthetic fixtures document fail-closed behavior and never establish provider certification or promotion evidence.
 - All independent statistical models and manual probability overrides remain disabled.
 - Live-betting monitoring is deferred.
 - The active surface is an on-demand local decision brief. Scheduled/background polling and automatic alerts require separate approval.

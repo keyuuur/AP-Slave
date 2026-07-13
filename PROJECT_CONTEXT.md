@@ -393,6 +393,8 @@ event:
 
 ## 8.3 Market quote
 
+The current canonical `event` and `market_quote` objects are team-event and single-outcome shaped. The Golf adapter's tournament field, participant-set, event-edition, cut, course/round, and complete outcome-vector fields therefore remain adapter-local decision-brief/audit annotations. Registering the Golf contract is not a persisted-schema migration. Activating a Golf profile requires a separately reviewed schema evolution that can represent tournament fields and source-level outcome vectors without overloading `home_team_id`, `away_team_id`, `participant_id`, or `side`.
+
 ```yaml
 market_quote:
   quote_id: string
@@ -538,7 +540,7 @@ This assumes only profit is multiplied. The engine must support separate calcula
 
 `p_break_even = 1 / D_boosted`
 
-## 10.4 No-vig market probability
+## 10.4 Binary no-vig market probability
 
 For a two-way market with decimal prices `D_over` and `D_under`:
 
@@ -548,13 +550,41 @@ For a two-way market with decimal prices `D_over` and `D_under`:
 
 `p_over = q_over / (q_over + q_under)`
 
-Store the de-vig method. Alternative methods may be added and compared.
+Store the de-vig method. This per-book binary normalization remains the only enabled market-consensus calculation for lifecycle-enabled MLB and WNBA profiles. Registered NBA and NFL profiles retain the same binary requirement but remain disabled. Alternative methods may be added and compared only after their exact profile and activation requirements are satisfied.
+
+### 10.4.1 Inactive complete-outcome-set normalization
+
+The following proportional multiway method is specified for future Golf validation only; it is not implemented or enabled by registering the Golf adapter.
+
+For one sportsbook's complete source-level outcome set with decimal prices `D_i`:
+
+`q_i = 1 / D_i`
+
+`p_i = q_i / sum(q_j)`
+
+The set must be mutually exclusive, collectively exhaustive, tied to one exact market identity and settlement contract, and captured from one book under one field version. Normalize each comparison book separately, then aggregate only the resulting source-level fair probabilities under the existing named, versioned two-independent-origin discipline. Never combine outcomes across books to complete a set.
+
+Standard Top-N finish markets are overlapping propositions rather than mutually exclusive outcomes, so they cannot be normalized as one multiway field. An incomplete, changing, or non-exhaustive set has no valid probability output.
 
 ## 10.5 Expected value
 
 `EV_unit = p_estimated * D_boosted - 1`
 
 `Expected dollars = stake * EV_unit`
+
+For a future push-capable outcome whose stake is returned on a push:
+
+`EV_unit = p_win * D + p_push - 1`
+
+Here `D` is the applicable decimal return including stake, after a valid promotion transformation when appropriate. A two-way display cannot infer `p_push`; without an independently validated push probability, the outcome remains blocked with `PUSH_MODEL_UNAVAILABLE`. This formula is an inactive specification and does not activate whole-number totals, tie-refund matchups, or any other push-capable profile.
+
+### 10.5.1 Inactive dead-heat settlement specification
+
+For a dead heat with `remaining_places` payable positions shared by `tied_players`:
+
+`h = remaining_places / tied_players`
+
+The settlement fraction `h` changes the realized payout. A pre-event standard Top-N expected-value calculation requires exact sportsbook settlement terms and a validated distribution for the possible value of `h`; the displayed odds alone do not supply that distribution. Until both exist, return `DEAD_HEAT_RULE_UNRESOLVED` or `PROBABILITY_METHOD_UNAVAILABLE` as applicable and do not calculate recommendation-grade EV.
 
 ## 10.6 Ranking a one-use token
 
@@ -588,7 +618,7 @@ A candidate can use one of four methods.
 
 ## 11.1 Market consensus
 
-Use comparable prices across books, normalize the market, remove vig, and aggregate robustly.
+Use comparable prices across books, require each book's complete method-specific source-level outcome set, normalize each book separately, and aggregate only the resulting source-level fair probabilities. Lifecycle-enabled MLB and WNBA profiles use complete binary opposing pairs; disabled NBA and NFL profiles retain that binary requirement. Golf's multiway specification remains inactive.
 
 Advantages:
 
@@ -755,7 +785,7 @@ A top candidate should be downgraded or blocked when:
 
 This section is a broad roadmap hypothesis inventory, not an adapter catalog and not run authorization. Inclusion does not imply active collection, proven predictive value, an enabled model, provider permission, or a selectable profile. Current authority and lifecycle come only from `SPORT_ADAPTERS/README.md` and the selected adapter location.
 
-The current catalog contains four adapter records and fifteen profile records: one `active`, three `pilot_enabled`, and eleven `disabled_provider_validation`. MLB Section 6 of `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`, `SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, and `SPORT_ADAPTERS/NFL.md` define which of the ideas below are registered, runnable, disabled, model-only, or excluded. NBA and NFL are credential-free contract and fixture specifications only; all seven of their registered profiles remain disabled and cannot generate candidates. All other sport sections remain conceptual.
+The current catalog contains five adapter records and twenty-one profile records: one `active`, three `pilot_enabled`, and seventeen `disabled_provider_validation`. MLB Section 6 of `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`, `SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, `SPORT_ADAPTERS/NFL.md`, and `SPORT_ADAPTERS/GOLF.md` define which of the ideas below are registered, runnable, disabled, model-only, or excluded. NBA, NFL, and Golf are credential-free contract and fixture specifications only; all thirteen of their registered profiles remain disabled and cannot generate candidates. Sport sections without a catalog record remain conceptual.
 
 ## 13.1 MLB
 
@@ -843,7 +873,19 @@ The registered NFL profiles are `nfl.full_game.moneyline`, `nfl.full_game.spread
 - coaching changes;
 - market total and spread.
 
-## 13.4 NHL
+## 13.4 Golf
+
+The registered Golf adapter is `golf.pregame_stroke_play_v0_1` version `0.1.0`. Its profiles are `golf.player.make_cut`, `golf.player.round_score_total`, `golf.player.round_matchup`, `golf.player.tournament_matchup`, `golf.player.top_n_finish`, and `golf.tournament.outright_winner`. All six are `disabled_provider_validation`: they may support contract review and credential-free fixture validation only, and every structurally valid request still returns `BLOCKED` with `ADAPTER_PROFILE_DISABLED` without probability, EV, ranking, polling, or candidate generation.
+
+Tournament discovery is limited to individual stroke-play events offered by FanDuel or DraftKings in Missouri. Book availability creates only a slate candidate. It does not establish competition support, provider coverage, settlement equivalence, outcome-set completeness, or activation. `SPORT_ADAPTERS/GOLF.md` owns the exact organizer/tour, event-edition, format, scheduled-holes, field-version, player/tee status, round/course, cut, DNS/WD/DQ, tie/playoff/dead-heat, shortening, house-rule, and official-finality requirements.
+
+FanDuel Missouri house rules are the intended FanDuel settlement authority. DraftKings' current Golf rules are a reference pending exact Missouri terms, effective date, market title, and bet-slip evidence. Official organizer and tournament pages remain manual references unless their terms permit automation; PGA TOUR public pages are not an automated retrieval path under the current terms. NWS may provide permitted U.S. operational-weather facts only. Target-book evidence remains verified screenshot/structured manual entry or a separately approved feed.
+
+Golf inherits the 180-second target-quote limit, 300-second comparison-quote limit, 300-second maximum collection skew, target exclusion, two independent non-target pricing origins, synchronized post-change refresh, and all six standard refresh phases. These inherited rules do not make a disabled profile runnable. Minimum odds such as `-100` or `-200` are parsed from each promotion and applied to the odds basis explicitly named by its terms; ambiguous pre- versus post-boost treatment is `PROMO_TERMS_AMBIGUOUS`.
+
+Golf tournament fields and complete source-level outcome vectors remain adapter-local audit data. `promotion_decision_brief_v2` and the canonical persisted schemas are unchanged. A future activation requires separate schema evolution, deterministic implementation and tests for the applicable valuation shape, provider and competition-rule validation, and explicit lifecycle approval.
+
+## 13.5 NHL
 
 **Availability and role**
 
@@ -864,7 +906,7 @@ The registered NFL profiles are `nfl.full_game.moneyline`, `nfl.full_game.spread
 - goalie quality;
 - line-mate changes.
 
-## 13.5 College basketball live triggers
+## 13.6 College basketball live triggers
 
 **Game state**
 
@@ -881,7 +923,7 @@ The registered NFL profiles are `nfl.full_game.moneyline`, `nfl.full_game.spread
 
 A rule such as “both teams in the bonus in the first half” should include timing, score, pace, and price constraints and must be evaluated out of sample.
 
-## 13.6 Soccer
+## 13.7 Soccer
 
 **Status:** Concept-only roadmap hypotheses. No soccer or World Cup adapter/profile is registered, selectable, or runnable. A future phase must first discover exact promotion terms, market identities, settlement rules, source permissions, consensus coverage, materiality, and refresh behavior using `SPORT_ADAPTERS/ADAPTER_TEMPLATE.md`.
 
@@ -896,7 +938,7 @@ A rule such as “both teams in the bonus in the first half” should include ti
 - goalkeeper changes;
 - market liquidity and lineup timing.
 
-## 13.7 Adding a new sport or market
+## 13.8 Adding a new sport or market
 
 Every adapter must conform to `adapter_contract_v1` and define:
 
@@ -906,7 +948,7 @@ Every adapter must conform to `adapter_contract_v1` and define:
 4. feature registry;
 5. freshness thresholds;
 6. data-quality gates;
-7. pricing method;
+7. pricing method and complete source-level outcome-set requirement;
 8. settlement rules;
 9. test fixtures;
 10. report language.

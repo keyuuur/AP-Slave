@@ -5,8 +5,8 @@
 **Default timezone:** America/Chicago  
 **Stable profile:** Pregame MLB player hits  
 **Experimental pilot profiles:** Pregame WNBA full-game moneyline, non-push spread, and non-push total  
-**Specified disabled profiles:** Four NBA and three NFL pregame profiles registered for contract and credential-free fixture work only
-**Fair-probability method:** de-vigged, same-line market consensus
+**Specified disabled profiles:** Four NBA, three NFL, and six Golf pregame profiles registered for contract and credential-free fixture work only
+**Fair-probability method:** de-vigged, exact-market same-line consensus using the selected adapter's complete source-level outcome set
 
 ---
 
@@ -22,7 +22,7 @@ Document responsibilities:
 - `PROMO_ANALYSIS_PLAYBOOK.md` owns intake, analysis, QA, reason codes, decision-brief structure, and alert format.
 - This file owns active market profiles, signal tiers, refresh rules, material-change definitions, state effects, and explicit noise exclusions.
 - `SPORT_ADAPTERS/README.md` owns the sport-adapter catalog, lifecycle vocabulary, and adapter selection rules.
-- For a catalog entry whose authority is delegated under `SPORT_ADAPTERS/`, the selected adapter owns that sport's market identities, sport-specific signal registry, source policy, refresh cadence, profile-level gates, and validation fixtures. WNBA, NBA, and NFL authority is delegated to `SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, and `SPORT_ADAPTERS/NFL.md`. Those adapters may narrow this file's global rules but may not weaken or contradict them. The established MLB player-hits registry remains in Section 6 of this file.
+- For a catalog entry whose authority is delegated under `SPORT_ADAPTERS/`, the selected adapter owns that sport's market identities, sport-specific signal registry, source policy, refresh cadence, profile-level gates, and validation fixtures. WNBA, NBA, NFL, and Golf authority is delegated to `SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, `SPORT_ADAPTERS/NFL.md`, and `SPORT_ADAPTERS/GOLF.md`. Those adapters may narrow this file's global rules but may not weaken or contradict them. The established MLB player-hits registry remains in Section 6 of this file.
 
 AP Frankenstein remains a separate downstream system. If the user manually places a wager, its existing receipt-screenshot workflow may later handle spreadsheet logging and settlement. This project makes no AP Frankenstein edits, API calls, spreadsheet writes, or new integration contract in v0.1, and it does not treat a candidate as a placed wager.
 
@@ -53,6 +53,7 @@ Disabled until a later approved phase:
 - independent statistical prediction models;
 - manual probability overrides;
 - every registered NBA and NFL profile until its exact provider-validation evidence passes and activation is separately approved;
+- every registered Golf profile until its exact competition-rule, settlement, provider, and valuation evidence passes and activation is separately approved;
 - WNBA player points, rebounds, assists, and made-threes candidate generation until provider validation passes and activation is separately approved;
 - WNBA whole-number spread/total, team-total, alternate-line, combination, partial-game, and same-game-parlay profiles;
 - live betting or live game-state triggers;
@@ -115,16 +116,16 @@ Disabled future profiles may list signal families in prose while they remain ina
 
 ## 4. Global valuation and state rules
 
-1. Fair probability comes from de-vigged comparison prices at the **same market and line**.
+1. Fair probability comes from comparison prices at the **same market identity, line, and settlement contract**, normalized within each book's complete method-required source-level outcome set.
 2. Never compare different thresholds as though they were identical.
-3. If no valid same-line consensus exists, show the promotion's boosted price and break-even probability, but do not label the candidate positive EV or `ACTIONABLE FOR REVIEW`.
+3. If no valid exact-market source-level consensus exists, show the promotion's boosted price and break-even probability, but do not label the candidate positive EV or `ACTIONABLE FOR REVIEW`.
 4. Never modify probability free-form because of weather, injury news, bullpen news, lineup changes, or other narratives.
 5. Never apply a separate context adjustment after retrieving post-change consensus prices. That would double-count the same information.
 6. A material sport fact newer than the target or comparison snapshot changes the candidate to `WATCH` and triggers synchronized target/comparison refreshes.
 7. If post-change prices remain unavailable near placement time, change the candidate to `BLOCKED`.
 8. A lineup or role fact is a hard gate only when the selected market profile defines it as critical. An unconfirmed MLB batting lineup remains `WATCH`; missing league-wide WNBA starting-five confirmation alone does not block a full-game WNBA market.
 9. A confirmed player scratch is `INELIGIBLE` when it clearly violates the promotion or market rules; otherwise it is `BLOCKED` pending exact book treatment.
-10. A candidate can become `ACTIONABLE FOR REVIEW` only when promotion eligibility, exact market identity, target price, same-line consensus, critical sport state, freshness, and QA all pass.
+10. A candidate can become `ACTIONABLE FOR REVIEW` only when promotion eligibility, exact market identity, target price, method-valid source-level consensus, critical sport state, freshness, and QA all pass.
 11. Tier A or Tier C context may never add or subtract ranking points. Any post-change re-rank must be caused by refreshed Tier B prices or an enabled, validated model.
 
 Every candidate snapshot must record `next_refresh_at` and `next_refresh_reason`.
@@ -133,20 +134,17 @@ For the documentation pilot, represent the monitoring-only values as `monitoring
 
 The normalized local structured output is `promotion_decision_brief_v2` from `PROMO_ANALYSIS_PLAYBOOK.md`. It adds adapter/profile/version, raw/canonical identity, consensus-origin audit, settlement, and next-refresh metadata while retaining existing v1 fields. It does not change the canonical persisted data model.
 
-### 4.1 Valid same-line consensus gate
+### 4.1 Valid exact-market source-level consensus gate
 
 This gate operationalizes the existing market-consensus method without replacing the formulas or probability contracts in `PROJECT_CONTEXT.md` and `PROMO_ANALYSIS_PLAYBOOK.md`.
 
 For every active or pilot-enabled profile, the target sportsbook is excluded from both the fair-probability calculation and the usable comparison-source count. A valid consensus requires at least two usable comparison books assigned to two distinct pricing-origin groups in a named, versioned configuration. Multiple providers, feeds, skins, aliases, or jurisdictions representing the same underlying sportsbook or configured pricing origin count once. A source whose independence is unresolved does not satisfy the two-source actionability gate until its pricing-origin group is resolved.
 
-A usable comparison book must provide both:
+A usable comparison book must provide the complete source-level outcome set required by the selected adapter's named, versioned de-vig method. For every existing MLB, WNBA, NBA, and NFL profile, that requirement remains exactly the candidate outcome plus its exact binary opposing outcome; this additive terminology does not change or weaken their behavior. A future multiway method may qualify only when one book supplies every mutually exclusive and collectively exhaustive outcome under one exact field version and settlement contract. Golf's disabled contract may describe such a set, but description alone does not implement or activate its valuation path.
 
-- the candidate outcome; and
-- the exact opposing outcome required by the configured de-vig method.
+Every outcome in the set must refer to the same event, participant set, canonical market, threshold where applicable, wrapper, and settlement rules. Raw labels may differ only where an explicit equivalence mapping exists, and every raw label must still be retained. All required quotes must be open, current, correctly identified, and within the configured collection-time limits. Never complete a binary pair or multiway set by combining outcomes from different books.
 
-Both outcomes must refer to the same event, participant, canonical market, threshold, and settlement rules. Raw labels may differ only where an explicit equivalence mapping exists, and every raw label must still be retained. Both quotes must be open, current, correctly identified, and within the configured collection-time limits. Never create a synthetic two-way market by pairing one book's candidate price with another book's opposing price.
-
-De-vig each comparison book's two-sided market separately using the named, versioned method. Aggregate only the resulting source-level fair probabilities using the named, versioned aggregation method. Never aggregate raw prices or raw implied probabilities before source-level de-vigging, and never include the target book's implied or de-vigged probability in the consensus used to evaluate that target price.
+Normalize each comparison book's complete outcome set separately using the named, versioned method. Aggregate only the resulting source-level fair probabilities using the named, versioned aggregation method. Never aggregate raw prices or raw implied probabilities before source-level normalization, and never include the target book's implied or de-vigged probability in the consensus used to evaluate that target price.
 
 A one-sided ladder such as `1+ Hits` without an exact `No Hit` or equivalent opposing quote is non-de-viggable. Do not infer the missing side from an adjacent threshold, another sportsbook, a sportsbook-margin assumption, or the complement of the displayed price. It may support target-price and boosted break-even reporting, but it does not count toward recommendation-grade consensus.
 
@@ -156,7 +154,7 @@ The versioned consensus configuration must define:
 - each source's pricing-origin group and duplicate or related-source treatment;
 - a pilot minimum of two usable comparison books from two distinct pricing-origin groups;
 - raw-to-canonical market equivalence, exact threshold matching, and settlement-rule matching;
-- the source-level de-vig method and required opposing-side inputs;
+- the source-level de-vig method and required complete outcome-set inputs;
 - the source-level fair-probability aggregation method;
 - maximum comparison-quote age; and
 - maximum collection-time skew across all included quotes.
@@ -168,16 +166,42 @@ Every consensus report or audit snapshot must show:
 - usable comparison-book count;
 - distinct pricing-origin-group count;
 - included and excluded sources with reason codes;
-- each included book's two-sided inputs and source-level de-vigged probability;
+- each included book's method-required outcome-set inputs and source-level de-vigged probability;
 - aggregation method and version;
 - consensus fair probability;
 - dispersion as the maximum minus minimum included source-level fair probability, in percentage points;
 - oldest included comparison-quote age in seconds; and
 - collection-time skew in seconds, measured from the earliest and latest included retrieval timestamps.
 
-Closed, suspended, stale, line-mismatched, unidentified, one-sided, duplicate, or otherwise ineligible quotes do not count toward coverage. If fewer than two usable independent comparison books remain, consensus is invalid: use `WATCH` during research and `BLOCKED` at the final placement check. The brief may still show the target price, boosted price, break-even probability, and non-consensus comparisons, but it may not label the candidate positive EV or `ACTIONABLE FOR REVIEW`.
+Closed, suspended, stale, line-mismatched, unidentified, incomplete-outcome-set, duplicate, or otherwise ineligible quotes do not count toward coverage. If fewer than two usable independent comparison books remain, consensus is invalid: use `WATCH` during research and `BLOCKED` at the final placement check. The brief may still show the target price, boosted price, break-even probability, and non-consensus comparisons, but it may not label the candidate positive EV or `ACTIONABLE FOR REVIEW`.
 
 Phase 0 provider validation still determines the eligible source set, pricing-origin grouping, aggregation method, and time-skew limits. The minimum comparison coverage is no longer deferred: the pilot default is two usable comparison books from two distinct configured pricing-origin groups.
+
+### 4.2 Inactive Golf valuation specifications
+
+These formulas define fail-closed Golf contract and fixture behavior only. They do not implement an engine, make a Golf profile runnable, or change the existing MLB/WNBA/NBA/NFL binary path.
+
+For one book's complete multiway outcome set with decimal prices `D_i`, proportional normalization is:
+
+`q_i = 1 / D_i`
+
+`p_i = q_i / sum(q_j)`
+
+The outcomes must be mutually exclusive and collectively exhaustive under one exact event, market, field version, wrapper, and settlement contract. Normalize each book separately, then apply the same target exclusion, two-independent-origin minimum, and named source-level aggregation discipline as the binary path. An incomplete set returns `OUTCOME_SET_INCOMPLETE`; a market shape without an applicable supported method returns `PROBABILITY_METHOD_UNAVAILABLE`. Standard Top-N propositions overlap and therefore must not be treated as one multiway-normalizable field.
+
+For a future push-capable outcome whose stake is returned on a push:
+
+`EV_unit = p_win * D + p_push - 1`
+
+Two-way prices do not identify `p_push`. A tie-refund matchup, whole-number total, or other push-capable shape remains blocked with `PUSH_MODEL_UNAVAILABLE` until an independently validated push probability exists.
+
+For dead-heat settlement:
+
+`h = remaining_places / tied_players`
+
+Standard Top-N payout depends on `h`. Do not calculate pre-event EV without exact settlement terms and a validated distribution for `h`; unresolved treatment returns `DEAD_HEAT_RULE_UNRESOLVED`. An organizer, format, cut, completion, shortening, or official-result rule that cannot be established returns `COMPETITION_RULE_UNRESOLVED`.
+
+All Golf tournament-field and outcome-vector values remain adapter-local audit annotations. `promotion_decision_brief_v2` and the canonical persisted schemas remain unchanged; activation requires separately reviewed schema evolution and deterministic implementation tests.
 
 ---
 
@@ -187,7 +211,7 @@ Phase 0 provider validation still determines the eligible source set, pricing-or
 |---|---|---|---|---|---|---|---|---|---|
 | `promo_terms` | all active profiles | A | sportsbook-originated terms or verified user evidence | intake, new terms evidence, final pre-use check | through stated expiry; reverify before use | any eligibility, cap, odds-range, market, token, or expiry change | `INELIGIBLE` or `BLOCKED` | none | always show material terms and confidence |
 | `target_quote` | all active profiles | A/B | documented target-book provider; verified screenshot/manual entry fallback | every run and immediately before human placement | 180 seconds for pilot actionability | line, side, price, status, or book changes | re-rank; stale/missing becomes `BLOCKED` | target return and EV | always show price, status, source, and age |
-| `comparison_quotes_same_line` | all active profiles | B | documented comparison provider(s) from configured pricing-origin groups | every run and after any material sport change | 300 seconds for pilot actionability | price, line, source set, independence, or market status changes | re-rank; invalid consensus becomes `WATCH` or `BLOCKED` | source-level de-vig followed by configured aggregation | show target exclusion, raw/usable/origin counts, included and excluded sources, per-source fair probabilities, dispersion, oldest age, and collection-time skew |
+| `comparison_quotes_same_line` | all active profiles | B | documented comparison provider(s) from configured pricing-origin groups | every run and after any material sport change | 300 seconds for pilot actionability | price, line, outcome-set membership, source set, independence, or market status changes | re-rank; invalid consensus becomes `WATCH` or `BLOCKED` | per-book normalization of the complete method-required source-level outcome set followed by configured aggregation | show target exclusion, raw/usable/origin counts, included and excluded sources, method-required source inputs, per-source fair probabilities, dispersion, oldest age, and collection-time skew |
 | `market_status` | all active profiles | A | target and comparison providers | every quote refresh | same as quote | open, suspended, closed, or unknown changes | suspended/closed becomes `BLOCKED` | none | report only non-open state or change |
 | `promo_expiration` | all active profiles | A | verified promotion terms | every run | current | enters warning window or expires | warning or `INELIGIBLE` | none | show time remaining |
 
@@ -457,9 +481,9 @@ Use deterministic promotion, odds, no-vig, EV, expected-dollar, freshness, and r
 
 ---
 
-## 7. Delegated basketball and football lifecycle registry
+## 7. Delegated basketball, football, and Golf lifecycle registry
 
-`SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, and `SPORT_ADAPTERS/NFL.md` are the authoritative league capability contracts. They define exact market identities, complete ten-field Tier A/B/C signal registries, source compliance, league-specific refresh behavior, model-only and noise boundaries, provider-validation evidence, and fixtures. This section records lifecycle state only; do not duplicate or weaken adapter rules here.
+`SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, `SPORT_ADAPTERS/NFL.md`, and `SPORT_ADAPTERS/GOLF.md` are the authoritative delegated capability contracts. They define exact market identities, complete ten-field Tier A/B/C signal registries, source compliance, sport-specific refresh behavior, model-only and noise boundaries, provider-validation evidence, and fixtures. This section records lifecycle state only; do not duplicate or weaken adapter rules here.
 
 | Profile | Status | Current boundary |
 |---|---|---|
@@ -477,8 +501,14 @@ Use deterministic promotion, odds, no-vig, EV, expected-dollar, freshness, and r
 | `nfl.full_game.moneyline` | `disabled_provider_validation` | pregame, full game, tie and push proven impossible; no polling or candidate generation |
 | `nfl.full_game.spread` | `disabled_provider_validation` | pregame, full game, principal reciprocal half-point line only; no polling or candidate generation |
 | `nfl.full_game.total` | `disabled_provider_validation` | pregame, full game, principal half-point total only; no polling or candidate generation |
+| `golf.player.make_cut` | `disabled_provider_validation` | pregame Yes/No on the first official cut; no polling or candidate generation |
+| `golf.player.round_score_total` | `disabled_provider_validation` | exact player, round, course, and half-point 18-hole total; no polling or candidate generation |
+| `golf.player.round_matchup` | `disabled_provider_validation` | exact two-player pre-round matchup with two-way, tie-refund, and three-way shapes kept distinct; no polling or candidate generation |
+| `golf.player.tournament_matchup` | `disabled_provider_validation` | exact whole-tournament matchup with cut, completion, WD/DQ, and tie treatment; no polling or candidate generation |
+| `golf.player.top_n_finish` | `disabled_provider_validation` | exact Top 5/10/20 wrapper and dead-heat/boundary treatment; no polling or candidate generation |
+| `golf.tournament.outright_winner` | `disabled_provider_validation` | exact exhaustive field version and playoff/dead-heat treatment; no polling or candidate generation |
 
-Together with `mlb.player_hits` in Section 6, the registry contains exactly fifteen profiles: one `active`, three `pilot_enabled`, and eleven `disabled_provider_validation`. No disabled profile may poll sources, produce candidates, generate alerts, or become actionable. WNBA pilot profiles run only on demand and produce a local decision brief; their `pilot_enabled` state does not activate recurring schedules, background monitoring, or outbound alerts.
+Together with `mlb.player_hits` in Section 6, the registry contains exactly twenty-one profiles across five adapters: one `active`, three `pilot_enabled`, and seventeen `disabled_provider_validation`. No disabled profile may poll sources, produce candidates, generate alerts, calculate recommendation-grade probability or EV, rank candidates, or become actionable. WNBA pilot profiles run only on demand and produce a local decision brief; their `pilot_enabled` state does not activate recurring schedules, background monitoring, or outbound alerts.
 
 For WNBA game lines, a current official injury-report submission and post-change price batch are critical, while a league-wide confirmed starting five is not. Any official availability, roster, transaction, game-status, or confirmed role change newer than the quote batch changes affected candidates to `WATCH` and triggers synchronized target/comparison refreshes. The fact itself never changes probability. Exact WNBA player availability becomes a hard gate when a player-prop profile is later activated.
 
@@ -491,6 +521,10 @@ The current official NBA injury-report entry point must be reverified by season 
 `SPORT_ADAPTERS/NFL.md` owns the NFL event, injury-report, availability, quarterback, inactive-list, roster, venue, operational-weather, tie-treatment, and post-change synchronization rules. NFL.com sources remain manual/on-demand references unless licensed. Schedule or flex changes are material event changes. NFL player props, including passing- and rushing-yard props, are unregistered.
 
 NBA and NFL adapters inherit the shared signals in Section 5, the 180-second target and 300-second comparison limits, the configured 300-second collection-skew limit, target exclusion, two independent pricing origins, per-book de-vigging, and all six standard refresh phases. They extend those rules through league-local signals and identity fields; they do not redefine the shared signals, global formulas, reason codes, `promotion_decision_brief_v2`, or the human-control boundary.
+
+`SPORT_ADAPTERS/GOLF.md` owns Golf organizer/tour, competition edition, individual-stroke-play format, scheduled-hole, field-version, player/tee-time, round/course, cut, participant-set, DNS/WD/DQ, tie/playoff/dead-heat, shortening, house-rule, and official-finality rules. Tournament discovery is limited to events offered by FanDuel or DraftKings in Missouri, but book availability creates only a slate candidate and never activates a profile. FanDuel Missouri house rules are the FanDuel settlement authority; DraftKings Golf rules remain a reference pending exact Missouri terms and bet-slip evidence. Official organizer pages are manual/on-demand references unless their terms permit automation, and PGA TOUR public pages are not an automated source under the current terms. NWS may provide permitted U.S. operational-weather facts only.
+
+Golf structurally inherits the shared signals in Section 5, target exclusion, the two-independent-origin minimum, 180-second target age, 300-second comparison age, 300-second collection skew, synchronized post-change refreshes, and all six phase IDs: `intake`, `distant_pregame`, `official_release_window`, `material_change`, `shortlist_check`, and `final_sync`. Those inherited contracts are fixture specifications while all six profiles remain disabled. Golf's participant fields and complete outcome vectors remain adapter-local audit data; `promotion_decision_brief_v2` and persisted schemas are unchanged, and activation requires separate schema evolution.
 
 ---
 
@@ -555,7 +589,7 @@ A new profile must be registered in `SPORT_ADAPTERS/README.md` and implemented f
 
 1. exact canonical and raw market identity;
 2. promotion eligibility inputs;
-3. same-line fair-probability method;
+3. exact-market fair-probability method and its complete source-level outcome-set shape;
 4. Tier A, B, and C signals with source hierarchy;
 5. freshness and material-change rules;
 6. candidate-state effects;
@@ -581,7 +615,7 @@ The documentation and later implementation must preserve these outcomes:
 | Outdoor delay or postponement risk unresolved | `WATCH` or `BLOCKED` |
 | Ordinary wind/temperature narrative with no enabled model | ignored for probability and ranking |
 | Confirmed material bullpen change after price snapshot | refresh prices only; no manual probability adjustment |
-| Same-line consensus unavailable | show break-even only; no positive-EV or actionable label |
+| Exact-market source-level consensus unavailable | show break-even only; no positive-EV or actionable label |
 | Target book supplies a complete two-sided market | exclude the target book from fair probability and comparison coverage |
 | FanDuel target plus DraftKings as the only usable comparison | `WATCH` during research and `BLOCKED` at the final placement check; show break-even only |
 | Multiple provider records represent one sportsbook or pricing origin | count the configured pricing-origin group once; duplicate records do not satisfy coverage |
@@ -590,7 +624,7 @@ The documentation and later implementation must preserve these outcomes:
 | Candidate side comes from one book and opposing side from another | reject the synthetic pair; do not de-vig across books |
 | Event, participant, period, overtime, push, void, participation, stat-counting, or settlement rules do not match | `BLOCKED` with `MARKET_IDENTITY_MISMATCH` and/or `SETTLEMENT_RULE_MISMATCH`; never treat the markets as equivalent |
 | `1+ Hits` has no exact `No Hit` equivalent | do not infer the missing side; no fair probability or positive-EV label |
-| Two independent books supply fresh complete same-line markets | de-vig each book separately, then aggregate the source-level fair probabilities |
+| Two independent books supply fresh complete method-required same-line outcome sets | normalize each book separately, then aggregate the source-level fair probabilities |
 | A comparison quote becomes stale, suspended, mismatched, or outside the collection-time skew | exclude it; downgrade to `WATCH` or `BLOCKED` if usable coverage falls below two |
 | Consensus is reported | show target exclusion, raw/usable/origin counts, source exclusions, per-source fair probabilities, dispersion, oldest age, and collection-time skew |
 | Post-change prices current and all critical gates pass | allow deterministic EV calculation and normal ranking |
@@ -625,6 +659,14 @@ The documentation and later implementation must preserve these outcomes:
 | NFL event/flex, availability, quarterback, inactive, roster, venue, or operational-weather change is newer than quotes | current result is `BLOCKED` with `ADAPTER_PROFILE_DISABLED` and synchronization false; after activation set `WATCH`, refetch every affected quote, and block at final check if synchronization remains unavailable |
 | NFL synchronized open post-change batch meets 180/300/300-second limits | clear only the future context-sync blocker and value from refreshed Tier B prices after activation; current result remains `BLOCKED` with `ADAPTER_PROFILE_DISABLED` |
 | Any otherwise structurally valid registered NFL request | `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; fixtures and provider exposure do not activate the profile |
+| Golf make-cut request for a no-cut event or an event whose first official cut cannot be established | `BLOCKED` with `COMPETITION_RULE_UNRESOLVED` and `ADAPTER_PROFILE_DISABLED`; no probability or EV |
+| Golf round-score total uses a whole-number line, wrong round/course, or incomplete-round treatment that can push or void | `BLOCKED` with `PUSH_MODEL_UNAVAILABLE` and/or `SETTLEMENT_RULE_MISMATCH`, plus `ADAPTER_PROFILE_DISABLED` |
+| Golf tie-refund round or tournament matchup supplies only two-way prices | do not infer push probability; `BLOCKED` with `PUSH_MODEL_UNAVAILABLE` and `ADAPTER_PROFILE_DISABLED` |
+| Golf three-way matchup or outright omits an outcome, changes field version, or combines outcomes across books | `BLOCKED` with `OUTCOME_SET_INCOMPLETE` and `ADAPTER_PROFILE_DISABLED`; do not normalize or aggregate |
+| Standard Golf Top-N dead-heat market is supplied | do not treat overlapping Top-N propositions as a multiway outcome set and do not calculate pre-event EV without a validated dead-heat settlement distribution; return `DEAD_HEAT_RULE_UNRESOLVED` or `PROBABILITY_METHOD_UNAVAILABLE`, plus `ADAPTER_PROFILE_DISABLED` |
+| Golf full-pay Top-N Yes/No market lacks an exact complementary outcome or identical settlement at either comparison book | `BLOCKED` with `OUTCOME_SET_INCOMPLETE` and `ADAPTER_PROFILE_DISABLED` |
+| Golf field, alternate, tee-time/course, DNS/WD/DQ, cut/format, suspension/resumption, shortening, venue, official-result, or settlement rule changes after quotes | record synchronization false and require a full affected target/comparison refresh; even a valid 180/300/300-second post-change batch remains `BLOCKED` with `ADAPTER_PROFILE_DISABLED` |
+| Any otherwise structurally valid registered Golf request | `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; do not calculate probability or EV, rank candidates, poll sources, or treat fixture/provider exposure as activation |
 | Live-betting request during v0.1 | `BLOCKED` with a clear note that live monitoring is deferred |
 
 ---

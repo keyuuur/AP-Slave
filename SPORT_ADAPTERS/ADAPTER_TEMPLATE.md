@@ -22,7 +22,7 @@ adapter:
   last_reviewed: "[YYYY-MM-DD]"
   review_owner: "[role or project]"
   run_mode: "[on_demand_local_brief]"
-  probability_method: "[de_vigged_same_line_market_consensus]"
+  probability_method: "[named exact-market source-level consensus method or none]"
   autonomous_wagering: false
   ap_frankenstein_integration: false
 ```
@@ -54,11 +54,17 @@ market_identity:
   raw_market_label: "[verbatim sportsbook label]"
   raw_selection_label: "[verbatim outcome label]"
   canonical_market_key: "[profile key]"
+  outcome_set_id: "[source-local set identifier or null]"
+  outcome_set_type: "[binary_pair|mutually_exclusive_exhaustive_multiway|other]"
+  outcome_set_completeness: "[complete|incomplete|unknown]"
+  participant_set_version: "[field/participant version or null]"
+  market_wrapper: "[standard|including_ties|oddsboost|tourney_special|other|null]"
   side: "[home|away|over|under|yes|no|other]"
   line: "[number or null]"
   period: "[full game or exact period]"
   overtime_treatment: "[included|excluded|unknown]"
   push_behavior: "[impossible|push|unknown]"
+  tie_or_dead_heat_treatment: "[not_applicable|refund|dead_heat|full_pay|unknown]"
   void_and_participation_rule: "[verified rule or unknown]"
   american_odds: "[integer]"
   decimal_odds: "[number]"
@@ -70,13 +76,25 @@ market_identity:
   ap_frankenstein_compatibility: "[direct|equivalent_but_not_supported|unsupported]"
 ```
 
+Fields added by an adapter that are not represented in `promotion_decision_brief_v2` or the canonical persisted schemas remain adapter-local audit annotations. Do not overload an existing global field or claim a schema migration without separate review.
+
 Define all approved raw-to-canonical equivalences in a table. Retain both raw values even when equivalence is approved.
 
 | raw market shape | canonical profile | equivalence conditions | settlement conditions | AP compatibility | status |
 |---|---|---|---|---|---|
 | `[raw example]` | `[profile]` | `[exact conditions]` | `[period/overtime/push/void match]` | `[label]` | `[approved or blocked]` |
 
-Reject mismatched thresholds, periods, participants, overtime rules, push behavior, or void/participation rules. Never manufacture an opposing side, combine opposite sides from different books, or treat a nearby threshold as the same line.
+Reject mismatched thresholds, periods, participants or participant-set versions, wrappers, overtime rules, push behavior, dead-heat treatment, or void/participation rules. Never manufacture an opposing side or missing multiway outcome, combine outcomes from different books, or treat a nearby threshold as the same line.
+
+Declare the exact valuation shape for each profile. Registration is not implementation or activation.
+
+| profile | source-level outcome-set requirement | de-vig method | push requirement | dead-heat requirement | current status |
+|---|---|---|---|---|---|
+| `[profile]` | `[complete binary pair or complete mutually exclusive/exhaustive set]` | `[named version or unavailable]` | `[impossible, independently modeled, or unavailable]` | `[not applicable, exact full-pay rule, validated settlement distribution, or unavailable]` | `[active, inactive specification, or blocked]` |
+
+Existing MLB, WNBA, NBA, and NFL profiles retain their exact binary opposing-pair requirements. For any adapter-defined multiway method, one book must supply a mutually exclusive and collectively exhaustive set under one identity, participant-set version, and settlement contract. Normalize each book separately before aggregating source-level fair probabilities across at least two independent non-target pricing origins. Standard Top-N propositions overlap and must not be treated as a multiway-normalizable field.
+
+If the exact payoff shape has no supported structural probability method, use `PROBABILITY_METHOD_UNAVAILABLE`. If a nominal method exists but lacks validated evidence, use `NO_VALIDATED_PROBABILITY`. Use `OUTCOME_SET_INCOMPLETE`, `PUSH_MODEL_UNAVAILABLE`, `DEAD_HEAT_RULE_UNRESOLVED`, or `COMPETITION_RULE_UNRESOLVED` for the corresponding fail-closed condition.
 
 AP compatibility is descriptive only. It creates no API, write, spreadsheet, settlement, or handoff integration with AP Frankenstein.
 
@@ -115,7 +133,7 @@ Use this table only to add profile-specific constraints to a shared signal. It d
 Apply these invariants:
 
 - Tier A owns identity, eligibility, availability, exact target quote, and settlement gates.
-- Tier B owns numeric valuation. De-vig each complete comparison book separately, exclude the target book, then aggregate source-level fair probabilities under a named versioned method.
+- Tier B owns numeric valuation. Normalize each comparison book's complete method-required source-level outcome set separately, exclude the target book, then aggregate source-level fair probabilities under a named versioned method. Existing MLB/WNBA/NBA/NFL profiles continue to require a complete binary opposing pair.
 - Tier C may invalidate an older price batch or change state. It never modifies probability or rank directly.
 - A material Tier A/C fact newer than any affected quote changes the candidate to `WATCH` and triggers a synchronized target/comparison refresh. If fresh quotes remain unavailable at the final check, use `BLOCKED`.
 - Do not double-count a fact already reflected in refreshed Tier B prices.
@@ -199,7 +217,7 @@ Recommendation-grade validation must demonstrate:
 
 - target-book event, market, side, line, price, status, and jurisdiction agreement with timestamped user-visible evidence across the adapter's required timing conditions;
 - local retrieval timestamps even when provider update timestamps exist;
-- exact opposing outcomes from each comparison book at one threshold and settlement contract;
+- the complete method-required source-level outcome set from each comparison book at one exact identity and settlement contract; existing MLB/WNBA/NBA/NFL sets remain binary opposing pairs;
 - at least two usable non-target books from two resolved pricing-origin groups;
 - target exclusion, per-book de-vigging, configured aggregation, quote-age limits, and maximum collection-time skew;
 - explicit exclusions for stale, suspended, duplicate, one-sided, mismatched, or unidentified records; and
@@ -211,8 +229,9 @@ Create immutable, credential-free fixtures for every approved provider and mater
 
 | fixture/scenario | required input condition | required outcome | reason code / audit evidence |
 |---|---|---|---|
-| Exact current target and valid consensus | all identity, eligibility, freshness, and critical context gates pass | deterministic EV/ranking may run | calculation and source versions shown |
-| Missing same-line consensus | fewer than two usable independent comparison books | `WATCH` during research; `BLOCKED` at final check; break-even only | source exclusions shown |
+| Exact current target and valid consensus | all identity, eligibility, freshness, complete source-level outcome-set, and critical context gates pass | deterministic EV/ranking may run only for an implemented and enabled valuation method | calculation and source versions shown |
+| Missing exact-market consensus | fewer than two usable independent comparison books with complete method-required outcome sets | `WATCH` during research; `BLOCKED` at final check; break-even only | source and outcome exclusions shown |
+| Incomplete source-level outcome set | a required binary side or multiway outcome is absent, stale, mismatched, or from another book | reject the source; `WATCH`/`BLOCKED` as coverage requires | `OUTCOME_SET_INCOMPLETE` and retained raw set audit |
 | Material context newer than price batch | registered Tier A/C change after quote retrieval | `WATCH` and synchronized refetch; no manual probability change | old/new timestamps shown |
 | Stale or suspended quote | quote exceeds age or is non-open | exclude quote and downgrade as coverage requires | freshness/status reason |
 | Market or settlement mismatch | line, period, overtime, participant, push, or void rule differs | reject equivalence and block affected evaluation | raw and canonical identities shown |
@@ -228,7 +247,7 @@ Add sport-specific fixtures for lineup/availability, event postponement, partici
 
 - Original promotion text or screenshot, including book, jurisdiction, token count, boost type, stake/payout cap, odds range, expiry, eligible markets/events, overtime, push, cancellation, and void rules.
 - Exact target-book quote evidence for every considered candidate.
-- Complete same-line comparison pairs and pricing-origin metadata.
+- Complete same-line, method-required source-level comparison outcome sets and pricing-origin metadata. For existing MLB/WNBA/NBA/NFL profiles these remain binary opposing pairs.
 - Current authoritative Tier A/C sport facts required by the selected profile.
 - User risk limits when expected-dollar or exposure ranking depends on them.
 
@@ -254,7 +273,7 @@ Save only a local research/evidence snapshot. Do not write to AP Frankenstein or
 ```text
 Evaluate the supplied [SPORT/LEAGUE] promotion using [ADAPTER_ID] version [VERSION].
 
-Parse and verify every token separately. Select only active or pilot-enabled profiles whose raw and canonical market, period, overtime, push, and settlement identities match. Retrieve or verify current target quotes, then build fair probability only from at least two fresh, complete, same-line opposing pairs from independent non-target pricing origins. Apply the adapter's authoritative Tier A/C gates and immediately invalidate prices older than a material change. Do not create a narrative probability adjustment or use disabled Tier D/X information.
+Parse and verify every token separately. Select only active or pilot-enabled profiles whose raw and canonical market, period, overtime, push, and settlement identities match. Retrieve or verify current target quotes, then build fair probability only from at least two fresh, complete, same-line source-level outcome sets required by the selected adapter's named method and supplied by independent non-target pricing origins. Existing MLB/WNBA/NBA/NFL profiles continue to require their exact binary opposing pairs. Normalize each book separately before aggregation. Apply the adapter's authoritative Tier A/C gates and immediately invalidate prices older than a material change. Do not create a narrative probability adjustment or use disabled Tier D/X information.
 
 Use deterministic boost, de-vig, EV, expected-dollar, freshness, and ranking calculations. Return the standard Promotion Decision Brief with adapter version, sources, timestamps, exclusions, passes, blockers, next refresh condition, and human-decision boundary. If the evidence supports fewer qualifying candidates than available tokens, return fewer. Never place or confirm a wager and make no AP Frankenstein call or write.
 ```
@@ -267,7 +286,7 @@ Before changing a profile lifecycle:
 - [ ] Every enabled Tier A/B/C signal has the ten-field contract.
 - [ ] Source access, terms, provenance, jurisdiction, and timestamps are reviewed.
 - [ ] For `pilot_enabled`, a verified per-run evidence path exists and unfinished cross-timing validation blockers are named; for `active`, recorded provider evidence covers all required timing conditions.
-- [ ] Independent same-line consensus can satisfy the global gate.
+- [ ] Independent exact-market consensus can satisfy the global gate with complete method-required source-level outcome sets; existing MLB/WNBA/NBA/NFL profiles retain complete binary pairs.
 - [ ] Missing, stale, conflicting, suspended, material-change, and disabled cases have exact expected outcomes; credential-free recorded fixtures exist before `active` status.
 - [ ] Deterministic calculations and report behavior are verified.
 - [ ] Tier D and Tier X boundaries are explicit.
