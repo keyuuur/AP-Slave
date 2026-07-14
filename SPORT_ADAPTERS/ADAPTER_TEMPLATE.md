@@ -6,8 +6,37 @@ Use this template for a new sport or market family. Replace every bracketed valu
 
 The completed adapter is subordinate to `PROJECT_CONTEXT.md`, `PROMO_ANALYSIS_PLAYBOOK.md`, `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`, and `SPORT_ADAPTERS/README.md`. It may narrow global policy for an exact profile; it may not weaken global consensus, freshness, provenance, source-access, deterministic-math, human-approval, or AP Frankenstein boundaries.
 
+### Required 13-section manifest
+
+A conforming adapter contains exactly one of each numbered top-level section below, in this order. Validators should key on the stable `section_id`, while the Markdown heading remains human-readable. A section may state that an artifact is absent or inapplicable, but it may not be silently omitted.
+
+| order | section_id | required top-level heading | minimum validator target |
+|---:|---|---|---|
+| 1 | `adapter_metadata` | `## 1. Adapter metadata` | one adapter metadata block |
+| 2 | `profile_registry` | `## 2. Profile registry` | one or more profile records or explicit none |
+| 3 | `market_identity_settlement` | `## 3. Market identity and settlement contract` | identity fields, equivalence, valuation shape, outcome-set audit |
+| 4 | `source_compliance` | `## 4. Source and compliance policy` | registry-resolvable sources and fail-closed access rules |
+| 5 | `signal_registry` | `## 5. Active signal registry` | inherited extensions plus ten-field sport signals |
+| 6 | `materiality_state` | `## 6. Materiality and state rules` | versioned rules and resolution behavior |
+| 7 | `refresh_policy` | `## 7. Refresh policy` | all six shared phase IDs exactly once |
+| 8 | `tier_d_registry` | `## 8. Tier D model-only registry` | disabled model-only inventory or explicit none |
+| 9 | `tier_x_exclusions` | `## 9. Tier X exclusions` | excluded narratives/signals and permitted operational use |
+| 10 | `provider_evidence` | `## 10. Provider evidence` | real-capture requirements and current evidence state |
+| 11 | `contract_scenarios_fixtures` | `## 11. Contract scenarios and executable fixtures` | Markdown scenarios plus machine-readable fixture status |
+| 12 | `run_decision_brief` | `## 12. On-demand run and decision-brief contract` | required inputs, output, and human boundary |
+| 13 | `activation_change_log` | `## 13. Activation checklist and change log` | activation gates and append-only change record |
+
+### Artifact vocabulary
+
+Use these terms consistently:
+
+- **Contract scenario:** a synthetic example written in Markdown with an input condition and required outcome. It documents behavior but is not executable test data and is not provider evidence.
+- **Executable fixture:** a credential-free, machine-readable input with a declared schema/version and deterministic expected output that an implemented validator or test runner can consume. Its presence does not certify a provider or activate a profile.
+- **Provider evidence:** a real, timestamped, safely referenced capture from an exact source, sportsbook, jurisdiction, event, market, and timing condition. Synthetic data and executable fixtures never count as provider evidence.
+
 ---
 
+<!-- adapter-section: 1 adapter_metadata -->
 ## 1. Adapter metadata
 
 ```yaml
@@ -29,6 +58,7 @@ adapter:
 
 State the intended job in one sentence. State what creates expected value, what context is allowed to do, and what the adapter explicitly does not predict.
 
+<!-- adapter-section: 2 profile_registry -->
 ## 2. Profile registry
 
 Use only lifecycle values defined in `SPORT_ADAPTERS/README.md`.
@@ -39,6 +69,7 @@ Use only lifecycle values defined in `SPORT_ADAPTERS/README.md`.
 
 List adjacent markets that are not equivalent and therefore remain unavailable. A profile exposed by a provider stays disabled until its own validation passes.
 
+<!-- adapter-section: 3 market_identity_settlement -->
 ## 3. Market identity and settlement contract
 
 Every candidate and comparison quote must preserve:
@@ -74,6 +105,21 @@ market_identity:
   source_id: "[source]"
   raw_snapshot_id: "[snapshot/hash reference]"
   ap_frankenstein_compatibility: "[direct|equivalent_but_not_supported|unsupported]"
+
+binary_outcome_set_audit:
+  applies: "[true|false]"
+  source_sportsbook_id: "[canonical non-target book or null]"
+  source_pricing_origin_id: "[resolved origin ID or null]"
+  candidate_outcome_id: "[source-local outcome ID or null]"
+  opposing_outcome_id: "[source-local exact opposing outcome ID or null]"
+  candidate_retrieved_at_utc: "[timestamp or null]"
+  opposing_retrieved_at_utc: "[timestamp or null]"
+  same_book: "[true|false|not_applicable]"
+  same_market_identity: "[true|false|not_applicable]"
+  same_line: "[true|false|not_applicable]"
+  same_settlement_contract: "[true|false|not_applicable]"
+  complete: "[true|false|not_applicable]"
+  exclusion_reason_codes: []
 ```
 
 Fields added by an adapter that are not represented in `promotion_decision_brief_v2` or the canonical persisted schemas remain adapter-local audit annotations. Do not overload an existing global field or claim a schema migration without separate review.
@@ -98,6 +144,7 @@ If the exact payoff shape has no supported structural probability method, use `P
 
 AP compatibility is descriptive only. It creates no API, write, spreadsheet, settlement, or handoff integration with AP Frankenstein.
 
+<!-- adapter-section: 4 source_compliance -->
 ## 4. Source and compliance policy
 
 List preferred sources in authority order for each fact class. Official or licensed sources normally lead; screenshots or structured manual entry are explicit fallbacks for visible sportsbook facts.
@@ -112,6 +159,7 @@ Do not automate authenticated sportsbook pages, spoof location, bypass access co
 
 Document season-specific official URLs and deadlines as configurable, annually reverified values rather than permanent assumptions.
 
+<!-- adapter-section: 5 signal_registry -->
 ## 5. Active signal registry
 
 Every enabled Tier A, B, or C signal requires all ten fields below. Use the shared signals in the monitoring playbook by reference when their behavior is unchanged; do not copy them into a competing definition.
@@ -140,6 +188,7 @@ Apply these invariants:
 
 Define profile-specific critical gates. Do not assume that a lineup, starter, weather, or role fact has the same state effect across sports or markets.
 
+<!-- adapter-section: 6 materiality_state -->
 ## 6. Materiality and state rules
 
 For every configurable materiality rule, record:
@@ -168,6 +217,7 @@ monitoring_metadata:
 
 These are local brief/audit annotations until a separately reviewed persisted-schema change is approved.
 
+<!-- adapter-section: 7 refresh_policy -->
 ## 7. Refresh policy
 
 Define an event-relative, on-demand research cadence. At minimum specify:
@@ -187,6 +237,7 @@ Use only these shared phase IDs: `intake`, `distant_pregame`, `official_release_
 
 The documentation pilot does not authorize a recurring scheduler, background poller, automatic alert, closing-line job, or settlement job. Cadence defines what an on-demand run or human-requested refresh must obtain.
 
+<!-- adapter-section: 8 tier_d_registry -->
 ## 8. Tier D model-only registry
 
 Tier D fields are hypotheses, not active context or persuasive narrative.
@@ -197,6 +248,7 @@ Tier D fields are hypotheses, not active context or persuasive narrative.
 
 Until activation, do not routinely fetch, score, narrate, rank with, or change state from Tier D data. Activation requires an exact market consumer, documented transformations, licensed/permitted fields, versioned model, leak-free historical test, out-of-sample and calibration results, uncertainty treatment, and production monitoring rule.
 
+<!-- adapter-section: 9 tier_x_exclusions -->
 ## 9. Tier X exclusions
 
 | excluded signal or narrative | reason excluded | permitted operational use, if any |
@@ -205,9 +257,10 @@ Until activation, do not routinely fetch, score, narrate, rank with, or change s
 
 Tier X material must not supply probability, rank, positive-EV language, or persuasive candidate support. If a lower-authority report plausibly signals a registered material change, it may create `WATCH` only until an approved source confirms or rejects it.
 
-## 10. Provider-validation evidence
+<!-- adapter-section: 10 provider_evidence -->
+## 10. Provider evidence
 
-Record evidence without embedding credentials or relying on an undocumented live claim.
+Provider evidence means real, timestamped captures only. Record it without embedding credentials, raw private data, or relying on an undocumented live claim. A contract scenario or executable fixture must never appear in this table.
 
 | evidence_id | profile | target/comparison role | source and jurisdiction | captured_at_utc | event timing condition | exact identity result | line/price result | status/timestamp result | raw evidence reference | discrepancy/resolution |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -223,11 +276,12 @@ Recommendation-grade validation must demonstrate:
 - explicit exclusions for stale, suspended, duplicate, one-sided, mismatched, or unidentified records; and
 - visible behavior when a provider changes schema, loses coverage, or cannot satisfy freshness.
 
-## 11. Recorded fixtures and acceptance scenarios
+<!-- adapter-section: 11 contract_scenarios_fixtures -->
+## 11. Contract scenarios and executable fixtures
 
-Create immutable, credential-free fixtures for every approved provider and material state. Tests must not require paid or live calls by default.
+Write synthetic behavior examples as Markdown contract scenarios:
 
-| fixture/scenario | required input condition | required outcome | reason code / audit evidence |
+| contract scenario | synthetic input condition | required outcome | reason code / required audit fields |
 |---|---|---|---|
 | Exact current target and valid consensus | all identity, eligibility, freshness, complete source-level outcome-set, and critical context gates pass | deterministic EV/ranking may run only for an implemented and enabled valuation method | calculation and source versions shown |
 | Missing exact-market consensus | fewer than two usable independent comparison books with complete method-required outcome sets | `WATCH` during research; `BLOCKED` at final check; break-even only | source and outcome exclusions shown |
@@ -239,8 +293,23 @@ Create immutable, credential-free fixtures for every approved provider and mater
 | Provider/jurisdiction mismatch | feed or screen is not the target jurisdiction | `BLOCKED` | source jurisdiction shown |
 | Disabled profile requested | profile is not `active` or `pilot_enabled` | `BLOCKED`; no candidate generation | lifecycle and blocker shown |
 
-Add sport-specific fixtures for lineup/availability, event postponement, participant scratches, report-release deadlines, weather/venue state, push-capable lines, and any other registered critical facts.
+Add sport-specific contract scenarios for lineup/availability, event postponement, participant scratches, report-release deadlines, weather/venue state, push-capable lines, and any other registered critical facts.
 
+Declare executable-fixture status separately:
+
+```yaml
+executable_fixtures:
+  schema_version: "[fixture schema version or not_implemented]"
+  implementation_status: "[available|not_implemented]"
+  fixture_paths: []
+  deterministic_runner: "[runner identifier or not_implemented]"
+  paid_or_live_calls_required: false
+  provider_certification_claimed: false
+```
+
+When executable fixtures exist, each machine-readable input must declare adapter/profile/version, source-role placeholders, raw and canonical identities, timestamps or relative-time anchors, expected candidate state, reason codes, and expected audit fields. Keep them credential-free and deterministic; tests must not require paid or live calls by default. Executable fixtures are not provider evidence.
+
+<!-- adapter-section: 12 run_decision_brief -->
 ## 12. On-demand run and decision-brief contract
 
 ### Required inputs
@@ -278,6 +347,7 @@ Parse and verify every token separately. Select only active or pilot-enabled pro
 Use deterministic boost, de-vig, EV, expected-dollar, freshness, and ranking calculations. Return the standard Promotion Decision Brief with adapter version, sources, timestamps, exclusions, passes, blockers, next refresh condition, and human-decision boundary. If the evidence supports fewer qualifying candidates than available tokens, return fewer. Never place or confirm a wager and make no AP Frankenstein call or write.
 ```
 
+<!-- adapter-section: 13 activation_change_log -->
 ## 13. Activation checklist and change log
 
 Before changing a profile lifecycle:
@@ -287,7 +357,7 @@ Before changing a profile lifecycle:
 - [ ] Source access, terms, provenance, jurisdiction, and timestamps are reviewed.
 - [ ] For `pilot_enabled`, a verified per-run evidence path exists and unfinished cross-timing validation blockers are named; for `active`, recorded provider evidence covers all required timing conditions.
 - [ ] Independent exact-market consensus can satisfy the global gate with complete method-required source-level outcome sets; existing MLB/WNBA/NBA/NFL profiles retain complete binary pairs.
-- [ ] Missing, stale, conflicting, suspended, material-change, and disabled cases have exact expected outcomes; credential-free recorded fixtures exist before `active` status.
+- [ ] Missing, stale, conflicting, suspended, material-change, and disabled cases have exact contract-scenario outcomes; credential-free executable fixtures exist before `active` status.
 - [ ] Deterministic calculations and report behavior are verified.
 - [ ] Tier D and Tier X boundaries are explicit.
 - [ ] Monitoring playbook, adapter catalog, `AGENTS.md`, and `README.md` agree.

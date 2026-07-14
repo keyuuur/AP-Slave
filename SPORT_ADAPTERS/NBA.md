@@ -1,8 +1,11 @@
 # NBA Pregame Full-Game Sport Adapter
 
+<!-- adapter-section: 1 adapter_metadata -->
+## 1. Adapter metadata
+
 **Adapter ID:** `nba.pregame_full_game_v0_1`
 
-**Version:** `0.1.0`
+**Version:** `0.1.1`
 
 **Structural contract:** `adapter_contract_v1`
 
@@ -14,7 +17,7 @@
 
 **Lifecycle:** All profiles `disabled_provider_validation`
 
-**Last reviewed:** 2026-07-12
+**Last reviewed:** 2026-07-13
 
 **Default timezone:** `America/Chicago`
 
@@ -27,18 +30,16 @@ Apply this adapter with `PROJECT_CONTEXT.md`, `PROMO_ANALYSIS_PLAYBOOK.md`, `PRO
 
 ---
 
-## 1. Adapter metadata
-
 ```yaml
 adapter:
   adapter_id: nba.pregame_full_game_v0_1
-  version: 0.1.0
+  version: 0.1.1
   contract_version: adapter_contract_v1
   document_status: active pre-activation documentation policy
   sport: Basketball
   league: NBA
   default_timezone: America/Chicago
-  last_reviewed: 2026-07-12
+  last_reviewed: 2026-07-13
   review_owner: Advantage Play Intern
   run_mode: on_demand_local_brief_after_separate_activation
   probability_method: nba_market_consensus_mean_v1
@@ -48,14 +49,15 @@ adapter:
 
 ---
 
+<!-- adapter-section: 2 profile_registry -->
 ## 2. Profile registry
 
 | profile_id | lifecycle | participant scope | period | allowed line shape | overtime treatment | probability method | activation blocker |
 |---|---|---|---|---|---|---|---|
-| `nba.full_game.moneyline` | `disabled_provider_validation` | team | full game | two-way moneyline whose tie and push outcomes are impossible | included and exactly matched across target and comparisons | `nba_market_consensus_mean_v1`, specified only | exact target/comparison coverage, source permission, tie/push/settlement identity, origin independence, cross-timing evidence, fixtures, and separate activation approval are incomplete |
+| `nba.full_game.moneyline` | `disabled_provider_validation` | team | full game | two-way moneyline whose tie and push outcomes are impossible | included and exactly matched across target and comparisons | `nba_market_consensus_mean_v1`, specified only | exact target/comparison coverage, source permission, tie/push/settlement identity, origin independence, cross-timing evidence, contract scenarios, future executable fixtures, and separate activation approval are incomplete |
 | `nba.full_game.spread` | `disabled_provider_validation` | team | full game | principal reciprocal half-point spread only | included and exactly matched | `nba_market_consensus_mean_v1`, specified only | principal-line identity and complete two-origin coverage are not validated across required timing conditions |
 | `nba.full_game.total` | `disabled_provider_validation` | event | full game | principal half-point over/under only | included and exactly matched | `nba_market_consensus_mean_v1`, specified only | principal-line identity and complete two-origin coverage are not validated across required timing conditions |
-| `nba.player.points` | `disabled_provider_validation` | player | full game | exact non-push over/under or conditionally equivalent `N+ Points` outcome | included and exactly matched | `nba_market_consensus_mean_v1`, specified only | exact two-sided same-outcome coverage, participation/void/stat-counting settlement identity, cross-timing evidence, fixtures, and separate activation approval are incomplete |
+| `nba.player.points` | `disabled_provider_validation` | player | full game | exact non-push over/under or conditionally equivalent `N+ Points` outcome | included and exactly matched | `nba_market_consensus_mean_v1`, specified only | exact two-sided same-outcome coverage, participation/void/stat-counting settlement identity, cross-timing evidence, contract scenarios, future executable fixtures, and separate activation approval are incomplete |
 
 No NBA profile is selectable for recommendation-grade candidate generation. Every structurally valid request still returns `BLOCKED` with `ADAPTER_PROFILE_DISABLED` until the exact profile receives separate activation approval and every governing document is synchronized.
 
@@ -63,6 +65,7 @@ The following adjacent markets are unavailable by catalog absence or identity mi
 
 ---
 
+<!-- adapter-section: 3 market_identity_settlement -->
 ## 3. Market identity and settlement contract
 
 Every target and comparison quote must retain the complete identity below. Missing, unknown, or conflicting material fields fail closed and must not be inferred from a nearby market.
@@ -81,12 +84,18 @@ market_identity:
   raw_market_label: string
   raw_selection_label: string
   canonical_market_key: nba.full_game.moneyline | nba.full_game.spread | nba.full_game.total | nba.player.points
+  outcome_set_id: string | null
+  outcome_set_type: binary_pair
+  outcome_set_completeness: complete | incomplete | unknown
+  participant_set_version: string | null
+  market_wrapper: standard | other | unknown
   side: home | away | over | under
   line: number | null
   line_role: principal | alternate | not_applicable | unknown
   period: full_game
   overtime_treatment: included | excluded | unknown
   push_behavior: impossible | push | unknown
+  tie_or_dead_heat_treatment: not_applicable | refund | unknown
   participation_rule: string | not_applicable | unknown
   void_rule: string | unknown
   stat_counting_rule: string | not_applicable | unknown
@@ -99,6 +108,21 @@ market_identity:
   source_id: string
   raw_snapshot_id: string
   ap_frankenstein_compatibility: unsupported
+
+binary_outcome_set_audit:
+  applies: true
+  source_sportsbook_id: string
+  source_pricing_origin_id: string
+  candidate_outcome_id: string
+  opposing_outcome_id: string
+  candidate_retrieved_at_utc: datetime
+  opposing_retrieved_at_utc: datetime
+  same_book: boolean
+  same_market_identity: boolean
+  same_line: boolean
+  same_settlement_contract: boolean
+  complete: boolean
+  exclusion_reason_codes: list[string]
 ```
 
 `line_role` must be proven from sportsbook-originated evidence or a reviewed provider field. A displayed half-point line is not presumed principal merely because it is the first line returned. Unknown or alternate status is `MARKET_IDENTITY_MISMATCH` for the game spread and total profiles.
@@ -122,7 +146,7 @@ Raw market and selection labels are always retained. AP compatibility defaults t
 
 ---
 
-## 4. Probability and comparison policy
+### 3.2 Probability and comparison policy
 
 `nba_market_consensus_mean_v1` extends the global exact-market consensus gate without weakening it:
 
@@ -141,7 +165,8 @@ If fewer than two fresh independent complete comparison markets remain, the stru
 
 ---
 
-## 5. Source and compliance policy
+<!-- adapter-section: 4 source_compliance -->
+## 4. Source and compliance policy
 
 Source IDs resolve through `source_registry_v1` in `SPORT_ADAPTERS/source_registry.yaml`. The registry owns mutable URLs, access/automation permission, coverage posture, review dates, and season artifacts; this adapter owns the NBA facts and gates. URL health alone clears none of them.
 
@@ -166,13 +191,14 @@ Do not automate authenticated sportsbook pages, spoof location, bypass geolocati
 
 ---
 
-## 6. Active signal registry
+<!-- adapter-section: 5 signal_registry -->
+## 5. Active signal registry
 
 There are no active NBA profiles. This section is the complete pre-activation Tier A/C contract required for validation. Its presence does not authorize polling or candidate generation.
 
 The shared `promo_terms`, `target_quote`, `comparison_quotes_same_line`, `market_status`, and `promo_expiration` signals inherit their only authoritative ten-field definitions from Section 5 of `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`. The extensions below add NBA constraints and do not create duplicate signal IDs or collection paths.
 
-### 6.1 Inherited shared-signal extensions
+### 5.1 Inherited shared-signal extensions
 
 | shared_signal_id | profiles | NBA-specific extension | maximum-age override | reporting extension |
 |---|---|---|---|---|
@@ -182,7 +208,7 @@ The shared `promo_terms`, `target_quote`, `comparison_quotes_same_line`, `market
 | `market_status` | all NBA profiles | post-material-change evidence must show open status and synchronization for target and every included comparison | inherit | show non-open state, change time, and synchronization result |
 | `promo_expiration` | all NBA profiles | no additional collection path | inherit | show time remaining |
 
-### 6.2 NBA-specific signal registry
+### 5.2 NBA-specific signal registry
 
 Each row contains the required ten fields. Every row remains dormant while its consuming profile is `disabled_provider_validation`.
 
@@ -198,7 +224,8 @@ Each row contains the required ten fields. Every row remains dormant while its c
 
 ---
 
-## 7. Materiality and state rules
+<!-- adapter-section: 6 materiality_state -->
+## 6. Materiality and state rules
 
 | rule_id | profiles | source fields / qualifying change | effective-time rule | state effect | required refetch | resolution rule | probability effect |
 |---|---|---|---|---|---|---|---|
@@ -209,7 +236,7 @@ Each row contains the required ten fields. Every row remains dormant while its c
 | `nba_player_status_materiality_v1` | `nba.player.points` | target official status, active/inactive state, participation eligibility, or verified role changes | any qualifying target-player fact newer than a quote invalidates it | questionable/doubtful `WATCH`; out/inactive/suspended `INELIGIBLE` or `BLOCKED` under exact terms | shared target and complete comparison signals | current target status, verified participation/void rules, and synchronized post-change batch | none |
 | `nba_post_change_price_sync_v1` | all NBA profiles | newest registered material-fact timestamp; target/comparison retrieval times; open status; age and skew | every affected included quote must postdate the fact and satisfy 180/300/300 limits | unsynchronized `WATCH`; invalid or unavailable final batch `BLOCKED`; valid batch removes only the context-sync blocker | shared target, comparison, and market-status signals | exact open post-change target plus two independent complete comparisons and valid audit | none |
 
-### 7.1 State-resolution rules
+### 6.1 State-resolution rules
 
 - A profile lifecycle check occurs before candidate generation. Because every NBA profile is disabled, a structurally valid request returns `BLOCKED` with `ADAPTER_PROFILE_DISABLED` and produces no probability, EV, ranking, or actionable candidate.
 - Before the applicable season-configured injury-report deadline, the report state is `not_due`; the structural context state is `WATCH` with `OFFICIAL_REPORT_NOT_DUE`. It cannot clear a final pre-use gate.
@@ -221,7 +248,7 @@ Each row contains the required ten fields. Every row remains dormant while its c
 - Missing, stale, conflicting, unidentified, wrong-jurisdiction, or non-open target evidence is `BLOCKED`. Comparison defects exclude the source and produce `WATCH`/`BLOCKED` if coverage falls below two independent complete markets.
 - Context never adds or subtracts probability or ranking points. After synchronization, only refreshed Tier B prices could change valuation in a future activated profile.
 
-Every structural fixture and future brief must retain:
+Every structural contract scenario and future brief must retain:
 
 ```yaml
 monitoring_metadata:
@@ -234,7 +261,8 @@ These remain local `promotion_decision_brief_v2` audit fields and do not change 
 
 ---
 
-## 8. Refresh policy
+<!-- adapter-section: 7 refresh_policy -->
+## 7. Refresh policy
 
 This cadence specifies what a future on-demand run or human-requested refresh would need. It does not install a scheduler, background poller, automatic alert, closing-line job, or settlement job.
 
@@ -251,7 +279,8 @@ No cadence may be relaxed to make a disabled profile runnable or to manufacture 
 
 ---
 
-## 9. Tier D model-only registry
+<!-- adapter-section: 8 tier_d_registry -->
+## 8. Tier D model-only registry
 
 Every group below is `disabled_model_only`. The groups are hypotheses, not active signals, and may not be routinely fetched, stored, scored, narrated, used for probability, or used to change state or rank.
 
@@ -268,7 +297,8 @@ NBA.com and stats.nba.com statistics are explicitly unavailable to these model f
 
 ---
 
-## 10. Tier X exclusions
+<!-- adapter-section: 9 tier_x_exclusions -->
+## 9. Tier X exclusions
 
 | excluded signal or narrative | reason excluded | permitted operational use, if any |
 |---|---|---|
@@ -278,18 +308,19 @@ NBA.com and stats.nba.com statistics are explicitly unavailable to these model f
 | defense-vs-position rankings and tiny lineup/on-off/opponent/role samples | disabled or inadequately validated model proxies | none |
 | generic confidence quotes, unverified injury/lineup/trade/suspension/rest rumors, or referee trends | insufficient authority or validated consumer | a plausible registered material-change lead may create `WATCH` pending approved-source confirmation |
 | foul, blowout, travel, rest, fatigue, or overtime speculation | participation-tail model remains disabled | none |
-| NBA-owned statistical fields | excluded from gambling-related model use under current NBA Terms posture | operational non-statistical official facts remain subject to Section 5 |
+| NBA-owned statistical fields | excluded from gambling-related model use under current NBA Terms posture | operational non-statistical official facts remain subject to Section 4 |
 | LLM-authored probability or ranking adjustment | violates deterministic valuation boundary | none |
 
 Tier X material never supplies probability, rank, positive-EV language, or persuasive candidate support. A lower-authority report may create `WATCH` only when it plausibly identifies a registered material change; it must be confirmed or rejected by an approved source.
 
 ---
 
-## 11. Provider-validation evidence requirements
+<!-- adapter-section: 10 provider_evidence -->
+## 10. Provider evidence
 
-No provider or sportsbook is certified by this document. Evidence must be credential-free or captured under a separately reviewed permitted source path, and it must not claim real promotion or provider coverage from synthetic fixtures.
+No provider or sportsbook is certified by this document. Evidence must be credential-free or captured under a separately reviewed permitted source path, and it must not claim real promotion or provider coverage from synthetic contract scenarios.
 
-### 11.1 Evidence matrix
+### 10.1 Evidence matrix
 
 | evidence_id | profile scope | target/comparison role | timing conditions required | exact fields required | current evidence state | certification effect |
 |---|---|---|---|---|---|---|
@@ -311,19 +342,30 @@ Recommendation-grade promotion would additionally require:
 - deterministic calculation tests for each exact non-push shape and milestone equivalence; and
 - separate explicit lifecycle approval synchronized across all governing documents.
 
-Synthetic fixtures below prove only expected documentation behavior. They do not prove source access, provider coverage, sportsbook agreement, pricing-origin independence, or promotion readiness.
+Synthetic contract scenarios below prove only expected documentation behavior. They do not prove source access, provider coverage, sportsbook agreement, pricing-origin independence, or promotion readiness.
 
 ---
 
-## 12. Inline credential-free fixtures and expected outcomes
+<!-- adapter-section: 11 contract_scenarios_fixtures -->
+## 11. Contract scenarios and executable fixtures
 
-The repository has no executable adapter schema or test runner, so these fixtures remain inline documentation tables. Do not invent machine-readable fixture files for this milestone.
+```yaml
+executable_fixtures:
+  schema_version: not_implemented
+  implementation_status: not_implemented
+  fixture_paths: []
+  deterministic_runner: not_implemented
+  paid_or_live_calls_required: false
+  provider_certification_claimed: false
+```
 
-The `structural expectation` column describes the gate outcome that a future implementation must reproduce before lifecycle enforcement. The `current required outcome` column is controlling now: the selected NBA profile is disabled, no recommendation-grade candidate is created, and `ADAPTER_PROFILE_DISABLED` is always retained. Invalid fixtures also retain their specific structural reason codes.
+These inline Markdown tables are contract scenarios, not provider evidence or executable fixtures. Real timestamped captures belong in Section 10. Future machine-readable test inputs must be labeled executable fixtures and validated against an approved schema.
 
-### 12.1 Identity, normalization, and lifecycle fixtures
+The `structural expectation` column describes the gate outcome that a future implementation must reproduce before lifecycle enforcement. The `current required outcome` column is controlling now: the selected NBA profile is disabled, no recommendation-grade candidate is created, and `ADAPTER_PROFILE_DISABLED` is always retained. Invalid scenarios also retain their specific structural reason codes.
 
-| fixture_id | credential-free input condition | structural expectation | current required outcome / audit evidence |
+### 11.1 Identity, normalization, and lifecycle scenarios
+
+| scenario_id | credential-free input condition | structural expectation | current required outcome / audit evidence |
 |---|---|---|---|
 | `nba_valid_moneyline_disabled` | exact two-team full-game moneyline; overtime included; tie/push impossible; target and two independent exact pairs otherwise current | identity and consensus gates would pass after activation | `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; no probability, EV, ranking, or candidate generation |
 | `nba_valid_principal_spread_disabled` | proven principal reciprocal `-4.5/+4.5` full-game spread with exact settlement and valid price batch | non-push spread identity would pass after activation | `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; preserve principal-line evidence |
@@ -337,9 +379,9 @@ The `structural expectation` column describes the gate outcome that a future imp
 | `nba_regulation_or_three_way` | regulation-only, three-way, or draw-option moneyline | period/tie/settlement identity fails | `BLOCKED` with `MARKET_IDENTITY_MISMATCH` or `SETTLEMENT_RULE_MISMATCH`, plus `ADAPTER_PROFILE_DISABLED` |
 | `nba_absent_prop_profile` | rebounds, assists, made threes, or any unregistered NBA prop requested | no catalog profile exists | `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; do not map it to points |
 
-### 12.2 Consensus, freshness, status, and source fixtures
+### 11.2 Consensus, freshness, status, and source scenarios
 
-| fixture_id | credential-free input condition | structural expectation | current required outcome / audit evidence |
+| scenario_id | credential-free input condition | structural expectation | current required outcome / audit evidence |
 |---|---|---|---|
 | `nba_target_excluded_two_origins` | target book also exposes both sides; two other complete comparison books come from two resolved independent origins | exclude target entirely; de-vig each non-target book separately; mean only source-level probabilities | `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; audit target exclusion, raw/usable/origin counts, pairs, mean, and dispersion |
 | `nba_only_one_comparison_origin` | exact target plus only one usable non-target complete market | consensus invalid; break-even only; structural `WATCH` then final `BLOCKED` | `BLOCKED` with `CONSENSUS_INSUFFICIENT` and `ADAPTER_PROFILE_DISABLED` |
@@ -351,9 +393,9 @@ The `structural expectation` column describes the gate outcome that a future imp
 | `nba_jurisdiction_mismatch` | target evidence is not proven for the promotion's sportsbook jurisdiction | target cannot be substituted | `BLOCKED` with `JURISDICTION_MISMATCH` and `ADAPTER_PROFILE_DISABLED` |
 | `nba_settlement_mismatch` | target or comparison differs on period, overtime, tie, push, participation, void, stat-counting, or settlement | exclude mismatched evidence and reject equivalence | `BLOCKED` with `SETTLEMENT_RULE_MISMATCH`, plus `CONSENSUS_INSUFFICIENT` if coverage fails and `ADAPTER_PROFILE_DISABLED` |
 
-### 12.3 Injury, availability, roster, role, player-status, and synchronization fixtures
+### 11.3 Injury, availability, roster, role, player-status, and synchronization scenarios
 
-| fixture_id | credential-free input condition | structural expectation | current required outcome / audit evidence |
+| scenario_id | credential-free input condition | structural expectation | current required outcome / audit evidence |
 |---|---|---|---|
 | `nba_report_not_due` | season-current deadline configuration proves the applicable report is not yet due | structural `WATCH`; final availability gate cannot clear | `BLOCKED` lifecycle with `OFFICIAL_REPORT_NOT_DUE` and `ADAPTER_PROFILE_DISABLED`; record next deadline/check |
 | `nba_report_overdue_missing` | applicable deadline passed and required report/team row is missing | structural `WATCH`, becoming final `BLOCKED` | `BLOCKED` with `OFFICIAL_REPORT_MISSING` and `ADAPTER_PROFILE_DISABLED` |
@@ -368,12 +410,13 @@ The `structural expectation` column describes the gate outcome that a future imp
 
 ---
 
-## 13. Reusable on-demand run contract
+<!-- adapter-section: 12 run_decision_brief -->
+## 12. On-demand run and decision-brief contract
 
 This prompt is a future validation contract, not current run authorization:
 
 ```text
-Validate the supplied NBA promotion evidence against NBA adapter nba.pregame_full_game_v0_1 version 0.1.0 and adapter_contract_v1.
+Validate the supplied NBA promotion evidence against NBA adapter nba.pregame_full_game_v0_1 version 0.1.1 and adapter_contract_v1.
 
 Parse every token separately and verify the exact target sportsbook and jurisdiction, eligible event and profile, boost type, percentage, cap, odds range, expiry, period, overtime, tie, push, participation, void, stat-counting, settlement, cancellation, and token-return terms. Preserve raw labels. For player points, normalize N+ Points to Over N-0.5 only when player, event, period, overtime, participation, void, stat-counting, and settlement rules all match. Never equate Over N with N+ because the whole-number over can push.
 
@@ -388,10 +431,12 @@ Never call a provider, schedule polling, create an alert, place or confirm a wag
 
 ---
 
-## 14. Activation checklist and change log
+<!-- adapter-section: 13 activation_change_log -->
+## 13. Activation checklist and change log
 
-Before any NBA profile lifecycle change, all adapter-template checklist items must pass, recorded cross-timing evidence and credential-free fixtures must exist, source permissions and pricing-origin independence must be resolved, deterministic behavior must be tested, and separate explicit approval must be reflected consistently in the adapter catalog, monitoring playbook, `AGENTS.md`, and project `README.md`. Specification completeness alone is not activation evidence.
+Before any NBA profile lifecycle change, all adapter-template checklist items must pass, recorded cross-timing provider evidence and credential-free contract scenarios must exist, source permissions and pricing-origin independence must be resolved, and deterministic behavior must be tested with machine-readable executable fixtures once a runtime exists. Separate explicit approval must be reflected consistently in the adapter catalog, monitoring playbook, `AGENTS.md`, and project `README.md`. Specification completeness alone is not activation evidence.
 
 | date | adapter version | profiles affected | change | evidence/approval reference |
 |---|---|---|---|---|
-| 2026-07-12 | `0.1.0` | `nba.full_game.moneyline`, `nba.full_game.spread`, `nba.full_game.total`, `nba.player.points` | Created `adapter_contract_v1` pre-activation NBA contract with exact non-push identities, conditional milestone normalization, source/compliance boundaries, dormant signals, refresh phases, and inline credential-free fixtures; activated no profile | user-approved NBA and NFL adapter contract expansion plan; provider validation and activation remain unsatisfied |
+| 2026-07-12 | `0.1.0` | `nba.full_game.moneyline`, `nba.full_game.spread`, `nba.full_game.total`, `nba.player.points` | Created `adapter_contract_v1` pre-activation NBA contract with exact non-push identities, conditional milestone normalization, source/compliance boundaries, dormant signals, refresh phases, and inline credential-free contract scenarios; activated no profile | user-approved NBA and NFL adapter contract expansion plan; provider validation and activation remain unsatisfied |
+| 2026-07-13 | `0.1.1` | `nba.full_game.moneyline`, `nba.full_game.spread`, `nba.full_game.total`, `nba.player.points` | Normalized the document to the 13-section `adapter_contract_v1` layout, added binary outcome-set audit fields, and clarified scenario/provider-evidence/executable-fixture terminology | governance cleanup; no lifecycle, probability, outcome, freshness, source, or run-behavior change |

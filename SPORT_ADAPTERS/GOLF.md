@@ -1,10 +1,11 @@
 # Golf Pregame Stroke-Play Sport Adapter
 
+<!-- adapter-section: 1 adapter_metadata -->
 ## 1. Adapter metadata
 
 **Adapter ID:** `golf.pregame_stroke_play_v0_1`
 
-**Version:** `0.1.0`
+**Version:** `0.1.1`
 
 **Structural contract:** `adapter_contract_v1`
 
@@ -27,7 +28,7 @@
 ```yaml
 adapter:
   adapter_id: golf.pregame_stroke_play_v0_1
-  version: 0.1.0
+  version: 0.1.1
   contract_version: adapter_contract_v1
   document_status: active pre-activation documentation policy
   sport: Golf
@@ -49,6 +50,7 @@ This adapter must be applied with `PROJECT_CONTEXT.md`, `PROMO_ANALYSIS_PLAYBOOK
 
 ---
 
+<!-- adapter-section: 2 profile_registry -->
 ## 2. Profile registry
 
 | profile_id | lifecycle | participant scope | period | allowed line shape | completion, tie, and settlement treatment | probability method | activation blocker |
@@ -68,6 +70,7 @@ For round profiles, “pregame” means before the exact selected round and befo
 
 ---
 
+<!-- adapter-section: 3 market_identity_settlement -->
 ## 3. Market identity and settlement contract
 
 Every target and comparison record must retain the standard identity fields plus the golf-local audit fields below. During this disabled contract phase these fields remain adapter-local audit annotations; they do not change `promotion_decision_brief_v2`, a persisted schema, a global formula, or AP Frankenstein. The current team-event and single-outcome structures cannot canonically carry complete Golf field, identity, and outcome vectors, so separately reviewed schema evolution is a mandatory activation blocker.
@@ -143,6 +146,21 @@ market_identity:
   source_id: string
   raw_snapshot_id: string
   ap_frankenstein_compatibility: unsupported
+
+binary_outcome_set_audit:
+  applies: true | false
+  source_sportsbook_id: string | null
+  source_pricing_origin_id: string | null
+  candidate_outcome_id: string | null
+  opposing_outcome_id: string | null
+  candidate_retrieved_at_utc: datetime | null
+  opposing_retrieved_at_utc: datetime | null
+  same_book: true | false | not_applicable
+  same_market_identity: true | false | not_applicable
+  same_line: true | false | not_applicable
+  same_settlement_contract: true | false | not_applicable
+  complete: true | false | not_applicable
+  exclusion_reason_codes: list[string]
 ```
 
 `ap_frankenstein_compatibility` is `unsupported` for every golf market in this milestone. The field is descriptive only. It creates no receipt, spreadsheet, settlement, write, API, or handoff integration.
@@ -171,7 +189,7 @@ Never manufacture a complementary outcome, combine outcomes from different books
 
 ### 3.2 Probability and comparison policy
 
-All methods in this section are inactive specifications. Lifecycle enforcement occurs before probability, EV, or ranking. No fixture, formula, provider field, or complete-looking market activates a profile.
+All methods in this section are inactive specifications. Lifecycle enforcement occurs before probability, EV, or ranking. No contract scenario, formula, provider field, or complete-looking market activates a profile.
 
 | profile | source-level outcome-set requirement | de-vig method | push requirement | dead-heat requirement | current status |
 |---|---|---|---|---|---|
@@ -228,6 +246,7 @@ If FanDuel is the target, DraftKings can count as at most one non-target pricing
 
 ---
 
+<!-- adapter-section: 4 source_compliance -->
 ## 4. Source and compliance policy
 
 Source IDs resolve through `source_registry_v1` in `SPORT_ADAPTERS/source_registry.yaml`. The registry owns URLs, access/automation permission, coverage posture, review dates, pricing-origin groups, and event/season artifacts; this adapter owns the Golf facts and gates. URL health or a sportsbook listing alone clears none of them.
@@ -251,9 +270,10 @@ For every source retain source ID or URL, local UTC retrieval, provider timestam
 
 ---
 
+<!-- adapter-section: 5 signal_registry -->
 ## 5. Active signal registry
 
-The shared `promo_terms`, `target_quote`, `comparison_quotes_same_line`, `market_status`, and `promo_expiration` signals retain their only authoritative ten-field definitions in `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`. The following rows extend those signals; they do not redefine them. Every golf-specific row is a dormant pre-activation contract and authorizes fixture review only.
+The shared `promo_terms`, `target_quote`, `comparison_quotes_same_line`, `market_status`, and `promo_expiration` signals retain their only authoritative ten-field definitions in `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`. The following rows extend those signals; they do not redefine them. Every golf-specific row is a dormant pre-activation contract and authorizes contract-scenario review only.
 
 ### 5.1 Inherited shared-signal extensions
 
@@ -279,6 +299,7 @@ The shared `promo_terms`, `target_quote`, `comparison_quotes_same_line`, `market
 
 ---
 
+<!-- adapter-section: 6 materiality_state -->
 ## 6. Materiality and state rules
 
 | rule_id | profiles | source fields / qualifying change | effective-time rule | state effect | required refetch | resolution rule | probability effect |
@@ -304,7 +325,7 @@ State resolution is fail closed:
 - Every material fact newer than a quote invalidates that quote. Resolution requires all included quotes to postdate the newest fact, remain open, meet 180/300/300 limits, and still satisfy the configured exact-outcome consensus.
 - Tier A/C facts never add or subtract probability or ranking points. Only refreshed Tier B prices may change future valuation.
 
-Every fixture or future local validation snapshot includes:
+Every contract scenario or future local validation snapshot includes:
 
 ```yaml
 monitoring_metadata:
@@ -315,9 +336,10 @@ monitoring_metadata:
 
 ---
 
+<!-- adapter-section: 7 refresh_policy -->
 ## 7. Refresh policy
 
-These phases define credential-free fixture cadence and the evidence a future separately approved on-demand run would need. They do not install or authorize a scheduler, poller, automatic alert, closing-line job, result collector, or settlement job.
+These phases define credential-free contract-scenario cadence and the evidence a future separately approved on-demand run would need. They do not install or authorize a scheduler, poller, automatic alert, closing-line job, result collector, or settlement job.
 
 | phase_id | golf window or trigger | required refresh after activation | maximum ages | state if unavailable after activation | next refresh reason |
 |---|---|---|---|---|---|
@@ -328,10 +350,11 @@ These phases define credential-free fixture cadence and the evidence a future se
 | `shortlist_check` | T-90m and T-30m relative to tournament start or the selected player's/round's start | shortlist eligibility/identity, event/format, field/player, tee time, exact round/course, cut/rules, operational weather, target, comparisons, and outcome-set audit | registry ages plus 180/300/300 quote limits | `WATCH` or `BLOCKED` according to failed gate | next official correction, participant start, operational update, or final sync |
 | `final_sync` | immediately before human placement and before the selected period starts | promotion, Missouri jurisdiction, event/format, field/player, tee time, round/course, cut/rules, weather/operations, target, complete comparisons, settlement, market status, synchronization, and QA | every final recommendation-grade limit | any disabled, fatal, stale, missing, conflicting, incomplete, or already-started input `BLOCKED` | none; new evidence requires a new run |
 
-While lifecycle remains disabled, every phase stops at `BLOCKED` with `ADAPTER_PROFILE_DISABLED` before any provider call. The table exists only to make later evidence and fixtures testable.
+While lifecycle remains disabled, every phase stops at `BLOCKED` with `ADAPTER_PROFILE_DISABLED` before any provider call. The table exists only to make later provider evidence, contract scenarios, and executable fixtures testable.
 
 ---
 
+<!-- adapter-section: 8 tier_d_registry -->
 ## 8. Tier D model-only registry
 
 All groups are `disabled_model_only`. They are not routinely fetched, scored, narrated, or used to change probability, state, or rank.
@@ -348,6 +371,7 @@ PGA TOUR public-page availability is not permission for systematic model use. A 
 
 ---
 
+<!-- adapter-section: 9 tier_x_exclusions -->
 ## 9. Tier X exclusions
 
 | excluded group | examples | reason excluded | permitted operational use |
@@ -366,9 +390,10 @@ Tier X material cannot supply probability, rank, positive-EV language, or persua
 
 ---
 
-## 10. Provider-validation evidence requirements
+<!-- adapter-section: 10 provider_evidence -->
+## 10. Provider evidence
 
-No target, comparison-origin configuration, organizer feed, source permission, house-rule interpretation, or deterministic golf valuation method is certified by this document. Synthetic fixtures prove expected contract behavior only.
+No target, comparison-origin configuration, organizer feed, source permission, house-rule interpretation, or deterministic golf valuation method is certified by this document. Contract scenarios prove expected documentation behavior only. Real timestamped captures belong in provider evidence; future machine-readable inputs belong in executable fixture files backed by a test runner.
 
 | evidence_id | profile scope | role | timing conditions required | current evidence state | certification effect |
 |---|---|---|---|---|---|
@@ -389,26 +414,37 @@ Promotion to `pilot_enabled` requires separately reviewed canonical-schema and d
 
 ---
 
-## 11. Inline credential-free fixtures and expected outcomes
+<!-- adapter-section: 11 contract_scenarios_fixtures -->
+## 11. Contract scenarios and executable fixtures
 
-All fixtures are synthetic documentation rows. They make no claim about a current FanDuel, DraftKings, organizer, or provider market. The structural column records future behavior after activation; the current outcome remains controlling. Every otherwise structurally valid case is `BLOCKED` with `ADAPTER_PROFILE_DISABLED` and performs no recommendation-grade calculation.
+```yaml
+executable_fixtures:
+  schema_version: not_implemented
+  implementation_status: not_implemented
+  fixture_paths: []
+  deterministic_runner: not_implemented
+  paid_or_live_calls_required: false
+  provider_certification_claimed: false
+```
 
-### 11.1 Lifecycle, promotion, and jurisdiction fixtures
+These Markdown rows are synthetic contract scenarios, not provider evidence, executable fixtures, or claims about a current FanDuel, DraftKings, organizer, or provider market. The structural column records future behavior after activation; the current outcome remains controlling. Every otherwise structurally valid case is `BLOCKED` with `ADAPTER_PROFILE_DISABLED` and performs no recommendation-grade calculation.
 
-| fixture/scenario | credential-free input condition | structural expectation | current required outcome |
+### 11.1 Lifecycle, promotion, and jurisdiction scenarios
+
+| scenario_id | credential-free input condition | structural expectation | current required outcome |
 |---|---|---|---|
 | `golf_valid_registered_profile_disabled` | exact registered profile and identity; current Missouri target; required complete outcome sets and context otherwise pass | future exact-profile gates would pass | `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; no probability, EV, rank, alert, candidate, or provider call |
 | `golf_min_minus_200_boundary` | promotion minimum odds `-200`; target price exactly `-200` | eligible boundary | `BLOCKED` with `ADAPTER_PROFILE_DISABLED` after recording boundary pass |
-| `golf_min_minus_200_fail` | promotion minimum odds `-200`; target price `-201` | promotion ineligible | `INELIGIBLE` with `PROMO_MIN_ODDS_FAIL`; lifecycle remains disabled; no candidate |
+| `golf_min_minus_200_fail` | promotion minimum odds `-200`; target price `-201` | promotion ineligible | `INELIGIBLE` with `PROMO_MIN_ODDS_FAIL` and `ADAPTER_PROFILE_DISABLED`; lifecycle remains disabled; no candidate |
 | `golf_min_minus_100_boundary` | promotion minimum odds `-100`; target price exactly `-100` | eligible boundary | `BLOCKED` with `ADAPTER_PROFILE_DISABLED` after recording boundary pass |
-| `golf_min_minus_100_fail` | promotion minimum odds `-100`; target price `-110` | promotion ineligible | `INELIGIBLE` with `PROMO_MIN_ODDS_FAIL`; lifecycle remains disabled; no candidate |
+| `golf_min_minus_100_fail` | promotion minimum odds `-100`; target price `-110` | promotion ineligible | `INELIGIBLE` with `PROMO_MIN_ODDS_FAIL` and `ADAPTER_PROFILE_DISABLED`; lifecycle remains disabled; no candidate |
 | `golf_min_odds_basis_ambiguous` | token does not establish whether restriction applies to base or boosted odds | cannot establish eligibility | `BLOCKED` with `PROMO_TERMS_AMBIGUOUS` and `ADAPTER_PROFILE_DISABLED` |
 | `golf_jurisdiction_mismatch` | target screen/feed is not proven Missouri | target cannot be substituted | `BLOCKED` with `JURISDICTION_MISMATCH` and `ADAPTER_PROFILE_DISABLED` |
 | `golf_non_stroke_play_event` | offered event is team, match play, Stableford, or skins | outside adapter format | `BLOCKED` with `MARKET_IDENTITY_MISMATCH` and `ADAPTER_PROFILE_DISABLED` |
 
-### 11.2 Make-cut and round-total fixtures
+### 11.2 Make-cut and round-total scenarios
 
-| fixture/scenario | credential-free input condition | structural expectation | current required outcome |
+| scenario_id | credential-free input condition | structural expectation | current required outcome |
 |---|---|---|---|
 | `golf_make_cut_complete_pair` | exact player/event/first cut; verified cut exists; complete Yes/No pair; every action state maps to Yes or No with no refund/void outcome | binary identity would pass after activation | `BLOCKED` with `ADAPTER_PROFILE_DISABLED` |
 | `golf_make_cut_no_cut_event` | competition officially has no cut | registered make-cut identity unavailable | `BLOCKED` with `COMPETITION_RULE_UNRESOLVED` and `ADAPTER_PROFILE_DISABLED` |
@@ -426,9 +462,9 @@ All fixtures are synthetic documentation rows. They make no claim about a curren
 | `golf_round_total_incomplete_round` | player does not complete 18 holes and exact book treatment is missing | completion settlement unresolved | `BLOCKED` with `SETTLEMENT_RULE_MISMATCH` and `ADAPTER_PROFILE_DISABLED` |
 | `golf_round_period_started` | selected player has teed off before target capture | outside pre-round boundary | `BLOCKED` with `MARKET_IDENTITY_MISMATCH` and `ADAPTER_PROFILE_DISABLED` |
 
-### 11.3 Matchup fixtures
+### 11.3 Matchup scenarios
 
-| fixture/scenario | credential-free input condition | structural expectation | current required outcome |
+| scenario_id | credential-free input condition | structural expectation | current required outcome |
 |---|---|---|---|
 | `golf_round_matchup_binary_no_push` | exact two players/round/course; verified exhaustive two-outcome rule; complete pair; no push, refund, or void outcome | binary method could apply after activation | `BLOCKED` with `ADAPTER_PROFILE_DISABLED` |
 | `golf_round_matchup_tie_refund` | exact two-way matchup refunds a tied score | push probability required | `BLOCKED` with `PUSH_MODEL_UNAVAILABLE` and `ADAPTER_PROFILE_DISABLED` |
@@ -442,9 +478,9 @@ All fixtures are synthetic documentation rows. They make no claim about a curren
 | `golf_tournament_matchup_both_miss_cut_unknown` | both miss cut but winner/void rule is absent or conflicts | settlement unresolved | `BLOCKED` with `SETTLEMENT_RULE_MISMATCH` and `ADAPTER_PROFILE_DISABLED` |
 | `golf_matchup_wd_dq_timing` | one player WD/DQ timing changes settlement and exact timing/rule is unavailable | settlement unresolved | `BLOCKED` with `SETTLEMENT_RULE_MISMATCH` and `ADAPTER_PROFILE_DISABLED` |
 
-### 11.4 Top-N and outright fixtures
+### 11.4 Top-N and outright scenarios
 
-| fixture/scenario | credential-free input condition | structural expectation | current required outcome |
+| scenario_id | credential-free input condition | structural expectation | current required outcome |
 |---|---|---|---|
 | `golf_top_n_thresholds_exact` | for each `N` in `{5, 10, 20}`, target and comparisons all use that exact N for the same player/event/wrapper | every registered threshold identity passes independently | `BLOCKED` with `ADAPTER_PROFILE_DISABLED` for Top 5, Top 10, and Top 20 |
 | `golf_top_n_threshold_mismatch` | target Top 10; comparison Top 5 or Top 20 | nearby threshold is not equivalent | `BLOCKED` with `MARKET_IDENTITY_MISMATCH` and `ADAPTER_PROFILE_DISABLED` |
@@ -464,9 +500,9 @@ All fixtures are synthetic documentation rows. They make no claim about a curren
 | `golf_shortened_event_exact` | event is shortened; exact competition finality and book minimum-action/settlement match | future structural settlement may resolve after synchronized prices | `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; record shortening and synchronization audit |
 | `golf_shortened_event_unknown` | event shortened but minimum action or official finality is unresolved | competition/settlement cannot clear | `BLOCKED` with `COMPETITION_RULE_UNRESOLVED`, `SETTLEMENT_RULE_MISMATCH`, and `ADAPTER_PROFILE_DISABLED` |
 
-### 11.5 Consensus, freshness, material-change, and exclusion fixtures
+### 11.5 Consensus, freshness, material-change, and exclusion scenarios
 
-| fixture/scenario | credential-free input condition | structural expectation | current required outcome |
+| scenario_id | credential-free input condition | structural expectation | current required outcome |
 |---|---|---|---|
 | `golf_target_excluded_two_origins` | target also exposes complete set; two other exact complete sources come from origins A/B | exclude target; de-vig each non-target source separately | `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; audit counts, sets, origins, and exclusions |
 | `golf_only_one_comparison_origin` | FanDuel target plus DraftKings as only usable comparison, or inverse | consensus invalid; break-even only after activation | `BLOCKED` with `CONSENSUS_INSUFFICIENT` and `ADAPTER_PROFILE_DISABLED` |
@@ -483,6 +519,7 @@ All fixtures are synthetic documentation rows. They make no claim about a curren
 
 ---
 
+<!-- adapter-section: 12 run_decision_brief -->
 ## 12. On-demand run and decision-brief contract
 
 ### 12.1 Required inputs after a separately approved lifecycle change
@@ -525,7 +562,7 @@ Save only a local research/evidence snapshot. Do not call or write to AP Franken
 ### 12.4 Reusable task prompt
 
 ```text
-Evaluate the supplied Missouri golf promotion request against adapter golf.pregame_stroke_play_v0_1 version 0.1.0 and adapter_contract_v1.
+Evaluate the supplied Missouri golf promotion request against adapter golf.pregame_stroke_play_v0_1 version 0.1.1 and adapter_contract_v1.
 
 First apply profile lifecycle. All six registered profiles are disabled_provider_validation. Return BLOCKED with ADAPTER_PROFILE_DISABLED for every otherwise structurally valid shape. Do not call a provider or sportsbook, generate a candidate, calculate recommendation-grade probability or EV, schedule monitoring, or send an alert. Preserve supplied raw labels and identify every additional structural blocker.
 
@@ -540,26 +577,28 @@ For the current disabled phase, preserve existing `promotion_decision_brief_v2` 
 
 ---
 
+<!-- adapter-section: 13 activation_change_log -->
 ## 13. Activation checklist and change log
 
-- [x] Adapter metadata declares `adapter_contract_v1` and version `0.1.0`.
+- [x] Adapter metadata declares `adapter_contract_v1` and version `0.1.1`.
 - [x] Exactly six profiles use the closed lifecycle value `disabled_provider_validation`.
 - [x] Raw/canonical/golf-local identity, settlement variants, and unavailable adjacent shapes are explicit.
 - [x] Binary, multiway, push, and dead-heat boundaries fail closed without activating an engine.
 - [x] Shared signals are extended by reference and every golf-specific Tier A/C signal has all ten contract fields.
-- [x] Materiality, synchronization, six refresh phases, Tier D, Tier X, evidence, fixtures, and run contracts are documented.
-- [x] Every otherwise structurally valid fixture retains `ADAPTER_PROFILE_DISABLED` and prohibits candidate generation.
+- [x] Materiality, synchronization, six refresh phases, Tier D, Tier X, provider evidence, contract scenarios, and run contracts are documented.
+- [x] Every otherwise structurally valid contract scenario retains `ADAPTER_PROFILE_DISABLED` and prohibits candidate generation.
 - [ ] Canonical event/market schemas and the versioned decision-brief contract can represent complete Golf identity, field, participant, and outcome vectors without overloading current fields.
 - [ ] Exact current FanDuel and DraftKings Missouri house rules, promotion evidence, market titles, settlement behavior, and target coverage are recorded across required timing conditions.
 - [ ] Two independent non-target pricing origins provide exact complete source markets under 180/300/300 limits for the selected profile.
 - [ ] Organizer/event source access, terms, format, field, tee-time, cut, WD/DQ, shortening, and official-finality behavior are approved and validated.
 - [ ] Binary, multiway, push-aware, and/or dead-heat deterministic calculations required by the selected profile are implemented and tested.
 - [ ] Credential-free recorded evidence covers every identity, missing, stale, suspended, incomplete-set, material-change, and resolution case required by the profile.
-- [x] The adapter catalog, monitoring playbook, template, `PROMO_ANALYSIS_PLAYBOOK.md`, `PROJECT_CONTEXT.md`, `AGENTS.md`, and `README.md` agree for the disabled version `0.1.0` contract.
+- [x] The adapter catalog, monitoring playbook, template, `PROMO_ANALYSIS_PLAYBOOK.md`, `PROJECT_CONTEXT.md`, `AGENTS.md`, and `README.md` agree for the disabled version `0.1.1` contract.
 - [ ] A separate explicit approval promotes one exact profile to `pilot_enabled` or `active`.
 
 Unchecked items are activation blockers, not permission to infer provider coverage or run a disabled profile.
 
 | date | adapter version | profiles affected | change | evidence/approval reference |
 |---|---|---|---|---|
-| 2026-07-13 | `0.1.0` | all six registered golf profiles | Created the Missouri multi-organizer individual-stroke-play `adapter_contract_v1` with binary/multiway/push/dead-heat boundaries, golf-local audit fields, dormant signals, six phases, provider/source policy, and inline credential-free fixtures | user-approved Missouri Golf Adapter Contract; no provider evidence or activation claimed |
+| 2026-07-13 | `0.1.1` | all six registered golf profiles | Normalized the document to the thirteen-section `adapter_contract_v1` structure and clarified contract scenarios versus provider evidence and executable fixtures; existing outcome-set audit fields remain controlling | documentation-structure and audit-only change; no lifecycle, probability, outcome, source, freshness, schema-activation, or provider-evidence change |
+| 2026-07-13 | `0.1.0` | all six registered golf profiles | Created the Missouri multi-organizer individual-stroke-play `adapter_contract_v1` with binary/multiway/push/dead-heat boundaries, golf-local audit fields, dormant signals, six phases, provider/source policy, and inline credential-free contract scenarios | user-approved Missouri Golf Adapter Contract; no provider evidence or activation claimed |

@@ -39,7 +39,7 @@ catalog_rules:
 
 adapters:
   - adapter_id: mlb.player_hits_v0_1
-    version: 0.1.0
+    version: 0.1.1
     contract_version: adapter_contract_v1
     sport_league: "Baseball / MLB"
     authoritative_location: "PROMO_PLACEMENT_MONITORING_PLAYBOOK.md, Section 6"
@@ -47,7 +47,7 @@ adapters:
     probability_method: "de-vigged exact-market consensus"
 
   - adapter_id: wnba.pregame_full_game_v0_1
-    version: 0.2.0
+    version: 0.2.1
     contract_version: adapter_contract_v1
     sport_league: "Basketball / WNBA"
     authoritative_location: "SPORT_ADAPTERS/WNBA.md"
@@ -55,7 +55,7 @@ adapters:
     probability_method: "de-vigged exact-market consensus for pilot-enabled profiles"
 
   - adapter_id: nba.pregame_full_game_v0_1
-    version: 0.1.0
+    version: 0.1.1
     contract_version: adapter_contract_v1
     sport_league: "Basketball / NBA"
     authoritative_location: "SPORT_ADAPTERS/NBA.md"
@@ -63,7 +63,7 @@ adapters:
     probability_method: "de-vigged exact-market consensus after separate activation"
 
   - adapter_id: nfl.pregame_full_game_v0_1
-    version: 0.1.0
+    version: 0.1.1
     contract_version: adapter_contract_v1
     sport_league: "Football / NFL"
     authoritative_location: "SPORT_ADAPTERS/NFL.md"
@@ -71,7 +71,7 @@ adapters:
     probability_method: "de-vigged exact-market consensus after separate activation"
 
   - adapter_id: golf.pregame_stroke_play_v0_1
-    version: 0.1.0
+    version: 0.1.1
     contract_version: adapter_contract_v1
     sport_league: "Golf / individual stroke play"
     authoritative_location: "SPORT_ADAPTERS/GOLF.md"

@@ -1,8 +1,11 @@
 # NFL Boost-Analysis Sport Adapter
 
+<!-- adapter-section: 1 adapter_metadata -->
+## 1. Adapter metadata
+
 **Adapter ID:** `nfl.pregame_full_game_v0_1`
 
-**Version:** `0.1.0`
+**Version:** `0.1.1`
 
 **Structural contract:** `adapter_contract_v1`
 
@@ -14,7 +17,7 @@
 
 **Lifecycle:** All registered profiles are `disabled_provider_validation`
 
-**Last reviewed:** 2026-07-12
+**Last reviewed:** 2026-07-13
 
 **Default timezone:** `America/Chicago`
 
@@ -25,13 +28,13 @@
 ```yaml
 adapter:
   adapter_id: nfl.pregame_full_game_v0_1
-  version: 0.1.0
+  version: 0.1.1
   contract_version: adapter_contract_v1
   document_status: active pre-activation documentation policy
   sport: American football
   league: NFL
   default_timezone: America/Chicago
-  last_reviewed: 2026-07-12
+  last_reviewed: 2026-07-13
   review_owner: Advantage Play Intern
   run_mode: on_demand_local_brief_after_separate_activation
   probability_method: de_vigged_same_line_market_consensus
@@ -45,7 +48,8 @@ This adapter must be applied with `PROJECT_CONTEXT.md`, `PROMO_ANALYSIS_PLAYBOOK
 
 ---
 
-## 1. Profile registry
+<!-- adapter-section: 2 profile_registry -->
+## 2. Profile registry
 
 | profile_id | lifecycle | participant | period | allowed line shape | overtime/tie treatment | probability method | activation blocker |
 |---|---|---|---|---|---|---|---|
@@ -57,7 +61,8 @@ No NFL player-prop profile is registered. Passing yards, rushing yards, receivin
 
 ---
 
-## 2. Market identity and settlement contract
+<!-- adapter-section: 3 market_identity_settlement -->
+## 3. Market identity and settlement contract
 
 Every target and comparison quote must retain the complete identity below. The NFL-local `season_phase`, `tie_possible`, and `tie_treatment` fields are additive local audit annotations in `promotion_decision_brief_v2`; they do not change a global schema or formula.
 
@@ -75,6 +80,11 @@ market_identity:
   raw_market_label: string
   raw_selection_label: string
   canonical_market_key: string
+  outcome_set_id: string | null
+  outcome_set_type: binary_pair | mutually_exclusive_exhaustive_multiway | other
+  outcome_set_completeness: complete | incomplete | unknown
+  participant_set_version: string | null
+  market_wrapper: standard | other | null
   side: home | away | over | under
   line: number | null
   period: full_game
@@ -83,6 +93,7 @@ market_identity:
   tie_possible: true | false | unknown
   tie_treatment: impossible_by_competition_rule | push | separate_outcome | loss | void | unknown
   push_behavior: impossible | push | unknown
+  tie_or_dead_heat_treatment: not_applicable | refund | dead_heat | full_pay | unknown
   void_and_participation_rule: string | unknown
   american_odds: integer
   decimal_odds: number
@@ -92,11 +103,26 @@ market_identity:
   source_id: string
   raw_snapshot_id: string
   ap_frankenstein_compatibility: unsupported
+
+binary_outcome_set_audit:
+  applies: true
+  source_sportsbook_id: string
+  source_pricing_origin_id: string
+  candidate_outcome_id: string
+  opposing_outcome_id: string
+  candidate_retrieved_at_utc: datetime
+  opposing_retrieved_at_utc: datetime
+  same_book: boolean
+  same_market_identity: boolean
+  same_line: boolean
+  same_settlement_contract: boolean
+  complete: boolean
+  exclusion_reason_codes: list[string]
 ```
 
 `ap_frankenstein_compatibility` defaults to `unsupported` for every NFL shape. The field is descriptive only and creates no API, spreadsheet, receipt, settlement, or handoff integration.
 
-### 2.1 Raw-to-canonical equivalence
+### 3.1 Raw-to-canonical equivalence
 
 | raw market shape | canonical profile | equivalence conditions | settlement conditions | AP compatibility | status |
 |---|---|---|---|---|---|
@@ -117,7 +143,7 @@ Never manufacture an opposing outcome, combine opposite sides from different boo
 
 ---
 
-## 3. Probability and comparison policy
+### 3.2 Outcome-set and probability policy
 
 `nfl_market_consensus_mean_v1` narrows the global same-line consensus gate without redefining it:
 
@@ -130,12 +156,19 @@ Never manufacture an opposing outcome, combine opposite sides from different boo
 7. Require target-quote age no greater than 180 seconds, comparison-quote age no greater than 300 seconds, and collection-time skew no greater than 300 seconds.
 8. Report target exclusion; raw, usable, and pricing-origin counts; every source-level pair and fair probability; the mean; dispersion; oldest comparison age; collection skew; and every exclusion with an existing reason code.
 
+| profile | source-level outcome-set requirement | de-vig method | push requirement | dead-heat requirement | current status |
+|---|---|---|---|---|---|
+| `nfl.full_game.moneyline` | one complete same-book binary pair only when competition and book rules prove tie and push impossible | `nfl_market_consensus_mean_v1` after activation | impossible and explicitly verified | not applicable | inactive specification; profile disabled |
+| `nfl.full_game.spread` | one complete same-book reciprocal principal half-point pair | `nfl_market_consensus_mean_v1` after activation | impossible at the exact half-point line | not applicable | inactive specification; profile disabled |
+| `nfl.full_game.total` | one complete same-book principal half-point Over/Under pair | `nfl_market_consensus_mean_v1` after activation | impossible at the exact half-point line | not applicable | inactive specification; profile disabled |
+
 If fewer than two usable independent comparison books remain, use `WATCH` during a future approved research run and `BLOCKED` at its final check. The brief may show the target price, boosted price, break-even probability, and labeled non-consensus comparisons, but it may not report positive EV or `ACTIONABLE FOR REVIEW`.
 
 Under the current lifecycle, even a structurally valid, fresh, independent consensus produces `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; no recommendation-grade calculation or candidate generation may run.
 
 ---
 
+<!-- adapter-section: 4 source_compliance -->
 ## 4. Source and compliance policy
 
 Source IDs resolve through `source_registry_v1` in `SPORT_ADAPTERS/source_registry.yaml`. The registry owns URLs, access/automation permission, season artifacts, coverage posture, review dates, and triggers; this adapter owns the NFL-required facts and gates. URL health alone clears none of them.
@@ -164,11 +197,12 @@ For every source retain the source identifier or URL, retrieval time in UTC, pro
 
 ---
 
-## 5. Signal registry
+<!-- adapter-section: 5 signal_registry -->
+## 5. Active signal registry
 
 The shared `promo_terms`, `target_quote`, `comparison_quotes_same_line`, `market_status`, and `promo_expiration` signals retain their only authoritative ten-field definitions in Section 5 of `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`. The extensions below add NFL constraints and do not create duplicate signal IDs or collection paths.
 
-All NFL-specific rows are complete pre-activation contracts but are dormant while every profile is `disabled_provider_validation`. They authorize fixture review only, not source polling or candidate generation.
+All NFL-specific rows are complete pre-activation contracts but are dormant while every profile is `disabled_provider_validation`. They authorize contract-scenario review only, not source polling or candidate generation.
 
 ### 5.1 Inherited shared-signal extensions
 
@@ -193,7 +227,8 @@ All NFL-specific rows are complete pre-activation contracts but are dormant whil
 | `nfl_venue_state` | all NFL profiles | A/C | `nfl_official_schedule`; `nfl_flexible_scheduling_procedures`; `source_class_official_team_announcement`; `source_class_licensed_sports_data_provider` | baseline, T-24h, T-6h, T-90m, final check, and venue/roof/surface change | 600 seconds inside T-2h for mutable operational state; event-scoped identity retained | venue, city, neutral/international site, playing surface, roof/wall designation, relocation, or operational availability changes | identity conflict or unresolved relocation `BLOCKED`; material resolvable change `WATCH` and synchronized refetch after activation | none | always show venue/neutral state; roof, surface, or relocation only when material |
 | `nfl_operational_weather` | all NFL profiles | A/C | `nws_weather_api`; `source_class_official_non_us_operational`; `source_class_official_team_announcement` | early outlook, T-24h, T-6h, T-90m, T-30m, final check, and configured threshold/alert change | 900 seconds inside T-2h; latest official operational notice controls | venue-matched configured rule changes among `CLEAR`, `WATCH`, and `BLOCKED`, including delay, postponement, relocation, roof/wall, unsafe travel, or field-operation conditions | configured `WATCH` or `BLOCKED`; resolution requires synchronized post-change quotes after activation | none | report venue, source validity time, rule version, and operational state only; never describe weather as an edge |
 
-### 5.3 Materiality rules
+<!-- adapter-section: 6 materiality_state -->
+## 6. Materiality and state rules
 
 | rule_id | profiles | source fields / qualifying change | effective-time rule | state effect | required refetch | resolution rule | probability effect |
 |---|---|---|---|---|---|---|---|
@@ -205,9 +240,9 @@ All NFL-specific rows are complete pre-activation contracts but are dormant whil
 | `nfl_venue_weather_materiality_v1` | all NFL profiles | venue/relocation/surface/roof/wall state or configured operational-weather rule crosses `CLEAR`, `WATCH`, or `BLOCKED` | latest venue-matched official/configured fact must postdate prior state and be compared with affected quotes | configured `WATCH` or `BLOCKED`; identity conflict `BLOCKED` | shared target and complete comparison signals after resolution | current venue/operational state plus synchronized post-resolution batch | none |
 | `nfl_post_change_price_sync_v1` | all NFL profiles | market suspension/reopening or any target/comparison quote older than a registered material fact | every included quote must postdate the newest applicable material fact and meet age/skew rules | remain `WATCH` after activation; unavailable/suspended final batch `BLOCKED`; valid batch re-ranks from Tier B only | shared target, comparison, and market-status signals | synchronized open batch with valid consensus and `post_material_change_synchronized=true` | none |
 
-### 5.4 State-resolution rules
+### 6.1 State-resolution rules
 
-- A lifecycle check precedes every other gate. While the selected profile is `disabled_provider_validation`, return `BLOCKED` with `ADAPTER_PROFILE_DISABLED`, do not fetch sources, and do not generate candidates. Fixture rows below may still document the state a future activated run would have reached.
+- A lifecycle check precedes every other gate. While the selected profile is `disabled_provider_validation`, return `BLOCKED` with `ADAPTER_PROFILE_DISABLED`, do not fetch sources, and do not generate candidates. Contract-scenario rows below may still document the state a future activated run would have reached.
 - Before an applicable injury-report or inactive-list deadline, store `not_due`; any preliminary future result remains `WATCH` and cannot clear the final critical-context gate.
 - After an applicable deadline, a missing, stale, or conflicting required report/list is `WATCH` during future research and `BLOCKED` at the final check.
 - A starting-quarterback identity or availability conflict remains `WATCH` until resolved and becomes `BLOCKED` at the final check. A confirmed change newer than prices invalidates the batch but never causes a manual probability penalty.
@@ -217,7 +252,7 @@ All NFL-specific rows are complete pre-activation contracts but are dormant whil
 - A resolved material fact clears its context blocker only when every included quote is newer than the fact, open, within 180/300/300 limits, and the consensus remains valid. Refreshed Tier B prices are the only active numerical valuation input.
 - `nfl_operational_weather_rules_v1` must name the source field, operator, threshold/qualifying value, venue/time match, roof handling, state effect, and resolution for every operational rule. If a required rule or venue mapping cannot be evaluated, use `WATCH` and then `BLOCKED` at final check after activation. Generic wind, temperature, precipitation, travel, or field-condition prose never creates an edge.
 
-Every fixture or future candidate snapshot must include:
+Every contract scenario or future candidate snapshot must include:
 
 ```yaml
 monitoring_metadata:
@@ -230,9 +265,10 @@ These values and the NFL-local identity fields are local brief/audit annotations
 
 ---
 
-## 6. Refresh policy
+<!-- adapter-section: 7 refresh_policy -->
+## 7. Refresh policy
 
-The six phases below specify the evidence cadence for credential-free validation fixtures and for a possible future approved on-demand run. They do not authorize execution while profiles are disabled and do not install a scheduler, background poller, automatic alert, closing-line job, or settlement job.
+The six phases below specify the evidence cadence for credential-free contract scenarios and for a possible future approved on-demand run. They do not authorize execution while profiles are disabled and do not install a scheduler, background poller, automatic alert, closing-line job, or settlement job.
 
 | phase_id | NFL window or trigger | required refresh after activation | maximum ages | state if unavailable after activation | next refresh reason |
 |---|---|---|---|---|---|
@@ -243,11 +279,12 @@ The six phases below specify the evidence cadence for credential-free validation
 | `shortlist_check` | around T-90m and T-30m | shortlist identity/eligibility, event, report/availability, quarterback, inactive list, roster, venue/weather, target, comparisons, and consensus audit | registry ages and 180/300/300 quote limits | `WATCH` or `BLOCKED` according to failed gate | inactive publication/correction or final synchronized check |
 | `final_sync` | immediately before human placement after activation | promotion, event/season/tie identity, report/availability, quarterback, inactives, roster, venue/weather, target, comparisons, jurisdiction, settlement, and QA | all final recommendation-grade limits | any fatal, stale, missing, disabled, or conflicting input `BLOCKED` | none; new evidence requires a new run |
 
-While lifecycle remains disabled, every phase stops at the lifecycle gate with `BLOCKED` and `ADAPTER_PROFILE_DISABLED`. The phase table exists so future provider evidence and recorded fixtures are evaluated against a complete contract rather than an invented cadence.
+While lifecycle remains disabled, every phase stops at the lifecycle gate with `BLOCKED` and `ADAPTER_PROFILE_DISABLED`. The phase table exists so future provider evidence and contract scenarios are evaluated against a complete contract rather than an invented cadence.
 
 ---
 
-## 7. Tier D model-only registry
+<!-- adapter-section: 8 tier_d_registry -->
+## 8. Tier D model-only registry
 
 All groups below are `disabled_model_only`. They are hypotheses, not active metrics, and must not be routinely fetched, stored as model inputs, scored, narrated, or used to change probability, state, or rank.
 
@@ -264,7 +301,8 @@ NFL.com content is not an approved systematic model-input source under the curre
 
 ---
 
-## 8. Tier X exclusions
+<!-- adapter-section: 9 tier_x_exclusions -->
+## 9. Tier X exclusions
 
 | excluded group | examples | reason excluded | permitted operational use |
 |---|---|---|---|
@@ -281,9 +319,10 @@ Tier X material cannot supply probability, rank, positive-EV language, or persua
 
 ---
 
-## 9. Provider-validation evidence requirements
+<!-- adapter-section: 10 provider_evidence -->
+## 10. Provider evidence
 
-No recommendation-grade automated target source, comparison-origin configuration, or context feed is certified by this document. Synthetic or credential-free fixtures prove expected contract behavior only; they do not prove live coverage, source permission, or promotion readiness.
+No recommendation-grade automated target source, comparison-origin configuration, or context feed is certified by this document. Contract scenarios prove expected documentation behavior only; they do not prove live coverage, source permission, or promotion readiness. Real timestamped captures belong in provider evidence; future machine-readable inputs belong in executable fixture files backed by a test runner.
 
 | evidence_id | profile scope | role | timing conditions required | current evidence state | certification effect |
 |---|---|---|---|---|---|
@@ -298,37 +337,48 @@ For each comparison origin, require its own complete exact pair and resolved pri
 
 Validation must cover board open or distant pregame, after each category of registered material change, after official inactive publication, and near kickoff. It must demonstrate stale, suspended, duplicate, one-sided, mismatched, unresolved-origin, schema-change, and provider-failure behavior. Provider exposure or one successful capture never certifies future coverage.
 
-Promotion to `pilot_enabled` requires credential-free recorded evidence, deterministic calculation/fixture verification, source and terms approval, exact market and settlement validation, two independent non-target comparison origins, all governing-document updates, and separate explicit activation approval.
+Promotion to `pilot_enabled` requires credential-free recorded evidence, deterministic calculation and executable-fixture verification, source and terms approval, exact market and settlement validation, two independent non-target comparison origins, all governing-document updates, and separate explicit activation approval.
 
 ---
 
-## 10. Inline credential-free fixtures and expected outcomes
+<!-- adapter-section: 11 contract_scenarios_fixtures -->
+## 11. Contract scenarios and executable fixtures
 
-These are documentation fixtures, not claims about a real sportsbook or provider. The timestamps, books, events, and prices are synthetic. Every structurally valid scenario still stops at the lifecycle gate with `BLOCKED` and `ADAPTER_PROFILE_DISABLED`; the future-rule column records the additional behavior that must remain true after a separately approved activation.
+```yaml
+executable_fixtures:
+  schema_version: not_implemented
+  implementation_status: not_implemented
+  fixture_paths: []
+  deterministic_runner: not_implemented
+  paid_or_live_calls_required: false
+  provider_certification_claimed: false
+```
 
-| fixture/scenario | credential-free input condition | current required outcome | future contract behavior / audit evidence |
+These Markdown rows are synthetic contract scenarios, not provider evidence, executable fixtures, or claims about a real sportsbook or provider. The timestamps, books, events, and prices are synthetic. Every structurally valid scenario still stops at the lifecycle gate with `BLOCKED` and `ADAPTER_PROFILE_DISABLED`; the future-rule column records the additional behavior that must remain true after a separately approved activation.
+
+| scenario_id | credential-free input condition | current required outcome | future contract behavior / audit evidence |
 |---|---|---|---|
 | `nfl_fx_postseason_ml_valid_shape` | synthetic postseason event; target `Moneyline`; overtime included; `tie_possible=false`; tie impossible by current competition rule; no push; exact book rule verified; target age 60s; two non-target complete pairs ages 90s/120s from origins A/B; skew 60s | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; no candidate generation | structurally valid; after activation deterministic EV/ranking may run only with rulebook/book versions, target exclusion, per-book de-vig, and `nfl_market_consensus_mean_v1` audit |
-| `nfl_fx_regular_ml_tie` | synthetic regular-season two-way moneyline; `tie_possible=true`; book refunds/pushes a tie | `BLOCKED`; `PUSH_MODEL_UNAVAILABLE` | reject before consensus; preserve season phase, tie treatment, and raw labels |
-| `nfl_fx_preseason_ml_tie` | synthetic preseason moneyline; tie can remain final; push/tie treatment is not impossible | `BLOCKED`; `PUSH_MODEL_UNAVAILABLE` | reject before consensus; no zero-tie assumption |
-| `nfl_fx_three_way_ml` | synthetic full-game home/draw/away market | `BLOCKED`; `MARKET_IDENTITY_MISMATCH` | three-outcome market is not the binary registered profile |
-| `nfl_fx_regulation_only_ml` | synthetic `60-Minute Moneyline`; overtime excluded | `BLOCKED`; `MARKET_IDENTITY_MISMATCH` | period/overtime mismatch retained in raw/canonical audit |
+| `nfl_fx_regular_ml_tie` | synthetic regular-season two-way moneyline; `tie_possible=true`; book refunds/pushes a tie | `BLOCKED`; `PUSH_MODEL_UNAVAILABLE`; `ADAPTER_PROFILE_DISABLED` | reject before consensus; preserve season phase, tie treatment, and raw labels |
+| `nfl_fx_preseason_ml_tie` | synthetic preseason moneyline; tie can remain final; push/tie treatment is not impossible | `BLOCKED`; `PUSH_MODEL_UNAVAILABLE`; `ADAPTER_PROFILE_DISABLED` | reject before consensus; no zero-tie assumption |
+| `nfl_fx_three_way_ml` | synthetic full-game home/draw/away market | `BLOCKED`; `MARKET_IDENTITY_MISMATCH`; `ADAPTER_PROFILE_DISABLED` | three-outcome market is not the binary registered profile |
+| `nfl_fx_regulation_only_ml` | synthetic `60-Minute Moneyline`; overtime excluded | `BLOCKED`; `MARKET_IDENTITY_MISMATCH`; `ADAPTER_PROFILE_DISABLED` | period/overtime mismatch retained in raw/canonical audit |
 | `nfl_fx_half_spread_valid_shape` | synthetic principal `-2.5/+2.5` full-game pair; overtime and settlement match; valid fresh independent consensus | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; no candidate generation | structurally valid reciprocal no-push line; after activation calculate only from exact same-line pairs |
-| `nfl_fx_whole_spread` | synthetic principal `-3/+3` | `BLOCKED`; `PUSH_MODEL_UNAVAILABLE` | never treat push probability as zero |
+| `nfl_fx_whole_spread` | synthetic principal `-3/+3` | `BLOCKED`; `PUSH_MODEL_UNAVAILABLE`; `ADAPTER_PROFILE_DISABLED` | never treat push probability as zero |
 | `nfl_fx_half_total_valid_shape` | synthetic principal `Over/Under 47.5`; full game; valid fresh independent consensus | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; no candidate generation | structurally valid no-push line; after activation calculate only from exact same-line pairs |
-| `nfl_fx_whole_total` | synthetic principal `Over/Under 47` | `BLOCKED`; `PUSH_MODEL_UNAVAILABLE` | never treat push probability as zero |
-| `nfl_fx_alternate_line` | synthetic alternate `-6.5/+6.5` while principal is `-3.5/+3.5` | `BLOCKED`; `MARKET_IDENTITY_MISMATCH` | alternate designation and raw labels retained |
+| `nfl_fx_whole_total` | synthetic principal `Over/Under 47` | `BLOCKED`; `PUSH_MODEL_UNAVAILABLE`; `ADAPTER_PROFILE_DISABLED` | never treat push probability as zero |
+| `nfl_fx_alternate_line` | synthetic alternate `-6.5/+6.5` while principal is `-3.5/+3.5` | `BLOCKED`; `MARKET_IDENTITY_MISMATCH`; `ADAPTER_PROFILE_DISABLED` | alternate designation and raw labels retained |
 | `nfl_fx_target_excluded` | synthetic target book also appears in comparison payload plus two independent non-target origins | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; no candidate generation | exclude target from probability and coverage; audit target exclusion, then use only origins A/B after activation |
-| `nfl_fx_origin_duplicate` | two comparison records resolve to the same underlying pricing origin | `BLOCKED`; lifecycle plus `CONSENSUS_INSUFFICIENT` when only one independent origin remains | count the origin once; show duplicate exclusion and break-even only |
-| `nfl_fx_one_sided_or_synthetic_pair` | one book supplies candidate side only, or opposing side is taken from another book | `BLOCKED`; lifecycle plus `CONSENSUS_INSUFFICIENT` | exclude as non-de-viggable; never create a cross-book pair |
-| `nfl_fx_stale_suspended` | target age 181s or target status suspended; comparison age 301s or included batch skew 301s | `BLOCKED`; `TARGET_QUOTE_STALE` or `MARKET_SUSPENDED`; stale comparison excluded | enforce 180/300/300 exactly; downgrade coverage and preserve ages/status |
-| `nfl_fx_settlement_mismatch` | target and comparison differ on overtime, season phase, tie, push, or void treatment | `BLOCKED`; `SETTLEMENT_RULE_MISMATCH` | reject equivalence; show both raw identities and settlement fields |
+| `nfl_fx_origin_duplicate` | two comparison records resolve to the same underlying pricing origin | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; `CONSENSUS_INSUFFICIENT` when only one independent origin remains | count the origin once; show duplicate exclusion and break-even only |
+| `nfl_fx_one_sided_or_synthetic_pair` | one book supplies candidate side only, or opposing side is taken from another book | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; `CONSENSUS_INSUFFICIENT` | exclude as non-de-viggable; never create a cross-book pair |
+| `nfl_fx_stale_suspended` | target age 181s or target status suspended; comparison age 301s or included batch skew 301s | `BLOCKED`; `TARGET_QUOTE_STALE` or `MARKET_SUSPENDED`; `ADAPTER_PROFILE_DISABLED`; stale comparison excluded | enforce 180/300/300 exactly; downgrade coverage and preserve ages/status |
+| `nfl_fx_settlement_mismatch` | target and comparison differ on overtime, season phase, tie, push, or void treatment | `BLOCKED`; `SETTLEMENT_RULE_MISMATCH`; `ADAPTER_PROFILE_DISABLED` | reject equivalence; show both raw identities and settlement fields |
 | `nfl_fx_flex_change_after_quotes` | official kickoff/flex change timestamp is newer than target and comparisons | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; no fetch or candidate generation | after activation apply `nfl_event_state_materiality_v1`: `WATCH`, invalidate batch, synchronized refetch, no probability adjustment |
 | `nfl_fx_injury_report_not_due` | applicable season-policy filing deadline has not arrived | `BLOCKED`; `ADAPTER_PROFILE_DISABLED` | after activation preliminary state is `WATCH`; store policy version/deadline and next refresh |
-| `nfl_fx_injury_report_overdue` | required report is due but absent or stale | `BLOCKED`; lifecycle plus `OFFICIAL_REPORT_MISSING` | after activation remain `WATCH` during research and `BLOCKED` at final check |
+| `nfl_fx_injury_report_overdue` | required report is due but absent or stale | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; `OFFICIAL_REPORT_MISSING` | after activation remain `WATCH` during research and `BLOCKED` at final check |
 | `nfl_fx_availability_revision` | official candidate-relevant availability row changes after quotes | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; no fetch or candidate generation | after activation `WATCH`, synchronized refetch, exact old/new timestamps, no direct probability effect |
 | `nfl_fx_quarterback_change` | expected starting quarterback changes or is ruled out after quotes | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; no manual penalty | after activation `WATCH` under `nfl_starting_quarterback_materiality_v1`; require verified replacement/status and synchronized prices |
-| `nfl_fx_quarterback_conflict` | authoritative sources conflict on starting-quarterback identity/status at final check | `BLOCKED`; lifecycle plus `SOURCE_CONFLICT` | cannot clear until authoritative current identity/status is resolved |
+| `nfl_fx_quarterback_conflict` | authoritative sources conflict on starting-quarterback identity/status at final check | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; `SOURCE_CONFLICT` | cannot clear until authoritative current identity/status is resolved |
 | `nfl_fx_inactives_not_due` | official inactive list has not reached the season-policy release window | `BLOCKED`; `ADAPTER_PROFILE_DISABLED` | after activation preliminary state is `WATCH`; next refresh is official inactive publication |
 | `nfl_fx_inactive_correction` | official inactive list or correction changes a registered participant after quotes | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; no direct probability effect | after activation `WATCH`, record original/correction times, and require synchronized refetch |
 | `nfl_fx_roster_change` | official elevation, activation, trade, suspension, reserve move, or release is newer than quotes | `BLOCKED`; `ADAPTER_PROFILE_DISABLED` unless exact terms independently make it `INELIGIBLE` | after activation invalidate prices; resolve identity/eligibility and synchronize |
@@ -337,13 +387,14 @@ These are documentation fixtures, not claims about a real sportsbook or provider
 | `nfl_fx_post_change_sync_missing` | material fact at 18:00 UTC; target at 17:59; comparisons at 17:58/17:59 | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; `post_material_change_synchronized=false` | after activation `WATCH`; all affected quotes must postdate 18:00 and meet 180/300/300 or final state is `BLOCKED` |
 | `nfl_fx_post_change_sync_resolved` | same fact at 18:00; open target and two independent complete comparison pairs all retrieved after 18:00 within age/skew limits | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; no candidate generation | context blocker resolves after activation; rank only from refreshed Tier B prices and set synchronization true |
 | `nfl_fx_disabled_profile` | any structurally valid request for one of the three registered profiles | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; no candidate generation, EV ranking, alert, or provider call | lifecycle and exact activation blocker shown |
-| `nfl_fx_unregistered_prop` | passing-yards, rushing-yards, receiving-yards, touchdown, or other NFL prop request | `BLOCKED`; no registered profile | do not map it to a game line or create a profile implicitly |
-| `nfl_fx_tier_x_claim` | recent ATS streak, sharp-money claim, quarterback narrative, or generic weather story | `BLOCKED` at lifecycle; claim has no valuation effect | ignore as Tier X; no probability, state improvement, or rank effect |
+| `nfl_fx_unregistered_prop` | passing-yards, rushing-yards, receiving-yards, touchdown, or other NFL prop request | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; catalog-absence audit annotation; no registered profile | do not map it to a game line or create a profile implicitly |
+| `nfl_fx_tier_x_claim` | recent ATS streak, sharp-money claim, quarterback narrative, or generic weather story | `BLOCKED`; `ADAPTER_PROFILE_DISABLED`; claim has no valuation effect | ignore as Tier X; no probability, state improvement, or rank effect |
 | `nfl_fx_manual_placement` | user later reports manually placing a researched wager | no AP Frankenstein action from this project | save no downstream write; AP Frankenstein remains separate |
 
 ---
 
-## 11. On-demand run and decision-brief contract
+<!-- adapter-section: 12 run_decision_brief -->
+## 12. On-demand run and decision-brief contract
 
 ### Required inputs after a separately approved lifecycle change
 
@@ -383,7 +434,7 @@ Save only a local research/evidence snapshot. Do not call, write to, or create a
 ### Reusable task prompt
 
 ```text
-Evaluate the supplied NFL promotion request against adapter nfl.pregame_full_game_v0_1 version 0.1.0 and adapter_contract_v1.
+Evaluate the supplied NFL promotion request against adapter nfl.pregame_full_game_v0_1 version 0.1.1 and adapter_contract_v1.
 
 First apply profile lifecycle. All registered NFL profiles are disabled_provider_validation, so return BLOCKED with ADAPTER_PROFILE_DISABLED and do not call a provider, generate a candidate, calculate recommendation-grade EV, schedule monitoring, or send an alert. Preserve the supplied raw market labels and identify any additional structural blocker.
 
@@ -398,13 +449,14 @@ Return promotion_decision_brief_v2 with lifecycle, raw/canonical/local NFL ident
 
 ---
 
-## 12. Activation checklist
+<!-- adapter-section: 13 activation_change_log -->
+## 13. Activation checklist and change log
 
-- [x] Adapter metadata declares `adapter_contract_v1` and version `0.1.0`.
+- [x] Adapter metadata declares `adapter_contract_v1` and version `0.1.1`.
 - [x] Three exact pregame full-game profiles are specified with closed lifecycle values.
 - [x] Raw/canonical identity, NFL-local tie audit, settlement, and unavailable adjacent shapes are explicit.
 - [x] Shared signals are extended by reference and every NFL-specific Tier A/C signal has the ten-field contract.
-- [x] The six standard refresh phases, materiality, synchronization, Tier D, Tier X, evidence, fixture, and run contracts are documented.
+- [x] The six standard refresh phases, materiality, synchronization, Tier D, Tier X, provider-evidence, contract-scenario, and run contracts are documented.
 - [ ] Source access, exact provider coverage, jurisdiction, stable IDs, timestamps, principal-line mapping, and schema behavior are validated across required timing conditions.
 - [ ] Target evidence and two independent non-target complete comparison origins satisfy exact identity and 180/300/300 limits.
 - [ ] Moneyline tie and push behavior is proven across the applicable competition and sportsbook settlement rules.
@@ -412,12 +464,13 @@ Return promotion_decision_brief_v2 with lifecycle, raw/canonical/local NFL ident
 - [x] Governing documents agree on profile records and lifecycle.
 - [ ] A separate explicit approval promotes any exact profile to `pilot_enabled` or `active`.
 
-Unchecked items are activation blockers, not implementation permission. No item may be assumed complete from a synthetic fixture or a provider's marketing claim.
+Unchecked items are activation blockers, not implementation permission. No item may be assumed complete from a synthetic contract scenario or a provider's marketing claim.
 
 ---
 
-## 13. Change log
+### 13.1 Change log
 
 | date | adapter version | profiles affected | change | evidence/approval reference |
 |---|---|---|---|---|
-| 2026-07-12 | `0.1.0` | `nfl.full_game.moneyline`, `nfl.full_game.spread`, `nfl.full_game.total` | Created the `adapter_contract_v1` NFL pre-activation documentation contract with all profiles disabled; added tie-safe moneyline identity, principal half-point line rules, shared-signal extensions, NFL context/materiality, six refresh phases, source restrictions, and inline credential-free fixtures | user-approved NBA and NFL adapter contract expansion; no provider evidence or activation claimed |
+| 2026-07-13 | `0.1.1` | all registered NFL profiles | Normalized the document to the thirteen-section `adapter_contract_v1` structure; added binary outcome-set audit fields and clarified contract scenarios versus provider evidence and executable fixtures | documentation-structure and audit-only change; no lifecycle, probability, outcome, source, freshness, or activation change |
+| 2026-07-12 | `0.1.0` | `nfl.full_game.moneyline`, `nfl.full_game.spread`, `nfl.full_game.total` | Created the `adapter_contract_v1` NFL pre-activation documentation contract with all profiles disabled; added tie-safe moneyline identity, principal half-point line rules, shared-signal extensions, NFL context/materiality, six refresh phases, source restrictions, and inline contract scenarios | user-approved NBA and NFL adapter contract expansion; no provider evidence or activation claimed |

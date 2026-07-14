@@ -1,13 +1,16 @@
 # WNBA Boost-Analysis Sport Adapter
 
+<!-- adapter-section: 1 adapter_metadata -->
+## 1. Adapter metadata
+
 **Adapter ID:** `wnba.pregame_full_game_v0_1`  
-**Version:** `0.2.0`  
+**Version:** `0.2.1`
 **Structural contract:** `adapter_contract_v1`  
 **Document status:** Active experimental-pilot policy  
 **Sport:** Basketball  
 **League:** WNBA  
 **Lifecycle:** Mixed; assigned per market profile  
-**Last reviewed:** 2026-07-12  
+**Last reviewed:** 2026-07-13
 **Default timezone:** `America/Chicago`  
 **Run mode:** On-demand local decision brief  
 **Fair-probability method:** De-vigged, exact-market consensus from independent non-target pricing origins  
@@ -18,7 +21,8 @@ This adapter must be applied with `PROJECT_CONTEXT.md`, `PROMO_ANALYSIS_PLAYBOOK
 
 ---
 
-## 1. Profile registry
+<!-- adapter-section: 2 profile_registry -->
+## 2. Profile registry
 
 | profile_id | lifecycle | participant | period | allowed line shape | overtime treatment | probability method | current boundary |
 |---|---|---|---|---|---|---|---|
@@ -36,7 +40,8 @@ A provider exposing a market does not activate it. Each player-prop profile requ
 
 ---
 
-## 2. Market identity and settlement contract
+<!-- adapter-section: 3 market_identity_settlement -->
+## 3. Market identity and settlement contract
 
 Every quote must retain the complete identity below. Missing or conflicting material fields produce `BLOCKED`; they must not be inferred from a nearby market.
 
@@ -54,11 +59,17 @@ market_identity:
   raw_market_label: string
   raw_selection_label: string
   canonical_market_key: string
+  outcome_set_id: string | null
+  outcome_set_type: binary_pair
+  outcome_set_completeness: complete | incomplete | unknown
+  participant_set_version: string | null
+  market_wrapper: standard | other | unknown
   side: home | away | over | under
   line: number | null
   period: full_game
   overtime_treatment: included | excluded | unknown
   push_behavior: impossible | push | unknown
+  tie_or_dead_heat_treatment: not_applicable | refund | unknown
   void_and_participation_rule: string | unknown
   american_odds: integer
   decimal_odds: number
@@ -68,9 +79,24 @@ market_identity:
   source_id: string
   raw_snapshot_id: string
   ap_frankenstein_compatibility: direct | equivalent_but_not_supported | unsupported
+
+binary_outcome_set_audit:
+  applies: true
+  source_sportsbook_id: string
+  source_pricing_origin_id: string
+  candidate_outcome_id: string
+  opposing_outcome_id: string
+  candidate_retrieved_at_utc: datetime
+  opposing_retrieved_at_utc: datetime
+  same_book: boolean
+  same_market_identity: boolean
+  same_line: boolean
+  same_settlement_contract: boolean
+  complete: boolean
+  exclusion_reason_codes: list[string]
 ```
 
-### 2.1 Raw-to-canonical equivalence
+### 3.1 Raw-to-canonical equivalence
 
 | raw market shape | canonical profile | equivalence conditions | settlement conditions | default AP compatibility | status |
 |---|---|---|---|---|---|
@@ -88,7 +114,7 @@ AP compatibility is descriptive metadata only. This adapter creates no API, spre
 
 ---
 
-## 3. Probability and comparison policy
+### 3.2 Probability and comparison policy
 
 `wnba_market_consensus_mean_v1` applies the global same-line consensus gate with these pilot defaults:
 
@@ -105,6 +131,7 @@ If fewer than two usable independent comparison books remain, the candidate is `
 
 ---
 
+<!-- adapter-section: 4 source_compliance -->
 ## 4. Source and compliance policy
 
 Source IDs resolve through `source_registry_v1` in `SPORT_ADAPTERS/source_registry.yaml`. That registry owns URLs, access/automation permission, coverage posture, review dates, and triggers; this adapter owns the WNBA facts and gates that those sources must satisfy. URL health alone clears none of those gates.
@@ -138,7 +165,8 @@ Do not automate authenticated sportsbook pages, spoof location, bypass geolocati
 
 ---
 
-## 5. Signal registry
+<!-- adapter-section: 5 signal_registry -->
+## 5. Active signal registry
 
 The shared `promo_terms`, `target_quote`, `comparison_quotes_same_line`, `market_status`, and `promo_expiration` signals inherit their only authoritative ten-field contracts from Section 5 of `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`. For this adapter they apply to all `pilot_enabled` profiles and must also satisfy Sections 2-4 above. The extensions below add constraints; they do not create second signal IDs or collection paths.
 
@@ -166,7 +194,8 @@ The player-prop rows below are complete future contracts but are dormant while t
 | `wnba_target_player_availability` | all WNBA player profiles | A/C | `wnba_official_injury_report`; `wnba_official_roster_tracker`; `source_class_licensed_sports_data_provider` | report deadline, every revision, T-30m, and final check | current report/inactive state; retrieval <=600 seconds inside T-2h | target becomes available/probable/questionable/doubtful/out/inactive or changes participation state | out/inactive `INELIGIBLE` or `BLOCKED` per terms; questionable/doubtful `WATCH`; probable may clear only with current post-change quotes and verified rules | none | always for a future prop candidate; dormant while profiles disabled |
 | `wnba_game_market_context_for_props` | all WNBA player profiles | C | `source_class_licensed_multi_book_odds_provider`; `sportsbook_comparison_manual_evidence` | after material availability news or full-game threshold/movement event | same synchronized price-batch limits | configured full-game market move occurs after prop quotes | `WATCH` and prop-price refetch only | none; never substitutes for prop consensus | report only as refetch cause; dormant while profiles disabled |
 
-### 5.3 Materiality rules
+<!-- adapter-section: 6 materiality_state -->
+## 6. Materiality and state rules
 
 | rule_id | profiles | source fields / qualifying change | effective-time rule | state effect | required refetch | resolution rule | probability effect |
 |---|---|---|---|---|---|---|---|
@@ -176,7 +205,7 @@ The player-prop rows below are complete future contracts but are dormant while t
 | `wnba_roster_transaction_materiality_v1` | all WNBA profiles | membership, signing, waiver, release, trade, suspension, eligibility, or assignment changes | qualifying official effective/publication time compared with quote retrieval | identity conflict `BLOCKED`; clear promo violation `INELIGIBLE`; otherwise `WATCH` | shared target and complete comparison signals | resolved identity/eligibility plus synchronized post-change batch | none |
 | `wnba_post_change_price_sync_v1` | all `pilot_enabled` profiles | market suspension/reopening or any target/comparison quote older than a registered material fact | all included quotes must postdate the material fact and meet age/skew rules | remain `WATCH`; unavailable/suspended final batch `BLOCKED`; valid batch re-ranks from Tier B only | shared target, comparison, and market-status signals | synchronized open batch with valid consensus | none |
 
-### 5.4 State-resolution rules
+### 6.1 State-resolution rules
 
 - Before the applicable injury-report deadline, label the submission `not_due`; a preliminary ranking may be shown as `WATCH`, but it cannot clear the final availability gate.
 - After the deadline, a missing required team submission is `WATCH` during research and `BLOCKED` at the final placement check.
@@ -186,7 +215,7 @@ The player-prop rows below are complete future contracts but are dormant while t
 - A future player-prop candidate with a questionable or doubtful target remains `WATCH`. An out/inactive target is `INELIGIBLE` when the promotion/book rule is clear and otherwise `BLOCKED`.
 - Context facts never add or subtract probability or ranking points. Refreshed Tier B prices are the only active numerical valuation input.
 
-### 5.5 Signal migration map
+### 6.2 Signal migration map
 
 The version `0.2.0` normalization removes duplicate shared-policy signal definitions. Historical briefs remain interpretable through this mapping; new briefs emit the authoritative shared signal ID and the applicable WNBA extension/materiality rule.
 
@@ -198,7 +227,8 @@ The version `0.2.0` normalization removes duplicate shared-policy signal definit
 
 ---
 
-## 6. Refresh policy
+<!-- adapter-section: 7 refresh_policy -->
+## 7. Refresh policy
 
 This cadence defines the evidence an on-demand run or user-requested refresh must obtain. It does not install a scheduler or authorize background polling.
 
@@ -215,7 +245,8 @@ Target quotes must be no older than 180 seconds and comparisons no older than 30
 
 ---
 
-## 7. Tier D model-only registry
+<!-- adapter-section: 8 tier_d_registry -->
+## 8. Tier D model-only registry
 
 All groups below are `disabled_model_only`. They are hypotheses, not active metrics, and must not be routinely fetched, scored, narrated, or used to change probability, state, or rank.
 
@@ -234,7 +265,8 @@ WNBA.com and stats.wnba.com are not approved sources for these model inputs unde
 
 ---
 
-## 8. Tier X exclusions
+<!-- adapter-section: 9 tier_x_exclusions -->
+## 9. Tier X exclusions
 
 Do not collect or present these groups as recommendation evidence:
 
@@ -252,23 +284,8 @@ A lower-authority report may create `WATCH` only when it plausibly signals a reg
 
 ---
 
-## 9. Three-token allocation workflow
-
-1. Parse and verify each token separately. Do not assume identical boost type, percentage, eligible markets/events, odds range, cap, expiry, overtime, push, void, or token-return terms.
-2. Build a token-by-candidate eligibility matrix across the complete eligible WNBA slate and only `pilot_enabled` profiles.
-3. For every eligible token/candidate pair, deterministically calculate the actual boosted price, break-even probability, consensus fair probability, EV per unit, permitted stake, and expected dollars.
-4. Exclude `WATCH`, `BLOCKED`, `INELIGIBLE`, stale, suspended, mismatched, or consensus-invalid pairs from the actionable allocation.
-5. Select the allocation that maximizes total expected dollars subject to each token being used no more than once, the same wager not receiving multiple tokens unless the terms explicitly allow it, promotion restrictions, and user exposure limits.
-6. Do not apply a hidden correlation penalty. Show shared-game/team exposure and obey configured correlation or exposure limits; when no limit is supplied, leave the tradeoff for human review.
-7. Report meaningful passes and the opportunity cost of each selected token use. If fewer than three candidates pass, recommend fewer than three uses.
-
-The decision brief must include adapter/profile version, raw and canonical market labels, AP compatibility, target exclusion, comparison-origin audit, settlement/overtime/push verification, official availability state, quote ages/skew, EV and expected dollars, correlation warnings, passes, blockers, and the next refresh condition.
-
-Save a local research/evidence snapshot only. Never place or confirm a wager and never call or write to AP Frankenstein.
-
----
-
-## 10. Provider-validation evidence requirements
+<!-- adapter-section: 10 provider_evidence -->
+## 10. Provider evidence
 
 ### 10.1 Game-line pilot
 
@@ -298,7 +315,7 @@ A player profile remains `disabled_provider_validation` until all of the followi
 - at least two fresh independent non-target complete over/under pairs at the exact threshold;
 - evidence at board open, after material availability news, and near tip across representative events;
 - successful timestamp, status, jurisdiction, entity, period, overtime, and settlement validation;
-- missing/stale/suspended/one-sided/mismatched fixtures;
+- missing, stale, suspended, one-sided, and mismatched contract scenarios;
 - deterministic calculation tests for the exact line shape; and
 - a separate explicit lifecycle approval reflected in the adapter catalog, monitoring playbook, `AGENTS.md`, and `README.md`.
 
@@ -306,7 +323,20 @@ Provider availability alone does not satisfy this gate.
 
 ---
 
-## 11. Validation fixtures and required outcomes
+<!-- adapter-section: 11 contract_scenarios_fixtures -->
+## 11. Contract scenarios and executable fixtures
+
+```yaml
+executable_fixtures:
+  schema_version: not_implemented
+  implementation_status: not_implemented
+  fixture_paths: []
+  deterministic_runner: not_implemented
+  paid_or_live_calls_required: false
+  provider_certification_claimed: false
+```
+
+These Markdown rows are synthetic contract scenarios, not provider evidence or executable fixtures. Real timestamped captures belong in Section 10. Future machine-readable test inputs must be labeled executable fixtures and validated against an approved schema.
 
 | scenario | required outcome |
 |---|---|
@@ -322,7 +352,7 @@ Provider availability alone does not satisfy this gate.
 | Starting five is not confirmed but the official report and post-change game-line prices are current | do not block solely for missing starting-five confirmation |
 | Whole-number spread or total | `BLOCKED`; push-aware math is inactive |
 | Suspended, stale, closed, or unknown target market | `BLOCKED` |
-| WNBA points, rebounds, assists, or made-threes request | `BLOCKED` with `disabled_provider_validation`; no candidate generation |
+| WNBA points, rebounds, assists, or made-threes request | `BLOCKED` with `ADAPTER_PROFILE_DISABLED`; lifecycle remains `disabled_provider_validation`; no candidate generation |
 | Future player target becomes questionable or doubtful | `WATCH`; dormant while player profiles are disabled |
 | Future player target becomes out/inactive | `INELIGIBLE` or `BLOCKED` under exact terms; dormant while player profiles are disabled |
 | A recent streak, defense-vs-position rank, public betting claim, or generic quote is supplied | ignore as Tier X; no probability, state, or rank effect |
@@ -332,10 +362,27 @@ Provider availability alone does not satisfy this gate.
 
 ---
 
-## 12. Reusable on-demand run contract
+<!-- adapter-section: 12 run_decision_brief -->
+## 12. On-demand run and decision-brief contract
+
+### 12.1 Three-token allocation workflow
+
+1. Parse and verify each token separately. Do not assume identical boost type, percentage, eligible markets/events, odds range, cap, expiry, overtime, push, void, or token-return terms.
+2. Build a token-by-candidate eligibility matrix across the complete eligible WNBA slate and only `pilot_enabled` profiles.
+3. For every eligible token/candidate pair, deterministically calculate the actual boosted price, break-even probability, consensus fair probability, EV per unit, permitted stake, and expected dollars.
+4. Exclude `WATCH`, `BLOCKED`, `INELIGIBLE`, stale, suspended, mismatched, or consensus-invalid pairs from the actionable allocation.
+5. Select the allocation that maximizes total expected dollars subject to each token being used no more than once, the same wager not receiving multiple tokens unless the terms explicitly allow it, promotion restrictions, and user exposure limits.
+6. Do not apply a hidden correlation penalty. Show shared-game/team exposure and obey configured correlation or exposure limits; when no limit is supplied, leave the tradeoff for human review.
+7. Report meaningful passes and the opportunity cost of each selected token use. If fewer than three candidates pass, recommend fewer than three uses.
+
+The decision brief must include adapter/profile version, raw and canonical market labels, AP compatibility, target exclusion, comparison-origin audit, settlement/overtime/push verification, official availability state, quote ages/skew, EV and expected dollars, correlation warnings, passes, blockers, and the next refresh condition.
+
+Save a local research/evidence snapshot only. Never place or confirm a wager and never call or write to AP Frankenstein.
+
+### 12.2 Reusable on-demand task contract
 
 ```text
-Evaluate the supplied WNBA promotion tokens using WNBA adapter wnba.pregame_full_game_v0_1 version 0.2.0 and adapter_contract_v1.
+Evaluate the supplied WNBA promotion tokens using WNBA adapter wnba.pregame_full_game_v0_1 version 0.2.1 and adapter_contract_v1.
 
 Parse every token separately and verify FanDuel Missouri or the actual supplied target jurisdiction, exact eligible events/markets, boost type, percentage, cap, odds range, expiry, overtime, push, void, and token-return terms. Consider only pregame full-game moneyline and half-point spread/total profiles. Player props, whole-number lines, alternate/team/partial markets, SGPs, live betting, and statistical models are disabled.
 
@@ -350,9 +397,13 @@ Return the standard Promotion Decision Brief with adapter version, promotion int
 
 ---
 
-## 13. Change log
+<!-- adapter-section: 13 activation_change_log -->
+## 13. Activation checklist and change log
+
+Before any WNBA profile lifecycle change, the adapter-template checklist must pass. Contract scenarios document expected behavior; real cross-timing captures belong in provider evidence, and an executable runtime must use machine-readable executable fixtures plus deterministic tests. Source permissions, exact identity and settlement, pricing-origin independence, six-phase refresh coverage, and separate explicit approval must be reflected consistently in the canonical catalog and governing documents. Specification completeness alone is not activation evidence.
 
 | date | version | change | approval/evidence |
 |---|---|---|---|
 | 2026-07-12 | `0.1.0` | Created experimental WNBA full-game game-line adapter; documented but did not activate four player-prop profiles | User-approved WNBA adapter implementation plan; provider validation remains run-time and profile-gated |
 | 2026-07-12 | `0.2.0` | Conformed to `adapter_contract_v1`, normalized refresh/materiality/model/noise/evidence tables, and replaced duplicate shared-policy signals with extensions plus a migration map | approved sport-adapter contract normalization plan; no lifecycle or analytical behavior change |
+| 2026-07-13 | `0.2.1` | Normalized the document to the 13-section `adapter_contract_v1` layout, added binary outcome-set audit fields, nested token allocation under the run contract, and clarified scenario/evidence/fixture terminology | governance cleanup; no lifecycle, probability, outcome, freshness, source, or run-behavior change |

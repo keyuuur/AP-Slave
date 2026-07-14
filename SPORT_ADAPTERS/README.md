@@ -74,11 +74,11 @@ Adapter identity and profile lifecycle are separate records. Adapter versions de
 
 | adapter_id | version | contract_version | sport / league | authoritative location | run mode | probability method |
 |---|---|---|---|---|---|---|
-| `mlb.player_hits_v0_1` | `0.1.0` | `adapter_contract_v1` | Baseball / MLB | `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`, Section 6 | on-demand local brief | de-vigged exact-market consensus |
-| `wnba.pregame_full_game_v0_1` | `0.2.0` | `adapter_contract_v1` | Basketball / WNBA | `SPORT_ADAPTERS/WNBA.md` | on-demand local brief | de-vigged exact-market consensus for pilot-enabled profiles |
-| `nba.pregame_full_game_v0_1` | `0.1.0` | `adapter_contract_v1` | Basketball / NBA | `SPORT_ADAPTERS/NBA.md` | specification only while profiles are disabled | de-vigged exact-market consensus after separate activation |
-| `nfl.pregame_full_game_v0_1` | `0.1.0` | `adapter_contract_v1` | Football / NFL | `SPORT_ADAPTERS/NFL.md` | specification only while profiles are disabled | de-vigged exact-market consensus after separate activation |
-| `golf.pregame_stroke_play_v0_1` | `0.1.0` | `adapter_contract_v1` | Golf / individual stroke play | `SPORT_ADAPTERS/GOLF.md` | specification only while profiles are disabled | profile-specific exact-market consensus after separate activation; multiway method remains inactive |
+| `mlb.player_hits_v0_1` | `0.1.1` | `adapter_contract_v1` | Baseball / MLB | `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`, Section 6 | on-demand local brief | de-vigged exact-market consensus |
+| `wnba.pregame_full_game_v0_1` | `0.2.1` | `adapter_contract_v1` | Basketball / WNBA | `SPORT_ADAPTERS/WNBA.md` | on-demand local brief | de-vigged exact-market consensus for pilot-enabled profiles |
+| `nba.pregame_full_game_v0_1` | `0.1.1` | `adapter_contract_v1` | Basketball / NBA | `SPORT_ADAPTERS/NBA.md` | specification only while profiles are disabled | de-vigged exact-market consensus after separate activation |
+| `nfl.pregame_full_game_v0_1` | `0.1.1` | `adapter_contract_v1` | Football / NFL | `SPORT_ADAPTERS/NFL.md` | specification only while profiles are disabled | de-vigged exact-market consensus after separate activation |
+| `golf.pregame_stroke_play_v0_1` | `0.1.1` | `adapter_contract_v1` | Golf / individual stroke play | `SPORT_ADAPTERS/GOLF.md` | specification only while profiles are disabled | profile-specific exact-market consensus after separate activation; multiway method remains inactive |
 
 ### 4.2 Profile records
 
