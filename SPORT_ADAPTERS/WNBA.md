@@ -30,7 +30,7 @@ This adapter must be applied with `PROJECT_CONTEXT.md`, `PROMO_ANALYSIS_PLAYBOOK
 | `wnba.player.assists` | `disabled_provider_validation` | player | full game | exact half-point over/under | must exactly match | none while disabled | two fresh independent non-target pairs not validated |
 | `wnba.player.made_threes` | `disabled_provider_validation` | player | full game | exact half-point over/under | must exactly match | none while disabled | two fresh independent non-target pairs not validated |
 
-The following are also unavailable and must not generate candidates: whole-number spreads or totals, team totals, alternate ladders, combination props, partial-game markets, quarters, halves, same-game parlays, futures, awards, and all live markets. Treat an attempted mapping to one of these families as `disabled_provider_validation` unless a later adapter assigns a different closed lifecycle state.
+The following are also unavailable and must not generate candidates: whole-number spreads or totals, team totals, alternate ladders, combination props, partial-game markets, quarters, halves, same-game parlays, futures, awards, and all live markets. These absent profiles are unregistered and have no lifecycle; fail closed with `ADAPTER_PROFILE_DISABLED` plus a catalog-absence audit annotation unless a later catalog revision registers one explicitly.
 
 A provider exposing a market does not activate it. Each player-prop profile requires its own evidence and a separately approved lifecycle change.
 

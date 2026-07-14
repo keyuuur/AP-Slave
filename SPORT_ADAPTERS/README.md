@@ -34,6 +34,8 @@ The standalone league and sport contracts are authoritative at `SPORT_ADAPTERS/W
 
 Lifecycle status is assigned per market profile, not merely per document.
 
+Lifecycle expresses **policy permission** for a registered profile. It does not prove that this checkout contains an executable runtime, that a provider is integrated, or that the source evidence required for a particular run is available. Those independent readiness dimensions are recorded in the canonical `adapter_catalog_v1` at `SPORT_ADAPTERS/catalog.yaml`.
+
 | Status | Meaning | Permitted behavior |
 |---|---|---|
 | `active` | Stable, approved profile whose required evidence and validation gates are defined | On-demand candidate generation and deterministic ranking within the documented scope |
@@ -44,9 +46,23 @@ Lifecycle status is assigned per market profile, not merely per document.
 
 This vocabulary is closed for the current documentation pilot. Do not use an ambiguous status such as `enabled`, `future`, or `disabled` without one of the values above. Record the concrete blocker separately from lifecycle status.
 
+### 3.1 Readiness vocabulary
+
+Every registered profile also carries three orthogonal readiness fields in the canonical catalog:
+
+| Field | Closed values | Meaning |
+|---|---|---|
+| `contract_status` | `draft`, `specified` | Whether the profile contract is still being designed or is fully specified |
+| `implementation_status` | `documentation_only`, `manual_input_runtime`, `provider_integrated` | What executable support exists in this checkout |
+| `source_readiness` | `provider_validation_pending`, `per_run_evidence_required`, `cross_timing_validated` | What evidence is required before a source can clear profile gates |
+
+No readiness field changes lifecycle automatically. A lifecycle change still requires the separate approval and evidence in Section 7.
+
 ## 4. Adapter catalog
 
 Adapter identity and profile lifecycle are separate records. Adapter versions describe a document contract; lifecycle applies to each exact market profile.
+
+`SPORT_ADAPTERS/catalog.yaml` is the canonical machine-readable catalog under contract `adapter_catalog_v1`. The tables below are its human-readable presentation. Counts and lifecycle distributions are derived from that catalog rather than independently maintained product truth.
 
 ### 4.1 Adapter records
 
@@ -84,9 +100,9 @@ Adapter identity and profile lifecycle are separate records. Adapter versions de
 | `golf.player.top_n_finish` | `golf.pregame_stroke_play_v0_1` | `disabled_provider_validation` | Pregame Top 5, Top 10, or Top 20 with exact standard, including-ties, OddsBoost, or Tourney Special wrapper preserved | exact wrapper, dead-heat treatment, complementary outcome or probability method, source coverage, and separate activation approval remain unvalidated |
 | `golf.tournament.outright_winner` | `golf.pregame_stroke_play_v0_1` | `disabled_provider_validation` | Pregame tournament winner with an exhaustive current field/outcome set | field completeness/version, DNS/all-in, playoff/dead-heat/shortened-event rules, multiway method, source coverage, and separate activation approval remain unvalidated |
 
-The catalog therefore contains exactly five adapter records and twenty-one profile records: one `active`, three `pilot_enabled`, and seventeen `disabled_provider_validation`.
+The current derived catalog summary is five adapter records and twenty-one profile records: one `active`, three `pilot_enabled`, and seventeen `disabled_provider_validation`.
 
-If a profile is absent from this catalog, treat it as `disabled_provider_validation`. Provider availability alone does not grant activation.
+If a profile is absent from the canonical catalog, it is **unregistered and has no lifecycle**. Fail closed with the existing `BLOCKED` / `ADAPTER_PROFILE_DISABLED` behavior, retain a catalog-absence audit annotation, and do not create a profile implicitly. Provider availability alone does not grant registration or activation.
 
 NBA rebounds, assists, and made-threes profiles are absent and unavailable. NFL player-prop profiles, including passing- and rushing-yard props, are unregistered and unavailable. Do not recreate underscore-style NBA placeholders or infer any missing profile from provider exposure.
 

@@ -1,0 +1,269 @@
+schema_version: adapter_catalog_v1
+
+catalog_metadata:
+  title: "Advantage Play Intern sport adapter catalog"
+  default_timezone: "America/Chicago"
+  adapter_record_count: 5
+  profile_record_count: 21
+  lifecycle_distribution:
+    active: 1
+    pilot_enabled: 3
+    disabled_provider_validation: 17
+    disabled_model_only: 0
+    retired: 0
+
+closed_vocabularies:
+  profile_lifecycle:
+    - active
+    - pilot_enabled
+    - disabled_provider_validation
+    - disabled_model_only
+    - retired
+  contract_status:
+    - draft
+    - specified
+  implementation_status:
+    - documentation_only
+    - manual_input_runtime
+    - provider_integrated
+  source_readiness:
+    - provider_validation_pending
+    - per_run_evidence_required
+    - cross_timing_validated
+
+catalog_rules:
+  lifecycle_scope: "Lifecycle belongs only to a registered profile record."
+  absent_profile_policy: "An absent profile is unregistered, has no lifecycle value, is unavailable for selection, and cannot be inferred or activated from provider exposure."
+  provider_exposure_policy: "Provider exposure does not register or activate an adapter profile and does not prove recommendation-grade coverage."
+  adapter_profile_separation: "Adapter versions describe document contracts; lifecycle and readiness fields apply to exact profile records."
+
+adapters:
+  - adapter_id: mlb.player_hits_v0_1
+    version: 0.1.0
+    contract_version: adapter_contract_v1
+    sport_league: "Baseball / MLB"
+    authoritative_location: "PROMO_PLACEMENT_MONITORING_PLAYBOOK.md, Section 6"
+    run_mode: "on-demand local brief"
+    probability_method: "de-vigged exact-market consensus"
+
+  - adapter_id: wnba.pregame_full_game_v0_1
+    version: 0.2.0
+    contract_version: adapter_contract_v1
+    sport_league: "Basketball / WNBA"
+    authoritative_location: "SPORT_ADAPTERS/WNBA.md"
+    run_mode: "on-demand local brief"
+    probability_method: "de-vigged exact-market consensus for pilot-enabled profiles"
+
+  - adapter_id: nba.pregame_full_game_v0_1
+    version: 0.1.0
+    contract_version: adapter_contract_v1
+    sport_league: "Basketball / NBA"
+    authoritative_location: "SPORT_ADAPTERS/NBA.md"
+    run_mode: "specification only while profiles are disabled"
+    probability_method: "de-vigged exact-market consensus after separate activation"
+
+  - adapter_id: nfl.pregame_full_game_v0_1
+    version: 0.1.0
+    contract_version: adapter_contract_v1
+    sport_league: "Football / NFL"
+    authoritative_location: "SPORT_ADAPTERS/NFL.md"
+    run_mode: "specification only while profiles are disabled"
+    probability_method: "de-vigged exact-market consensus after separate activation"
+
+  - adapter_id: golf.pregame_stroke_play_v0_1
+    version: 0.1.0
+    contract_version: adapter_contract_v1
+    sport_league: "Golf / individual stroke play"
+    authoritative_location: "SPORT_ADAPTERS/GOLF.md"
+    run_mode: "specification only while profiles are disabled"
+    probability_method: "profile-specific exact-market consensus after separate activation; multiway method remains inactive"
+
+profiles:
+  - profile_id: mlb.player_hits
+    adapter_id: mlb.player_hits_v0_1
+    lifecycle: active
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: per_run_evidence_required
+    exact_current_boundary: "Pregame player hits only"
+    activation_blocker: "none within documented stable scope"
+
+  - profile_id: wnba.full_game.moneyline
+    adapter_id: wnba.pregame_full_game_v0_1
+    lifecycle: pilot_enabled
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: per_run_evidence_required
+    exact_current_boundary: "Pregame, full-game market with exact overtime/settlement match"
+    activation_blocker: "stable activation still requires cross-timing provider evidence"
+
+  - profile_id: wnba.full_game.spread
+    adapter_id: wnba.pregame_full_game_v0_1
+    lifecycle: pilot_enabled
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: per_run_evidence_required
+    exact_current_boundary: "Pregame, full-game, reciprocal half-point line only"
+    activation_blocker: "push-aware lines disabled; stable activation still requires cross-timing provider evidence"
+
+  - profile_id: wnba.full_game.total
+    adapter_id: wnba.pregame_full_game_v0_1
+    lifecycle: pilot_enabled
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: per_run_evidence_required
+    exact_current_boundary: "Pregame, full-game, half-point line only"
+    activation_blocker: "push-aware lines disabled; stable activation still requires cross-timing provider evidence"
+
+  - profile_id: wnba.player.points
+    adapter_id: wnba.pregame_full_game_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Exact full-game half-point over/under"
+    activation_blocker: "exact two-sided same-threshold coverage not validated across required timing conditions"
+
+  - profile_id: wnba.player.rebounds
+    adapter_id: wnba.pregame_full_game_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Exact full-game half-point over/under"
+    activation_blocker: "exact two-sided same-threshold coverage not validated across required timing conditions"
+
+  - profile_id: wnba.player.assists
+    adapter_id: wnba.pregame_full_game_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Exact full-game half-point over/under"
+    activation_blocker: "exact two-sided same-threshold coverage not validated across required timing conditions"
+
+  - profile_id: wnba.player.made_threes
+    adapter_id: wnba.pregame_full_game_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Exact full-game half-point over/under"
+    activation_blocker: "exact two-sided same-threshold coverage not validated across required timing conditions"
+
+  - profile_id: nba.full_game.moneyline
+    adapter_id: nba.pregame_full_game_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Pregame, full-game two-way moneyline with exact overtime/settlement match"
+    activation_blocker: "real promotion evidence, exact source validation, and separate activation approval remain absent"
+
+  - profile_id: nba.full_game.spread
+    adapter_id: nba.pregame_full_game_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Pregame, full-game principal reciprocal half-point line only"
+    activation_blocker: "principal-line identity, exact two-sided source coverage, and separate activation approval remain unvalidated"
+
+  - profile_id: nba.full_game.total
+    adapter_id: nba.pregame_full_game_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Pregame, full-game principal half-point total only"
+    activation_blocker: "principal-line identity, exact two-sided source coverage, and separate activation approval remain unvalidated"
+
+  - profile_id: nba.player.points
+    adapter_id: nba.pregame_full_game_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Exact non-push full-game over/under, including conditionally equivalent milestone shapes"
+    activation_blocker: "exact participation/void/stat-counting/settlement equivalence, source coverage, and separate activation approval remain unvalidated"
+
+  - profile_id: nfl.full_game.moneyline
+    adapter_id: nfl.pregame_full_game_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Pregame, full-game two-way moneyline only when tie and push are proven impossible"
+    activation_blocker: "tie treatment, exact source coverage, and separate activation approval remain unvalidated"
+
+  - profile_id: nfl.full_game.spread
+    adapter_id: nfl.pregame_full_game_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Pregame, full-game principal reciprocal half-point line only"
+    activation_blocker: "principal-line identity, exact two-sided source coverage, and separate activation approval remain unvalidated"
+
+  - profile_id: nfl.full_game.total
+    adapter_id: nfl.pregame_full_game_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Pregame, full-game principal half-point total only"
+    activation_blocker: "principal-line identity, exact two-sided source coverage, and separate activation approval remain unvalidated"
+
+  - profile_id: golf.player.make_cut
+    adapter_id: golf.pregame_stroke_play_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Pregame Yes/No on the first official cut; no-cut or unresolved-cut events blocked"
+    activation_blocker: "exact cut structure, DNS/WD/DQ and shortened-event settlement, source coverage, and separate activation approval remain unvalidated"
+
+  - profile_id: golf.player.round_score_total
+    adapter_id: golf.pregame_stroke_play_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Pregame exact player, round, course, and half-point 18-hole over/under"
+    activation_blocker: "exact round/course identity, completion and settlement rules, two-sided source coverage, and separate activation approval remain unvalidated"
+
+  - profile_id: golf.player.round_matchup
+    adapter_id: golf.pregame_stroke_play_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Pregame exact two-player round matchup; two-way, tie-refund, and three-way variants remain distinct"
+    activation_blocker: "participant, round/course, tie, completion, source-coverage, and separate activation requirements remain unvalidated"
+
+  - profile_id: golf.player.tournament_matchup
+    adapter_id: golf.pregame_stroke_play_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Pregame exact two-player whole-tournament matchup; two-way, tie-refund, and three-way variants remain distinct"
+    activation_blocker: "cut, minimum-action, completion, DNS/WD/DQ, tie, source-coverage, and separate activation requirements remain unvalidated"
+
+  - profile_id: golf.player.top_n_finish
+    adapter_id: golf.pregame_stroke_play_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Pregame Top 5, Top 10, or Top 20 with exact standard, including-ties, OddsBoost, or Tourney Special wrapper preserved"
+    activation_blocker: "exact wrapper, dead-heat treatment, complementary outcome or probability method, source coverage, and separate activation approval remain unvalidated"
+
+  - profile_id: golf.tournament.outright_winner
+    adapter_id: golf.pregame_stroke_play_v0_1
+    lifecycle: disabled_provider_validation
+    contract_status: specified
+    implementation_status: documentation_only
+    source_readiness: provider_validation_pending
+    exact_current_boundary: "Pregame tournament winner with an exhaustive current field/outcome set"
+    activation_blocker: "field completeness/version, DNS/all-in, playoff/dead-heat/shortened-event rules, multiway method, source coverage, and separate activation approval remain unvalidated"
