@@ -59,6 +59,20 @@ The documents specify the following behavior for a future deterministic implemen
 
 No repository-contained runtime currently performs those steps. `promotion_decision_brief_v2`, adapter/profile/version metadata, raw/canonical identity, source-origin audit, settlement metadata, and next-refresh metadata remain specification contracts rather than persisted-schema or runtime claims.
 
+## Offline validation
+
+The repository's governance validator and credential-free tests read only versioned local documents, canonical YAML records, and local fixtures. They do not access sportsbooks, odds or sports-data providers, league sites, AP Frankenstein, or any other external service, and a passing result does not certify provider coverage.
+
+Run the checks locally with Python 3.12 or newer:
+
+```powershell
+python -m pip install -e ".[test]"
+python -m ap_slave_validation --root .
+python -m pytest
+```
+
+The GitHub Actions workflow runs the same validator and test suite on every push and pull request. Repository checkout and dependency installation use the normal GitHub and package-index network paths; the validation and test commands themselves are network-free and require no credentials.
+
 ## Sources and evidence
 
 `SPORT_ADAPTERS/source_registry.yaml` and the selected adapter control source use. Provider marketing, a visible field, or one successful capture never proves exact book, jurisdiction, market, settlement, timing, or future coverage.

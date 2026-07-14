@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ap-slave-validation"
+version = "0.1.0"
+description = "Network-free governance validator for the Advantage Play Intern repository"
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.7,<3",
+  "PyYAML>=6,<7",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<9"]
+
+[project.scripts]
+ap-slave-validate = "ap_slave_validation.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
