@@ -1,0 +1,860 @@
+schema_version: source_registry_v1
+
+registry_metadata:
+  title: "Advantage Play Intern source and evidence registry"
+  default_jurisdiction: "US-MO"
+  created_on: "2026-07-13"
+  network_validation_performed: false
+  provider_certification_claimed: false
+
+closed_vocabularies:
+  record_type: [concrete_source, source_class, terms_source, season_artifact, event_pack]
+  access_mode: [manual_on_demand, user_supplied_manual_evidence, documented_public_api, licensed_feed, unconfigured]
+  automation_permission: [permitted_with_conditions, prohibited, license_required, unresolved]
+  permission_status: [conditionally_reviewed, source_specific_review_required, unresolved]
+  coverage_status: [exact_scope_documented, instance_required, provider_validation_pending, wrong_season, supporting_only]
+  origin_resolution_status: [resolved, unresolved, target_excluded]
+
+registry_rules:
+  source_identity: "A source record identifies provenance and permission; it never proves pricing independence."
+  url_health: "A reachable URL proves only reachability, not permission, exact coverage, jurisdiction, freshness, or pricing independence."
+  exact_coverage: "Generic classes require a registered source instance and per-run evidence before clearing a gate."
+  jurisdiction: "National, other-state, or general rules cannot establish Missouri sportsbook terms."
+  season_scope: "A season-specific artifact cannot clear a later season; the applicable artifact and interpreted policy must be reverified."
+  target_exclusion: "Every target sportsbook alias and pricing origin is excluded from fair probability and comparison coverage."
+  unresolved_origin: "An unresolved pricing origin contributes zero independent origins."
+  duplicate_origin: "Aliases, skins, feeds, or provider records sharing one pricing origin count once."
+  restricted_statistics: "League-owned restricted statistics remain excluded from gambling-related models."
+  weather_boundary: "NWS and other weather sources may clear operational gates only and never change probability."
+
+pricing_origin_groups:
+  - pricing_origin_id: sportsbook_fanduel
+    canonical_name: FanDuel
+    known_aliases: [FanDuel, "FanDuel Sportsbook"]
+    origin_resolution_status: resolved
+    certification_scope: "identity de-duplication only; no feed, market, or jurisdiction certification"
+  - pricing_origin_id: sportsbook_draftkings
+    canonical_name: DraftKings
+    known_aliases: [DraftKings, "DraftKings Sportsbook"]
+    origin_resolution_status: resolved
+    certification_scope: "identity de-duplication only; no feed, market, or jurisdiction certification"
+  - pricing_origin_id: unresolved
+    canonical_name: "Unresolved pricing origin"
+    known_aliases: []
+    origin_resolution_status: unresolved
+    certification_scope: "counts as zero independent origins"
+
+source_families:
+  - source_family_id: official_league_event_source
+    purpose: "official schedule, event identity, venue, and status"
+  - source_family_id: official_league_availability_source
+    purpose: "official injury, inactive, roster, transaction, or participant status"
+  - source_family_id: official_team_announcement
+    purpose: "named team or club operational fact; exact instance and platform permission required"
+  - source_family_id: official_competition_rules
+    purpose: "season- or event-specific competition and settlement identity"
+  - source_family_id: government_operational_weather
+    purpose: "venue-matched operational weather gate only"
+  - source_family_id: sportsbook_target_manual_evidence
+    purpose: "exact displayed target quote, promotion, jurisdiction, and house-rule evidence"
+  - source_family_id: sportsbook_comparison_manual_evidence
+    purpose: "one exact non-target comparison market and its complete outcome set"
+  - source_family_id: permitted_sportsbook_feed
+    purpose: "exact sportsbook feed after separate permission and coverage review"
+  - source_family_id: licensed_sports_data_provider
+    purpose: "licensed operational sports facts after contract review"
+  - source_family_id: licensed_multi_book_odds_provider
+    purpose: "licensed odds records after book, market, jurisdiction, and origin review"
+  - source_family_id: secondary_reporting_lead
+    purpose: "early material-change lead that cannot clear a gate alone"
+  - source_family_id: golf_official_event_source
+    purpose: "event-specific organizer, field, format, cut, tee-time, status, and result facts"
+
+source_records:
+  - source_id: nws_weather_api
+    source_family_id: government_operational_weather
+    record_type: concrete_source
+    label: "National Weather Service API"
+    url: "https://www.weather.gov/documentation/services-web-api"
+    facts: [venue_matched_observation, forecast, alert, operational_weather_risk]
+    authority_rank: 1
+    access_mode: documented_public_api
+    automation_permission: permitted_with_conditions
+    permission_status: conditionally_reviewed
+    coverage_status: instance_required
+    jurisdiction_scope: "mapped U.S. venue only"
+    season_event_scope: "current observation or forecast validity window"
+    last_reviewed_on: "2026-07-13"
+    review_trigger: "access-guidance change or venue/rule mapping change"
+    health_check_method: "offline schema/reference check by default; optional separately approved HEAD/content review"
+    permitted_use: "versioned operational delay, suspension, or postponement gate"
+    prohibited_use: "probability, EV, or performance adjustment"
+    terms_source_id: null
+
+  - source_id: sportsbook_target_manual_evidence
+    source_family_id: sportsbook_target_manual_evidence
+    record_type: source_class
+    label: "Timestamped user-supplied target evidence"
+    url: null
+    facts: [promotion_terms, target_quote, jurisdiction, displayed_house_rules]
+    authority_rank: 1
+    access_mode: user_supplied_manual_evidence
+    automation_permission: prohibited
+    permission_status: source_specific_review_required
+    coverage_status: instance_required
+    jurisdiction_scope: "exact displayed sportsbook and state only"
+    season_event_scope: "exact captured event, market, and promotion"
+    last_reviewed_on: "2026-07-13"
+    review_trigger: "every run and every new evidence capture"
+    health_check_method: "hash, timestamp, legibility, and exact-identity review"
+    permitted_use: "target identity and promotion evidence"
+    prohibited_use: "account automation, inference across states, or pricing independence claim"
+    terms_source_id: null
+
+  - source_id: sportsbook_comparison_manual_evidence
+    source_family_id: sportsbook_comparison_manual_evidence
+    record_type: source_class
+    label: "Timestamped user-supplied comparison evidence"
+    url: null
+    facts: [comparison_quote, complete_outcome_set, displayed_jurisdiction]
+    authority_rank: 2
+    access_mode: user_supplied_manual_evidence
+    automation_permission: prohibited
+    permission_status: source_specific_review_required
+    coverage_status: instance_required
+    jurisdiction_scope: "exact displayed sportsbook and state only"
+    season_event_scope: "exact captured event and market"
+    last_reviewed_on: "2026-07-13"
+    review_trigger: "every run and every new evidence capture"
+    health_check_method: "hash, timestamp, identity, completeness, and origin review"
+    permitted_use: "one exact source-level comparison outcome set"
+    prohibited_use: "automated retrieval or unresolved-origin counting"
+    terms_source_id: null
+
+  - source_id: source_class_permitted_sportsbook_feed
+    source_family_id: permitted_sportsbook_feed
+    record_type: source_class
+    label: "Permitted documented sportsbook feed"
+    url: null
+    facts: [promotion_terms, target_quote, comparison_quote, market_status]
+    authority_rank: 1
+    access_mode: licensed_feed
+    automation_permission: license_required
+    permission_status: unresolved
+    coverage_status: provider_validation_pending
+    jurisdiction_scope: "contract-defined"
+    season_event_scope: "contract-defined"
+    last_reviewed_on: null
+    review_trigger: "provider candidate, contract, schema, book, market, or jurisdiction change"
+    health_check_method: "credential-free recorded fixtures until separately approved integration"
+    permitted_use: "none until an exact instance is registered and reviewed"
+    prohibited_use: "generic provider certification"
+    terms_source_id: null
+
+  - source_id: source_class_licensed_sports_data_provider
+    source_family_id: licensed_sports_data_provider
+    record_type: source_class
+    label: "Licensed/documented sports-data provider"
+    url: null
+    facts: [event, roster, availability, participant_status, operational_status]
+    authority_rank: 2
+    access_mode: licensed_feed
+    automation_permission: license_required
+    permission_status: unresolved
+    coverage_status: provider_validation_pending
+    jurisdiction_scope: "contract-defined"
+    season_event_scope: "contract-defined"
+    last_reviewed_on: null
+    review_trigger: "provider candidate, contract, field, season, or use change"
+    health_check_method: "credential-free recorded fixtures until separately approved integration"
+    permitted_use: "none until an exact instance is registered and reviewed"
+    prohibited_use: "generic coverage or gambling-use claim"
+    terms_source_id: null
+
+  - source_id: source_class_licensed_multi_book_odds_provider
+    source_family_id: licensed_multi_book_odds_provider
+    record_type: source_class
+    label: "Licensed/documented multi-book odds provider"
+    url: null
+    facts: [target_quote, comparison_quote, complete_outcome_set, market_status]
+    authority_rank: 1
+    access_mode: licensed_feed
+    automation_permission: license_required
+    permission_status: unresolved
+    coverage_status: provider_validation_pending
+    jurisdiction_scope: "contract-defined books and states"
+    season_event_scope: "contract-defined"
+    last_reviewed_on: null
+    review_trigger: "provider candidate, contract, schema, book, market, origin, or jurisdiction change"
+    health_check_method: "credential-free recorded fixtures until separately approved integration"
+    permitted_use: "none until exact coverage and origin relationships are registered"
+    prohibited_use: "treating provider record count as independent pricing origins"
+    terms_source_id: null
+
+  - source_id: source_class_official_team_announcement
+    source_family_id: official_team_announcement
+    record_type: source_class
+    label: "Official team or club announcement"
+    url: null
+    facts: [availability, roster, role, venue, operational_change]
+    authority_rank: 2
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: source_specific_review_required
+    coverage_status: instance_required
+    jurisdiction_scope: "named team and event"
+    season_event_scope: "exact announcement"
+    last_reviewed_on: null
+    review_trigger: "each source instance and platform terms change"
+    health_check_method: "manual identity, publication-time, and source review"
+    permitted_use: "material operational fact or early confirmation"
+    prohibited_use: "systematic retrieval without permission or recommendation-grade use when conflicting"
+    terms_source_id: null
+
+  - source_id: source_class_secondary_reporting_lead
+    source_family_id: secondary_reporting_lead
+    record_type: source_class
+    label: "Established secondary reporting"
+    url: null
+    facts: [possible_material_change]
+    authority_rank: 4
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: source_specific_review_required
+    coverage_status: instance_required
+    jurisdiction_scope: "named participant, team, or event"
+    season_event_scope: "exact report"
+    last_reviewed_on: null
+    review_trigger: "each source instance"
+    health_check_method: "manual publication-time and corroboration review"
+    permitted_use: "create WATCH pending authoritative confirmation"
+    prohibited_use: "clear a gate, set probability, or support actionability alone"
+    terms_source_id: null
+
+  - source_id: mlb_official_schedule_game
+    source_family_id: official_league_event_source
+    record_type: source_class
+    label: "Official MLB schedule/game source"
+    url: null
+    facts: [event_identity, game_number, venue, start_time, game_status]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: source_specific_review_required
+    coverage_status: instance_required
+    jurisdiction_scope: "MLB event facts"
+    season_event_scope: "applicable season/game"
+    last_reviewed_on: null
+    review_trigger: "exact source selection or access-terms change"
+    health_check_method: "manual source identity and content review"
+    permitted_use: "operational event identity and status"
+    prohibited_use: "automated collection until permission is reviewed"
+    terms_source_id: null
+
+  - source_id: mlb_official_starting_lineups
+    source_family_id: official_league_availability_source
+    record_type: concrete_source
+    label: "Official MLB starting lineups"
+    url: "https://www.mlb.com/starting-lineups/"
+    facts: [confirmed_lineup, batting_slot]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: source_specific_review_required
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "MLB games"
+    season_event_scope: "current named game"
+    last_reviewed_on: null
+    review_trigger: "MLB terms, page, or access-method change"
+    health_check_method: "manual page/content review"
+    permitted_use: "operational eligibility and price invalidation"
+    prohibited_use: "systematic retrieval until terms are reviewed"
+    terms_source_id: null
+
+  - source_id: mlb_official_probable_pitchers
+    source_family_id: official_league_availability_source
+    record_type: concrete_source
+    label: "Official MLB probable pitchers"
+    url: "https://www.mlb.com/probable-pitchers/"
+    facts: [starter_identity, opener_identity, handedness]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: source_specific_review_required
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "MLB games"
+    season_event_scope: "current named game"
+    last_reviewed_on: null
+    review_trigger: "MLB terms, page, or access-method change"
+    health_check_method: "manual page/content review"
+    permitted_use: "operational identity and price invalidation"
+    prohibited_use: "systematic retrieval until terms are reviewed"
+    terms_source_id: null
+
+  - source_id: mlb_official_transactions
+    source_family_id: official_league_availability_source
+    record_type: concrete_source
+    label: "Official MLB transactions"
+    url: "https://www.mlb.com/roster/transactions"
+    facts: [roster_status, transaction, allowlisted_bullpen_change]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: source_specific_review_required
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "MLB teams"
+    season_event_scope: "applicable transaction period"
+    last_reviewed_on: null
+    review_trigger: "MLB terms, page, or access-method change"
+    health_check_method: "manual page/content review"
+    permitted_use: "operational eligibility and price invalidation"
+    prohibited_use: "systematic retrieval until terms are reviewed"
+    terms_source_id: null
+
+  - source_id: baseball_savant_expected_statistics
+    source_family_id: licensed_sports_data_provider
+    record_type: concrete_source
+    label: "Baseball Savant expected statistics"
+    url: "https://baseballsavant.mlb.com/expected_statistics?type=batter"
+    facts: [future_model_hypothesis_inputs]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: unresolved
+    coverage_status: supporting_only
+    jurisdiction_scope: "MLB statistical reference"
+    season_event_scope: "future Tier D only"
+    last_reviewed_on: null
+    review_trigger: "separate model and license review"
+    health_check_method: "not part of current validation"
+    permitted_use: "future hypothesis reference only"
+    prohibited_use: "current collection, probability, ranking, or candidate support"
+    terms_source_id: null
+
+  - source_id: wnba_official_injury_report
+    source_family_id: official_league_availability_source
+    record_type: concrete_source
+    label: "WNBA injury report"
+    url: "https://www.wnba.com/wnba-injury-report"
+    facts: [report_submission_state, player_availability]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: conditionally_reviewed
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "league-wide operational facts"
+    season_event_scope: "2026 policy must be reverified each season"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "new season, policy change, page change, or access change"
+    health_check_method: "manual page/version review"
+    permitted_use: "operational eligibility and price invalidation"
+    prohibited_use: "league-owned restricted statistics or systematic retrieval without permission"
+    terms_source_id: wnba_terms_of_use
+
+  - source_id: wnba_official_schedule
+    source_family_id: official_league_event_source
+    record_type: concrete_source
+    label: "WNBA schedule"
+    url: "https://www.wnba.com/schedule"
+    facts: [event_identity, date, teams, scheduled_tip]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: conditionally_reviewed
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "league-wide event facts"
+    season_event_scope: "applicable season and event"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "new season, page change, or terms change"
+    health_check_method: "manual page/content review"
+    permitted_use: "operational event identity"
+    prohibited_use: "systematic retrieval without permission"
+    terms_source_id: wnba_terms_of_use
+
+  - source_id: wnba_official_roster_tracker
+    source_family_id: official_league_availability_source
+    record_type: concrete_source
+    label: "WNBA roster tracker"
+    url: "https://www.wnba.com/players/roster-tracker"
+    facts: [team_membership, roster_state]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: conditionally_reviewed
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "league-wide roster facts"
+    season_event_scope: "applicable season"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "new season, page change, or terms change"
+    health_check_method: "manual page/content review"
+    permitted_use: "operational identity and eligibility"
+    prohibited_use: "systematic retrieval without permission"
+    terms_source_id: wnba_terms_of_use
+
+  - source_id: wnba_official_transactions
+    source_family_id: official_league_availability_source
+    record_type: concrete_source
+    label: "WNBA transactions"
+    url: "https://www.wnba.com/players/transactions"
+    facts: [signing, waiver, trade, release, roster_change]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: conditionally_reviewed
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "league-wide transaction facts"
+    season_event_scope: "applicable season"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "new season, page change, or terms change"
+    health_check_method: "manual page/content review"
+    permitted_use: "operational identity, eligibility, and price invalidation"
+    prohibited_use: "systematic retrieval without permission"
+    terms_source_id: wnba_terms_of_use
+
+  - source_id: wnba_terms_of_use
+    source_family_id: official_league_event_source
+    record_type: terms_source
+    label: "WNBA Terms of Use"
+    url: "https://www.wnba.com/terms-of-use"
+    facts: [access_and_use_restrictions]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: conditionally_reviewed
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "WNBA-owned sources"
+    season_event_scope: "terms version current at review"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "terms or intended-use change"
+    health_check_method: "manual terms review"
+    permitted_use: "interpret operational source restrictions"
+    prohibited_use: "NBA Statistics in connection with gambling activity"
+    terms_source_id: null
+
+  - source_id: draftkings_wnba_market_page
+    source_family_id: sportsbook_comparison_manual_evidence
+    record_type: concrete_source
+    label: "DraftKings WNBA market page"
+    url: "https://sportsbook.draftkings.com/leagues/basketball/wnba"
+    facts: [displayed_comparison_market]
+    authority_rank: 2
+    access_mode: manual_on_demand
+    automation_permission: prohibited
+    permission_status: source_specific_review_required
+    coverage_status: supporting_only
+    jurisdiction_scope: "not Missouri evidence without exact displayed state capture"
+    season_event_scope: "exact current market only"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "every run and product/rule change"
+    health_check_method: "manual exact-market and jurisdiction review"
+    permitted_use: "at most one DraftKings origin when exact evidence is verified"
+    prohibited_use: "target evidence, Missouri certification, or automated retrieval"
+    terms_source_id: null
+
+  - source_id: nba_official_injury_report_2025_26
+    source_family_id: official_league_availability_source
+    record_type: season_artifact
+    label: "Official NBA injury report 2025-26"
+    url: "https://official.nba.com/nba-injury-report-2025-26-season/"
+    facts: [submission_policy, report_version, player_availability]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: conditionally_reviewed
+    coverage_status: wrong_season
+    jurisdiction_scope: "league-wide operational facts"
+    season_event_scope: "2025-26 only"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "new season, policy, page, access, or terms change"
+    health_check_method: "manual season/page/version review"
+    permitted_use: "historical 2025-26 operational policy reference only"
+    prohibited_use: "clearing a 2026-27 or later injury gate; restricted NBA Statistics"
+    terms_source_id: nba_terms_of_use
+
+  - source_id: nba_official_schedule
+    source_family_id: official_league_event_source
+    record_type: concrete_source
+    label: "Official NBA schedule"
+    url: "https://www.nba.com/schedule"
+    facts: [event_identity, date, teams, venue, scheduled_tip]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: source_specific_review_required
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "league-wide event facts"
+    season_event_scope: "applicable season and event"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "new season, page, access, or terms change"
+    health_check_method: "manual page/content review"
+    permitted_use: "operational event identity"
+    prohibited_use: "systematic retrieval or restricted statistics"
+    terms_source_id: nba_terms_of_use
+
+  - source_id: nba_terms_of_use
+    source_family_id: official_league_event_source
+    record_type: terms_source
+    label: "NBA Terms of Use"
+    url: "https://www.nba.com/termsofuse"
+    facts: [access_and_use_restrictions]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: conditionally_reviewed
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "NBA-owned sources"
+    season_event_scope: "terms version current at review"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "terms or intended-use change"
+    health_check_method: "manual terms review"
+    permitted_use: "interpret operational-source restrictions"
+    prohibited_use: "NBA Statistics in connection with gambling activity"
+    terms_source_id: null
+
+  - source_id: nfl_official_schedule
+    source_family_id: official_league_event_source
+    record_type: concrete_source
+    label: "NFL schedule"
+    url: "https://www.nfl.com/schedules/"
+    facts: [event_identity, kickoff, season_phase]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: prohibited
+    permission_status: conditionally_reviewed
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "league-wide event facts"
+    season_event_scope: "applicable season and event"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "season, schedule, access, or terms change"
+    health_check_method: "manual page/content review"
+    permitted_use: "manual operational verification"
+    prohibited_use: "systematic retrieval absent prior written consent"
+    terms_source_id: nfl_terms_of_use
+
+  - source_id: nfl_flexible_scheduling_procedures
+    source_family_id: official_competition_rules
+    record_type: concrete_source
+    label: "NFL flexible-scheduling procedures"
+    url: "https://www.nfl.com/legal/flexible-scheduling-procedures"
+    facts: [flex_policy, kickoff_change, week_18_assignment]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: prohibited
+    permission_status: conditionally_reviewed
+    coverage_status: supporting_only
+    jurisdiction_scope: "NFL schedule policy"
+    season_event_scope: "must be reverified for applicable season"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "each season or policy change"
+    health_check_method: "manual policy/version review"
+    permitted_use: "material event-change verification"
+    prohibited_use: "systematic retrieval or carrying policy across seasons"
+    terms_source_id: nfl_terms_of_use
+
+  - source_id: nfl_important_dates
+    source_family_id: official_league_availability_source
+    record_type: concrete_source
+    label: "NFL Football Operations important dates"
+    url: "https://operations.nfl.com/calendar-events/nfl-important-dates"
+    facts: [season_calendar, possible_reporting_windows]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: prohibited
+    permission_status: conditionally_reviewed
+    coverage_status: supporting_only
+    jurisdiction_scope: "NFL league policy"
+    season_event_scope: "applicable season only"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "each season or policy change"
+    health_check_method: "manual date/policy review"
+    permitted_use: "supporting calendar reference"
+    prohibited_use: "substituting for the exact injury-report policy"
+    terms_source_id: nfl_terms_of_use
+
+  - source_id: nfl_official_injury_reporting_policy_2026
+    source_family_id: official_league_availability_source
+    record_type: season_artifact
+    label: "NFL 2026 injury-reporting policy"
+    url: null
+    facts: [practice_report_deadline, game_status_deadline, correction_policy]
+    authority_rank: 1
+    access_mode: unconfigured
+    automation_permission: unresolved
+    permission_status: unresolved
+    coverage_status: provider_validation_pending
+    jurisdiction_scope: "NFL league policy"
+    season_event_scope: "2026 only"
+    last_reviewed_on: null
+    review_trigger: "exact final 2026 authority becomes available"
+    health_check_method: "cannot be checked until exact artifact is registered"
+    permitted_use: "none until exact authority is registered and reviewed"
+    prohibited_use: "clearing injury-report gates"
+    terms_source_id: nfl_terms_of_use
+
+  - source_id: nfl_official_inactives
+    source_family_id: official_league_availability_source
+    record_type: concrete_source
+    label: "NFL inactives"
+    url: "https://www.nfl.com/inactives/"
+    facts: [official_game_day_inactives]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: prohibited
+    permission_status: conditionally_reviewed
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "named NFL event/team"
+    season_event_scope: "current event"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "page, access, terms, or season change"
+    health_check_method: "manual list/publication-time review"
+    permitted_use: "manual inactive-state verification and price invalidation"
+    prohibited_use: "systematic retrieval absent consent"
+    terms_source_id: nfl_terms_of_use
+
+  - source_id: nfl_rulebook_2025
+    source_family_id: official_competition_rules
+    record_type: season_artifact
+    label: "2025 NFL rulebook"
+    url: "https://operations.nfl.com/rules-officiating/2025-nfl-rulebook"
+    facts: [overtime_rules, tie_rules]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: prohibited
+    permission_status: conditionally_reviewed
+    coverage_status: wrong_season
+    jurisdiction_scope: "NFL competition rules"
+    season_event_scope: "2025 only"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "final applicable-season rulebook"
+    health_check_method: "manual rulebook/version review"
+    permitted_use: "historical 2025 competition-rule reference"
+    prohibited_use: "clearing 2026 tie or overtime gates"
+    terms_source_id: nfl_terms_of_use
+
+  - source_id: nfl_terms_of_use
+    source_family_id: official_league_event_source
+    record_type: terms_source
+    label: "NFL.com Terms"
+    url: "https://www.nfl.com/legal/terms/"
+    facts: [access_and_systematic_retrieval_restrictions]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: prohibited
+    permission_status: conditionally_reviewed
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "NFL.com and NFL Football Operations sources"
+    season_event_scope: "terms version current at review"
+    last_reviewed_on: "2026-07-12"
+    review_trigger: "terms, consent, license, or intended-use change"
+    health_check_method: "manual terms review"
+    permitted_use: "manual/on-demand reference"
+    prohibited_use: "systematic retrieval absent express prior written consent"
+    terms_source_id: null
+
+  - source_id: fanduel_mo_house_rules
+    source_family_id: sportsbook_target_manual_evidence
+    record_type: concrete_source
+    label: "FanDuel Missouri House Rules"
+    url: "https://www.fanduel.com/fanduel-sportsbook-house-rules-mo"
+    facts: [missouri_house_rules, golf_settlement_reference]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: prohibited
+    permission_status: source_specific_review_required
+    coverage_status: provider_validation_pending
+    jurisdiction_scope: "FanDuel Missouri only"
+    season_event_scope: "exact rule version and displayed market"
+    last_reviewed_on: "2026-07-13"
+    review_trigger: "every run, rule version, product wording, or jurisdiction change"
+    health_check_method: "manual rule/version/content capture with hash"
+    permitted_use: "target identity and settlement evidence after exact recapture"
+    prohibited_use: "provider certification or authenticated automation"
+    terms_source_id: null
+
+  - source_id: draftkings_golf_rules
+    source_family_id: sportsbook_target_manual_evidence
+    record_type: concrete_source
+    label: "DraftKings Golf Rules"
+    url: "https://sportsbook.draftkings.com/help/sport-rules/golf"
+    facts: [general_golf_product_rules, settlement_reference]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: prohibited
+    permission_status: source_specific_review_required
+    coverage_status: supporting_only
+    jurisdiction_scope: "general rules; Missouri applicability not established"
+    season_event_scope: "exact current rule version"
+    last_reviewed_on: "2026-07-13"
+    review_trigger: "every run, rule version, product wording, or jurisdiction change"
+    health_check_method: "manual rule/version/content capture with hash"
+    permitted_use: "supporting settlement reference only"
+    prohibited_use: "Missouri certification or authenticated automation"
+    terms_source_id: null
+
+  - source_id: golf_official_event_source_pack
+    source_family_id: golf_official_event_source
+    record_type: event_pack
+    label: "Event-specific official Golf source pack"
+    url: null
+    facts: [organizer, event_edition, format, field, tee_time, course, cut, status, withdrawal, result]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: unresolved
+    permission_status: source_specific_review_required
+    coverage_status: instance_required
+    jurisdiction_scope: "named organizer and event edition"
+    season_event_scope: "one exact event edition"
+    last_reviewed_on: null
+    review_trigger: "every event, field version, official notice, or source change"
+    health_check_method: "golf_event_source_pack_v1 completeness and hash review"
+    permitted_use: "competition identity and operational facts"
+    prohibited_use: "generic tour or sportsbook listing as event support"
+    terms_source_id: null
+
+  - source_id: pga_tour_terms_of_use
+    source_family_id: golf_official_event_source
+    record_type: terms_source
+    label: "PGA TOUR Terms of Use"
+    url: "https://www.pgatour.com/company/terms-of-use"
+    facts: [access_and_use_restrictions]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: prohibited
+    permission_status: conditionally_reviewed
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "PGA TOUR public sources"
+    season_event_scope: "terms version current at review"
+    last_reviewed_on: "2026-07-13"
+    review_trigger: "terms, license, or intended-use change"
+    health_check_method: "manual terms review"
+    permitted_use: "manual/on-demand operational reference under applicable terms"
+    prohibited_use: "automated retrieval or event-fact substitution"
+    terms_source_id: null
+
+  - source_id: pga_tour_event_operational_pages
+    source_family_id: golf_official_event_source
+    record_type: source_class
+    label: "PGA TOUR event operational pages"
+    url: null
+    facts: [schedule, field, tee_time, leaderboard, cut, withdrawal, event_status]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: prohibited
+    permission_status: source_specific_review_required
+    coverage_status: instance_required
+    jurisdiction_scope: "applicable PGA TOUR-operated event"
+    season_event_scope: "exact event page and edition"
+    last_reviewed_on: "2026-07-13"
+    review_trigger: "each event/page or terms change"
+    health_check_method: "manual event/source identity review"
+    permitted_use: "manual operational verification in an event pack"
+    prohibited_use: "scraping, undocumented endpoints, or treating terms URL as event evidence"
+    terms_source_id: pga_tour_terms_of_use
+
+  - source_id: source_class_licensed_golf_data_provider
+    source_family_id: licensed_sports_data_provider
+    record_type: source_class
+    label: "Licensed/documented Golf data provider"
+    url: null
+    facts: [event, field, tee_time, status, cut, participant, course, result, permitted_odds]
+    authority_rank: 2
+    access_mode: licensed_feed
+    automation_permission: license_required
+    permission_status: unresolved
+    coverage_status: provider_validation_pending
+    jurisdiction_scope: "contract-defined"
+    season_event_scope: "contract-defined tours/events/markets"
+    last_reviewed_on: null
+    review_trigger: "provider, contract, field, tour, event, market, or use change"
+    health_check_method: "credential-free recorded fixtures until separately approved"
+    permitted_use: "none until separately licensed and registered"
+    prohibited_use: "generic coverage claim; no paid Golf provider is approved"
+    terms_source_id: null
+
+  - source_id: source_class_official_non_us_operational
+    source_family_id: government_operational_weather
+    record_type: source_class
+    label: "Official non-U.S. government or organizer operational source"
+    url: null
+    facts: [weather, venue_operating_status]
+    authority_rank: 1
+    access_mode: unconfigured
+    automation_permission: unresolved
+    permission_status: unresolved
+    coverage_status: instance_required
+    jurisdiction_scope: "mapped named non-U.S. venue"
+    season_event_scope: "exact event and validity window"
+    last_reviewed_on: null
+    review_trigger: "each source and event"
+    health_check_method: "source-specific authority, access, venue, and validity review"
+    permitted_use: "operational gate only after configuration"
+    prohibited_use: "probability input or unconfigured use"
+    terms_source_id: null
+
+policies:
+  - policy_id: mlb_source_access_review_v1
+    source_ids: [mlb_official_schedule_game, mlb_official_starting_lineups, mlb_official_probable_pitchers, mlb_official_transactions]
+    jurisdiction_scope: "MLB operational sources"
+    season_scope: "current"
+    status: provider_validation_pending
+    safeguard: "No MLB page is approved for systematic retrieval until exact terms and access method are reviewed."
+  - policy_id: mlb_operational_weather_rules_v1
+    source_ids: [nws_weather_api]
+    jurisdiction_scope: "mapped U.S. MLB venue"
+    season_scope: "current configured rules"
+    status: provider_validation_pending
+    safeguard: "Missing venue/rule mapping fails closed; weather is operational only."
+  - policy_id: mlb_material_bullpen_rules_v1
+    source_ids: [mlb_official_transactions, source_class_official_team_announcement]
+    jurisdiction_scope: "named MLB team and allowlisted role"
+    season_scope: "current configured allowlist"
+    status: provider_validation_pending
+    safeguard: "Without a matching allowlist rule, the signal is disabled and may not be collected or narrated."
+  - policy_id: wnba_injury_deadlines_2026_v1
+    source_ids: [wnba_official_injury_report]
+    jurisdiction_scope: "WNBA"
+    season_scope: "2026 only"
+    status: per_run_evidence_required
+    safeguard: "Reverify each season and after any official policy change."
+  - policy_id: nba_injury_deadlines_2025_26_v1
+    source_ids: [nba_official_injury_report_2025_26]
+    jurisdiction_scope: "NBA"
+    season_scope: "2025-26 only"
+    status: wrong_season
+    safeguard: "Cannot clear 2026-27 or later; register the exact current-season artifact and policy."
+  - policy_id: nfl_injury_reporting_policy_2026_v1
+    source_ids: [nfl_official_injury_reporting_policy_2026, nfl_important_dates]
+    jurisdiction_scope: "NFL"
+    season_scope: "2026 only"
+    status: provider_validation_pending
+    safeguard: "Important dates cannot substitute for the exact final injury-report policy."
+  - policy_id: nfl_flex_scheduling_policy_2026_v1
+    source_ids: [nfl_flexible_scheduling_procedures, nfl_official_schedule]
+    jurisdiction_scope: "NFL"
+    season_scope: "2026 only"
+    status: provider_validation_pending
+    safeguard: "Confirmed flex, Week 18 assignment, venue, or kickoff change invalidates older quotes."
+  - policy_id: nfl_overtime_tie_rules_2026_v1
+    source_ids: [nfl_rulebook_2025]
+    jurisdiction_scope: "NFL"
+    season_scope: "2026 only"
+    status: wrong_season
+    safeguard: "The 2025 rulebook cannot clear 2026 tie/overtime gates; exact book settlement rules are also required."
+  - policy_id: nfl_operational_weather_rules_v1
+    source_ids: [nws_weather_api, source_class_official_non_us_operational, source_class_official_team_announcement]
+    jurisdiction_scope: "mapped NFL venue"
+    season_scope: "current configured rules"
+    status: provider_validation_pending
+    safeguard: "Missing venue, source-instance, or rule mapping fails closed; weather remains operational only."
+  - policy_id: golf_missouri_house_rules_v1
+    source_ids: [fanduel_mo_house_rules, draftkings_golf_rules, sportsbook_target_manual_evidence]
+    jurisdiction_scope: "US-MO"
+    season_scope: "exact current rule and product capture"
+    status: provider_validation_pending
+    safeguard: "DraftKings general rules are supporting only; exact Missouri evidence is mandatory."
+  - policy_id: golf_event_source_pack_v1
+    source_ids: [golf_official_event_source_pack]
+    jurisdiction_scope: "named competition"
+    season_scope: "exact event edition"
+    status: per_run_evidence_required
+    safeguard: "A FanDuel or DraftKings listing discovers an event but never establishes organizer, format, market, or settlement support."

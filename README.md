@@ -23,7 +23,9 @@ The system should reduce screen-watching and bookkeeping. It should not invent p
 - **`PROMO_ANALYSIS_PLAYBOOK.md`** — comprehensive operating prompt and runbook for evaluating a sportsbook promotion or market opportunity.
 - **`PROMO_PLACEMENT_MONITORING_PLAYBOOK.md`** — authoritative global active-profile, valuation, refresh, material-change, candidate-state, and anti-noise policy.
 - **`SPORT_ADAPTERS/catalog.yaml`** — canonical `adapter_catalog_v1` adapter, profile, lifecycle, and readiness records.
+- **`SPORT_ADAPTERS/source_registry.yaml`** — canonical `source_registry_v1` sources, access permissions, coverage posture, pricing-origin groups, season/event policies, and review triggers.
 - **`SPORT_ADAPTERS/README.md`** — generated human-readable catalog presentation, lifecycle vocabulary, authority boundaries, and adapter-selection rules.
+- **`evidence/templates/`** — credential-free manifest templates; raw screenshots, personal/account details, and generated decision briefs stay local and ignored.
 - **`SPORT_ADAPTERS/ADAPTER_TEMPLATE.md`** — required contract for adding a sport or market capability.
 - **`SPORT_ADAPTERS/WNBA.md`** — authoritative WNBA market identities, signal registry, source policy, refresh cadence, gates, and validation fixtures.
 - **`SPORT_ADAPTERS/NBA.md`** — authoritative NBA specification for registered disabled full-game and player-points profiles, including credential-free fixtures.

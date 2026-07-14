@@ -15,3 +15,28 @@ build/
 *.sqlite
 *.sqlite3
 
+# Local evidence is private by default; only reviewed YAML templates/manifests are trackable.
+evidence/**
+data/screenshots/
+data/raw_evidence/
+
+# Generated local decision briefs and run outputs
+evidence/generated/decision_briefs/
+evidence/runs/*/decision_briefs/
+outputs/decision_briefs/
+decision_briefs/generated/
+evidence/generated/decision_briefs/**/*.json
+evidence/generated/decision_briefs/**/*.md
+evidence/runs/*/decision_briefs/**/*.json
+evidence/runs/*/decision_briefs/**/*.md
+outputs/decision_briefs/**/*.json
+outputs/decision_briefs/**/*.md
+decision_briefs/generated/**/*.json
+decision_briefs/generated/**/*.md
+
+# Keep credential-free evidence templates and safe YAML manifests trackable.
+!evidence/templates/
+!evidence/templates/**
+!evidence/manifests/
+!evidence/manifests/**/
+!evidence/manifests/**/*.yaml

@@ -1,0 +1,192 @@
+# Credential-free Golf event manifest. Do not embed screenshots, account data,
+# personal data, credentials, session data, raw sportsbook payloads, or private paths.
+schema_version: golf_event_source_pack_v1
+pack_id: null
+created_at_utc: null
+source_evidence_bundle_id: null
+
+privacy_and_storage:
+  credential_free: true
+  manifest_only: true
+  contains_raw_screenshots: false
+  contains_raw_payloads: false
+  contains_personal_data: false
+  contains_account_identifiers: false
+  contains_credentials_or_session_data: false
+  raw_evidence_committed_to_repository: false
+  hash_algorithm: sha256
+
+jurisdiction_and_book:
+  country: US
+  state: MO
+  state_name: Missouri
+  exact_sportsbook: null
+  # Only FanDuel or DraftKings is within this adapter's discovery scope.
+  allowed_sportsbooks:
+    - FanDuel
+    - DraftKings
+  exact_displayed_product: null
+  missouri_display_verified: false
+  sportsbook_listing_is_discovery_only: true
+  listing_does_not_establish_adapter_support: true
+
+event_and_competition_identity:
+  canonical_event_id: null
+  exact_displayed_event_name: null
+  organizer_or_sanctioning_body: null
+  tour_or_series: null
+  competition_name: null
+  event_edition: null
+  format: individual_stroke_play
+  scheduled_start_at_utc: null
+  scheduled_end_at_utc: null
+  venue: null
+  course_or_course_rotation: []
+  field_version_id: null
+  field_version_published_at_utc: null
+  official_field_hash_sha256: null
+  organizer_and_competition_verified: false
+
+competition_rules:
+  organizer_rule_evidence_id: null
+  scheduled_rounds: null
+  scheduled_holes: null
+  cut_structure: null
+  first_official_cut_after_round: null
+  no_cut_event: null
+  alternates_and_field_entry_rules: null
+  tee_time_and_course_assignment_evidence_id: null
+  suspension_and_resumption_rules: null
+  shortened_event_rules: null
+  dns_wd_dq_rules: null
+  playoff_or_co_winner_rules: null
+  official_result_source_evidence_id: null
+  competition_rules_verified: false
+
+market_identity:
+  profile_id: null
+  allowed_profile_ids:
+    - golf.player.make_cut
+    - golf.player.round_score_total
+    - golf.player.round_matchup
+    - golf.player.tournament_matchup
+    - golf.player.top_n_finish
+    - golf.tournament.outright_winner
+  exact_raw_market_label: null
+  exact_participant_or_field: null
+  exact_outcome_or_side: null
+  exact_line_threshold_or_top_n: null
+  exact_round: null
+  exact_course: null
+  market_wrapper: null
+  allowed_top_n_wrappers:
+    - standard_dead_heat
+    - including_ties
+    - fanduel_oddsboost
+    - tourney_special
+  pregame_confirmed: false
+  exact_market_identity_verified: false
+
+promotion_and_eligibility:
+  promotion_evidence_id: null
+  exact_boost_or_token_type: null
+  minimum_odds: null
+  minimum_odds_basis: null
+  maximum_odds: null
+  stake_cap: null
+  payout_cap: null
+  eligible_events_and_markets: null
+  expires_at_utc: null
+  token_return_rules: null
+  exact_terms_verified: false
+
+settlement_identity:
+  missouri_house_rule_evidence_id: null
+  house_rule_effective_date_or_version: null
+  exact_market_rule_evidence_id: null
+  action_and_minimum_completion_requirement: null
+  tie_or_dead_heat_treatment: null
+  including_ties_treatment: null
+  push_treatment: null
+  dns_treatment: null
+  withdrawal_treatment: null
+  disqualification_treatment: null
+  cancellation_treatment: null
+  shortened_event_treatment: null
+  field_change_treatment: null
+  playoff_or_co_winner_treatment: null
+  official_result_authority: null
+  settlement_verified: false
+
+# Reference safe evidence-item IDs and SHA-256 hashes from a corresponding
+# source_evidence_bundle_v1. Do not record raw file paths here.
+required_evidence:
+  sportsbook_listing_discovery:
+    evidence_id: null
+    source_id: null
+    content_sha256: null
+    verified: false
+  exact_missouri_promotion_and_market:
+    evidence_id: null
+    source_id: null
+    content_sha256: null
+    verified: false
+  exact_missouri_house_rules:
+    evidence_id: null
+    source_id: null
+    content_sha256: null
+    verified: false
+  official_organizer_and_event:
+    evidence_id: null
+    source_id: null
+    content_sha256: null
+    verified: false
+  official_competition_format_and_cut:
+    evidence_id: null
+    source_id: null
+    content_sha256: null
+    verified: false
+  official_field_tee_time_and_course:
+    evidence_id: null
+    source_id: null
+    content_sha256: null
+    verified: false
+  exact_market_settlement:
+    evidence_id: null
+    source_id: null
+    content_sha256: null
+    verified: false
+
+comparison_coverage:
+  target_pricing_origin_id: null
+  target_excluded_from_consensus: true
+  comparison_evidence_ids: []
+  independent_non_target_origin_count: 0
+  required_independent_non_target_origin_count: 2
+  complete_exact_outcome_sets: false
+  pricing_origin_independence_verified: false
+
+authorization_boundary:
+  adapter_id: golf.pregame_stroke_play_v0_1
+  adapter_version: 0.1.0
+  profile_lifecycle: disabled_provider_validation
+  fanduel_or_draftkings_listing_is_discovery_only: true
+  provider_certification_claimed: false
+  source_permission_claimed_without_review: false
+  automated_retrieval_authorized: false
+  profile_activation_authorized: false
+  probability_or_ev_authorized: false
+  ranking_or_candidate_generation_authorized: false
+  wagering_or_sportsbook_account_action_authorized: false
+  ap_frankenstein_access_authorized: false
+
+review:
+  missouri_and_exact_book_verified: false
+  exact_event_organizer_competition_verified: false
+  exact_market_verified: false
+  exact_settlement_verified: false
+  source_permissions_verified: false
+  all_required_evidence_present: false
+  unresolved_items: []
+  reviewed_at_utc: null
+  reviewer_role: null

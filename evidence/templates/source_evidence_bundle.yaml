@@ -1,0 +1,125 @@
+# Credential-free manifest template. Do not embed screenshots, account data,
+# personal data, credentials, cookies, tokens, geolocation artifacts, or raw payloads.
+schema_version: source_evidence_bundle_v1
+bundle_id: null
+created_at_utc: null
+created_by_role: human_supervised_research
+
+privacy_and_storage:
+  credential_free: true
+  manifest_only: true
+  contains_raw_screenshots: false
+  contains_raw_payloads: false
+  contains_personal_data: false
+  contains_account_identifiers: false
+  contains_credentials_or_session_data: false
+  raw_evidence_committed_to_repository: false
+  # Hash the evidence content itself. Do not record a local path that reveals
+  # an account name, user identity, or private storage location.
+  hash_algorithm: sha256
+
+scope:
+  jurisdiction:
+    country: US
+    state: MO
+    state_name: Missouri
+    verified: false
+  sport: null
+  league_or_tour: null
+  adapter_id: null
+  adapter_version: null
+  profile_id: null
+  profile_lifecycle: null
+  target_sportsbook:
+    exact_book_name: null
+    exact_product_name: null
+    displayed_jurisdiction: Missouri
+    jurisdiction_verified: false
+
+event_identity:
+  canonical_event_id: null
+  exact_displayed_event_name: null
+  organizer_or_sanctioning_body: null
+  competition_name: null
+  competition_edition_or_season: null
+  scheduled_start_at_utc: null
+  venue_or_course: null
+  identity_verified: false
+
+market_identity:
+  exact_raw_market_label: null
+  canonical_market_key: null
+  participant_or_field: null
+  side_or_outcome: null
+  exact_line_or_threshold: null
+  period_or_round: null
+  overtime_or_completion_scope: null
+  market_wrapper: null
+  identity_verified: false
+
+settlement_identity:
+  house_rule_effective_date_or_version: null
+  action_requirement: null
+  participation_requirement: null
+  overtime_treatment: null
+  tie_or_dead_heat_treatment: null
+  push_treatment: null
+  void_and_cancellation_treatment: null
+  shortened_or_abandoned_event_treatment: null
+  official_result_authority: null
+  exact_terms_verified: false
+
+# Add one entry per independently captured fact source. content_sha256 is the
+# only raw-evidence locator permitted in this repository template.
+evidence_items:
+  - evidence_id: null
+    source_id: null
+    source_instance_id: null
+    evidence_role: null
+    # Examples: sportsbook_listing_discovery, promotion_terms, target_quote,
+    # comparison_quote, house_rules, organizer_rules, event_state, official_result.
+    source_class: null
+    exact_source_name: null
+    source_url_or_public_object_id: null
+    provider_object_id: null
+    access_mode: manual_on_demand
+    captured_at_utc: null
+    provider_published_at_utc: null
+    jurisdiction: Missouri
+    content_sha256: null
+    exact_event_match: false
+    exact_organizer_competition_match: false
+    exact_market_match: false
+    exact_settlement_match: false
+    pricing_origin_id: unresolved
+    origin_resolution_status: unresolved
+    source_permission_reviewed: false
+    verification_status: pending
+    discrepancy_resolution: null
+
+coverage_and_independence:
+  target_evidence_id: null
+  target_pricing_origin_id: null
+  target_excluded_from_consensus: true
+  comparison_evidence_ids: []
+  independent_non_target_origin_count: 0
+  required_independent_non_target_origin_count: 2
+  independence_verified: false
+  complete_method_required_outcome_sets: false
+
+authorization_boundary:
+  sportsbook_listing_is_discovery_only: true
+  provider_certification_claimed: false
+  profile_activation_authorized: false
+  automated_retrieval_authorized: false
+  candidate_generation_authorized_by_this_bundle: false
+  wagering_or_sportsbook_account_action_authorized: false
+  ap_frankenstein_access_authorized: false
+
+review:
+  all_required_evidence_present: false
+  all_exact_identity_checks_pass: false
+  all_source_permissions_pass: false
+  unresolved_items: []
+  reviewed_at_utc: null
+  reviewer_role: null

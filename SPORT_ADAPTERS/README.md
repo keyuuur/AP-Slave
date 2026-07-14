@@ -64,6 +64,8 @@ Adapter identity and profile lifecycle are separate records. Adapter versions de
 
 `SPORT_ADAPTERS/catalog.yaml` is the canonical machine-readable catalog under contract `adapter_catalog_v1`. The tables below are its human-readable presentation. Counts and lifecycle distributions are derived from that catalog rather than independently maintained product truth.
 
+`SPORT_ADAPTERS/source_registry.yaml` is the canonical `source_registry_v1` for URLs, access and automation permission, exact coverage posture, source families, pricing-origin groups, season/event artifacts, review dates, and review triggers. Adapters retain authority over which facts and gates they require, but source references must resolve to registry IDs. URL health never establishes permission, exact coverage, jurisdiction, freshness, or pricing independence.
+
 ### 4.1 Adapter records
 
 | adapter_id | version | contract_version | sport / league | authoritative location | run mode | probability method |
