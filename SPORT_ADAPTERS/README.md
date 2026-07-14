@@ -18,11 +18,15 @@ Keep provider-specific endpoints, credentials, payload parsing, retry logic, and
 
 Apply these documents together, in this order:
 
-1. `PROJECT_CONTEXT.md` owns product architecture, canonical objects, deterministic formulas, and the broad roadmap.
+1. `PROJECT_CONTEXT.md` owns current product architecture, canonical objects, deterministic formulas, and current acceptance requirements.
 2. `PROMO_ANALYSIS_PLAYBOOK.md` owns promotion intake, analysis, QA, reason codes, and the decision-brief contract.
 3. `PROMO_PLACEMENT_MONITORING_PLAYBOOK.md` owns global signal tiers, consensus and freshness gates, candidate-state rules, and active-scope boundaries.
-4. This catalog owns the adapter lifecycle vocabulary and adapter-selection rules.
-5. The selected sport adapter owns only that sport's exact market identity, sport-specific signals, sources, cadence, material changes, profile-level gates, and fixtures.
+4. `SPORT_ADAPTERS/catalog.yaml` owns adapter/profile identity, lifecycle, and readiness records.
+5. `SPORT_ADAPTERS/source_registry.yaml` owns source identity, permission, coverage, season/jurisdiction scope, policy, and pricing-origin records.
+6. This document owns the lifecycle vocabulary, human-readable catalog presentation, and adapter-selection rules.
+7. The selected sport adapter owns only that sport's exact market identity, sport-specific signals, source application, cadence, material changes, profile-level gates, and fixtures.
+
+`ROADMAP.md` is non-authoritative future context. It owns no current behavior and never authorizes implementation by itself.
 
 A sport adapter may narrow a global rule for its market, but it may not weaken or contradict a global eligibility, consensus, freshness, provenance, human-approval, or access-control rule. When documents or observed provider behavior conflict, fail closed, identify the conflict, and update the affected documentation and implementation together.
 

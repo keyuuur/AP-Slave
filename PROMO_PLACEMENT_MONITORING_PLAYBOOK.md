@@ -3,9 +3,7 @@
 **Document status:** Active operating policy  
 **Prepared:** 2026-07-10  
 **Default timezone:** America/Chicago  
-**Stable profile:** Pregame MLB player hits  
-**Experimental pilot profiles:** Pregame WNBA full-game moneyline, non-push spread, and non-push total  
-**Specified disabled profiles:** Four NBA, three NFL, and six Golf pregame profiles registered for contract and credential-free fixture work only
+**Canonical lifecycle/readiness records:** `SPORT_ADAPTERS/catalog.yaml`
 **Fair-probability method:** de-vigged, exact-market same-line consensus using the selected adapter's complete source-level outcome set
 
 ---
@@ -18,10 +16,12 @@ The system is a **promotion-placement assistant**, not a bet-originating model. 
 
 Document responsibilities:
 
-- `PROJECT_CONTEXT.md` owns the product architecture, canonical objects, deterministic math, roadmap, and broad acceptance criteria.
-- `PROMO_ANALYSIS_PLAYBOOK.md` owns intake, analysis, QA, reason codes, decision-brief structure, and alert format.
-- This file owns active market profiles, signal tiers, refresh rules, material-change definitions, state effects, and explicit noise exclusions.
-- `SPORT_ADAPTERS/README.md` owns the sport-adapter catalog, lifecycle vocabulary, and adapter selection rules.
+- `PROJECT_CONTEXT.md` owns current product architecture, canonical objects, deterministic math, and current acceptance criteria. `ROADMAP.md` is separate, non-authoritative future context and owns no current behavior.
+- `PROMO_ANALYSIS_PLAYBOOK.md` owns intake, analysis, QA, reason codes, decision-brief structure, and the on-demand refresh-summary contract.
+- This file owns global lifecycle-enabled valuation, signal tiers, freshness, material-change definitions, candidate-state effects, and explicit noise exclusions. Section 6 remains the MLB player-hits authority.
+- `SPORT_ADAPTERS/catalog.yaml` owns canonical adapter/profile identity, lifecycle, implementation status, and source readiness.
+- `SPORT_ADAPTERS/source_registry.yaml` owns source roles, URLs, permission posture, coverage, jurisdiction/season scope, pricing-origin groups, and review triggers.
+- `SPORT_ADAPTERS/README.md` is the human-readable catalog presentation and adapter-selection policy; it must agree with the canonical YAML records.
 - For a catalog entry whose authority is delegated under `SPORT_ADAPTERS/`, the selected adapter owns that sport's market identities, sport-specific signal registry, source policy, refresh cadence, profile-level gates, and validation fixtures. WNBA, NBA, NFL, and Golf authority is delegated to `SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, `SPORT_ADAPTERS/NFL.md`, and `SPORT_ADAPTERS/GOLF.md`. Those adapters may narrow this file's global rules but may not weaken or contradict them. The established MLB player-hits registry remains in Section 6 of this file.
 
 AP Frankenstein remains a separate downstream system. If the user manually places a wager, its existing receipt-screenshot workflow may later handle spreadsheet logging and settlement. This project makes no AP Frankenstein edits, API calls, spreadsheet writes, or new integration contract in v0.1, and it does not treat a candidate as a placed wager.
@@ -30,17 +30,11 @@ AP Frankenstein remains a separate downstream system. If the user manually place
 
 ## 2. Active and pilot boundaries
 
-Stable v0.1 profile:
+Canonical profile identity, lifecycle, implementation status, and source readiness come only from `SPORT_ADAPTERS/catalog.yaml`; this playbook does not maintain a second count or lifecycle registry. Use `SPORT_ADAPTERS/README.md` for the synchronized human-readable presentation and the selected adapter for exact market boundaries.
 
-- pregame MLB player-hit promotions.
+The catalog-selected policy-enabled surface is limited to pregame MLB player hits and the supervised on-demand WNBA full-game game-line pilot. Lifecycle permission does not imply an executable runtime or certified source. This checkout remains documentation/specification only, so current review requires explicitly supplied, currently verified evidence and fails closed when an implementation or source-readiness gate is unmet.
 
-Experimental on-demand WNBA pilot profiles:
-
-- pregame full-game moneyline;
-- pregame full-game spreads with no push probability;
-- pregame full-game totals with no push probability.
-
-Shared active behavior:
+Shared lifecycle-enabled contract behavior:
 
 - exact target-book quotes;
 - same-line comparison markets;
@@ -48,14 +42,12 @@ Shared active behavior:
 - deterministic boost, break-even, EV, and expected-dollar calculations;
 - human-reviewed decision briefs.
 
-Disabled until a later approved phase:
+Non-authorizing until a later approved phase:
 
 - independent statistical prediction models;
 - manual probability overrides;
-- every registered NBA and NFL profile until its exact provider-validation evidence passes and activation is separately approved;
-- every registered Golf profile until its exact competition-rule, settlement, provider, and valuation evidence passes and activation is separately approved;
-- WNBA player points, rebounds, assists, and made-threes candidate generation until provider validation passes and activation is separately approved;
-- WNBA whole-number spread/total, team-total, alternate-line, combination, partial-game, and same-game-parlay profiles;
+- every catalog-disabled profile until its exact adapter gates, implementation, source readiness, evidence, and separate lifecycle approval pass;
+- every unregistered profile or market shape;
 - live betting or live game-state triggers;
 - automatic wager placement;
 - sportsbook account automation;
@@ -63,6 +55,8 @@ Disabled until a later approved phase:
 - automatic closing-line or settlement workflows;
 - recurring schedules or background polling;
 - automatic alerts or outbound notifications.
+
+These items are future context under `ROADMAP.md`, which does not authorize them. Disabled adapter contracts, Tier D/X inventories, fixtures, and provider exposure likewise do not authorize polling, probability, EV, ranking, alerts, or candidate generation.
 
 `ACTIONABLE FOR REVIEW` always means the candidate passed the research gates. It is not a wagering instruction and does not mean a wager was placed.
 
@@ -81,7 +75,7 @@ A signal belongs in an active profile only when at least one of these is true:
 
 If a fact has no defined consumer and no state effect, do not collect it routinely and do not include it merely to make a report look comprehensive.
 
-Tier A and Tier C facts may gate eligibility, freshness, or candidate state and may trigger price refreshes. They may not add a narrative bonus or penalty to a numeric score or rank. Numeric rank can change only because fresh Tier B valuation inputs changed or because an enabled, validated model produced a new output.
+Tier A and Tier C facts may gate eligibility, freshness, or candidate state and may trigger price refreshes. They may not add a narrative bonus or penalty to a numeric score or rank. Numeric rank can change only because fresh Tier B valuation inputs changed. A separately approved future model could change rank only after its Tier D contract, implementation, evidence, and lifecycle gates were activated; no such model is currently enabled.
 
 ### 3.1 Signal registry contract
 
@@ -100,7 +94,7 @@ Every active monitored signal must define:
 | `probability_use` | Consensus input, model-only, or none |
 | `reporting_rule` | When the fact appears in a brief or alert |
 
-Disabled future profiles may list signal families in prose while they remain inactive. Before any such profile can poll, generate candidates, or alert, every enabled signal must be promoted into this full registry contract.
+A disabled adapter may fully specify future signals and fixtures for contract validation, but those records are non-authorizing. Before any profile can poll, generate candidates, or alert, its catalog lifecycle, implementation status, source readiness, evidence, and every enabled signal contract must all pass their governing gates.
 
 ### 3.2 Signal tiers
 
@@ -109,8 +103,8 @@ Disabled future profiles may list signal families in prose while they remain ina
 | A | Hard gate | Exact identity, eligibility, availability, and target-quote facts. Missing or conflicting material values block action. |
 | B | Market valuation | Target and same-line comparison prices used for consensus, EV, ranking, and price-threshold alerts. |
 | C | Context invalidation | Confirmed sport-state changes that may make an earlier market snapshot stale. These gate state or trigger new prices; they do not directly change probability or numeric rank. |
-| D | Model-only | Potential statistical features that remain disabled until a named validated model consumes them. |
-| X | Excluded noise | Narratives, weak trends, or unsupported statistics that v0.1 does not collect or report as evidence. |
+| D | Model-only, non-authorizing | Potential statistical features that must not be fetched, scored, narrated, or used until a named validated model, implementation, evidence, and separate activation exist. |
+| X | Excluded noise, non-authorizing | Narratives, weak trends, or unsupported statistics that v0.1 does not collect or report as evidence. |
 
 ---
 
@@ -126,7 +120,7 @@ Disabled future profiles may list signal families in prose while they remain ina
 8. A lineup or role fact is a hard gate only when the selected market profile defines it as critical. An unconfirmed MLB batting lineup remains `WATCH`; missing league-wide WNBA starting-five confirmation alone does not block a full-game WNBA market.
 9. A confirmed player scratch is `INELIGIBLE` when it clearly violates the promotion or market rules; otherwise it is `BLOCKED` pending exact book treatment.
 10. A candidate can become `ACTIONABLE FOR REVIEW` only when promotion eligibility, exact market identity, target price, method-valid source-level consensus, critical sport state, freshness, and QA all pass.
-11. Tier A or Tier C context may never add or subtract ranking points. Any post-change re-rank must be caused by refreshed Tier B prices or an enabled, validated model.
+11. Tier A or Tier C context may never add or subtract ranking points. Any current post-change re-rank must be caused by refreshed Tier B prices; model-based ranking is future-only under `ROADMAP.md` and requires separate activation.
 
 Every candidate snapshot must record `next_refresh_at` and `next_refresh_reason`.
 
@@ -138,7 +132,7 @@ The normalized local structured output is `promotion_decision_brief_v2` from `PR
 
 This gate operationalizes the existing market-consensus method without replacing the formulas or probability contracts in `PROJECT_CONTEXT.md` and `PROMO_ANALYSIS_PLAYBOOK.md`.
 
-For every active or pilot-enabled profile, the target sportsbook is excluded from both the fair-probability calculation and the usable comparison-source count. A valid consensus requires at least two usable comparison books assigned to two distinct pricing-origin groups in a named, versioned configuration. Multiple providers, feeds, skins, aliases, or jurisdictions representing the same underlying sportsbook or configured pricing origin count once. A source whose independence is unresolved does not satisfy the two-source actionability gate until its pricing-origin group is resolved.
+For every active or pilot-enabled profile, the target sportsbook is excluded from both the fair-probability calculation and the usable comparison-source count. A valid consensus requires at least two usable comparison books assigned to two distinct pricing-origin groups in a named, versioned configuration. Multiple providers, feeds, skins, aliases, or jurisdictions representing the same underlying sportsbook or configured pricing origin count once. A source whose independence is unresolved does not satisfy the two-source actionability gate until its pricing-origin group is resolved. The shared pilot limits remain 180 seconds for the target quote, 300 seconds for comparison quotes, and 300 seconds maximum collection-time skew.
 
 A usable comparison book must provide the complete source-level outcome set required by the selected adapter's named, versioned de-vig method. For every existing MLB, WNBA, NBA, and NFL profile, that requirement remains exactly the candidate outcome plus its exact binary opposing outcome; this additive terminology does not change or weaken their behavior. A future multiway method may qualify only when one book supplies every mutually exclusive and collectively exhaustive outcome under one exact field version and settlement contract. Golf's disabled contract may describe such a set, but description alone does not implement or activate its valuation path.
 
@@ -209,11 +203,11 @@ All Golf tournament-field and outcome-vector values remain adapter-local audit a
 
 | signal_id | market_profile | tier | source hierarchy | refresh trigger | maximum age | material change rule | candidate-state effect | probability use | reporting rule |
 |---|---|---|---|---|---|---|---|---|---|
-| `promo_terms` | all active profiles | A | `sportsbook_target_manual_evidence`; `source_class_permitted_sportsbook_feed` | intake, new terms evidence, final pre-use check | through stated expiry; reverify before use | any eligibility, cap, odds-range, market, token, or expiry change | `INELIGIBLE` or `BLOCKED` | none | always show material terms and confidence |
-| `target_quote` | all active profiles | A/B | `sportsbook_target_manual_evidence`; `source_class_permitted_sportsbook_feed` | every run and immediately before human placement | 180 seconds for pilot actionability | line, side, price, status, or book changes | re-rank; stale/missing becomes `BLOCKED` | target return and EV | always show price, status, source, and age |
-| `comparison_quotes_same_line` | all active profiles | B | `sportsbook_comparison_manual_evidence`; `source_class_licensed_multi_book_odds_provider`; `source_class_permitted_sportsbook_feed` | every run and after any material sport change | 300 seconds for pilot actionability | price, line, outcome-set membership, source set, independence, or market status changes | re-rank; invalid consensus becomes `WATCH` or `BLOCKED` | per-book normalization of the complete method-required source-level outcome set followed by configured aggregation | show target exclusion, raw/usable/origin counts, included and excluded sources, method-required source inputs, per-source fair probabilities, dispersion, oldest age, and collection-time skew |
-| `market_status` | all active profiles | A | `sportsbook_target_manual_evidence`; `sportsbook_comparison_manual_evidence`; registered feed instances | every quote refresh | same as quote | open, suspended, closed, or unknown changes | suspended/closed becomes `BLOCKED` | none | report only non-open state or change |
-| `promo_expiration` | all active profiles | A | `sportsbook_target_manual_evidence`; `source_class_permitted_sportsbook_feed` | every run | current | enters warning window or expires | warning or `INELIGIBLE` | none | show time remaining |
+| `promo_terms` | all active or pilot-enabled profiles | A | `sportsbook_target_manual_evidence`; `source_class_permitted_sportsbook_feed` | intake, new terms evidence, final pre-use check | through stated expiry; reverify before use | any eligibility, cap, odds-range, market, token, or expiry change | `INELIGIBLE` or `BLOCKED` | none | always show material terms and confidence |
+| `target_quote` | all active or pilot-enabled profiles | A/B | `sportsbook_target_manual_evidence`; `source_class_permitted_sportsbook_feed` | every run and immediately before human placement | 180 seconds for pilot actionability | line, side, price, status, or book changes | re-rank; stale/missing becomes `BLOCKED` | target return and EV | always show price, status, source, and age |
+| `comparison_quotes_same_line` | all active or pilot-enabled profiles | B | `sportsbook_comparison_manual_evidence`; `source_class_licensed_multi_book_odds_provider`; `source_class_permitted_sportsbook_feed` | every run and after any material sport change | 300 seconds for pilot actionability; 300 seconds maximum collection skew | price, line, outcome-set membership, source set, independence, or market status changes | re-rank; invalid consensus becomes `WATCH` or `BLOCKED` | per-book normalization of the complete method-required source-level outcome set followed by configured aggregation | show target exclusion, raw/usable/origin counts, included and excluded sources, method-required source inputs, per-source fair probabilities, dispersion, oldest age, and collection-time skew |
+| `market_status` | all active or pilot-enabled profiles | A | `sportsbook_target_manual_evidence`; `sportsbook_comparison_manual_evidence`; `source_class_permitted_sportsbook_feed` | every quote refresh | same as quote | open, suspended, closed, or unknown changes | suspended/closed becomes `BLOCKED` | none | report only non-open state or change |
+| `promo_expiration` | all active or pilot-enabled profiles | A | `sportsbook_target_manual_evidence`; `source_class_permitted_sportsbook_feed` | every run | current | enters warning window or expires | warning or `INELIGIBLE` | none | show time remaining |
 
 Pilot freshness limits are safety defaults, not proven optimal thresholds. Measure provider behavior before changing them, and never relax them merely to produce a recommendation.
 
@@ -321,7 +315,7 @@ Approved equivalence remains conditional on exact identity and settlement:
 
 ### 6.3 Probability and comparison policy
 
-MLB inherits the global valid same-line consensus gate in Section 4.1 without weakening it. The target book is excluded; each usable non-target book must supply its own exact complete opposing pair; each book is de-vigged separately; and only source-level fair probabilities are aggregated under the configured named version. Target age remains at most 180 seconds, comparison age at most 300 seconds, and collection skew must satisfy the configured pilot limit. One-sided `1+ Hits` target ladders never count as a comparison pair by themselves.
+MLB inherits the global valid same-line consensus gate in Section 4.1 without weakening it. The target book is excluded; each usable non-target book must supply its own exact complete opposing pair; each book is de-vigged separately; and only source-level fair probabilities are aggregated under the configured named version. Target age remains at most 180 seconds, comparison age at most 300 seconds, and collection skew at most 300 seconds. One-sided `1+ Hits` target ladders never count as a comparison pair by themselves.
 
 If the aggregation configuration, pricing-origin mapping, exact opposing side, settlement match, or required freshness is missing, use `WATCH` during research and `BLOCKED` at the final placement check. Show break-even and labeled comparisons only; do not report positive EV.
 
@@ -391,18 +385,18 @@ No source in this table is a generic provider certification. Jurisdiction, permi
 |---|---|---|---|---|---|
 | `intake` | promotion detected | terms, eligible slate, target/comparisons, game identity, probable pitcher, lineup state, roof and early operational risk | source/event scoped; quote pilot limits apply | material term/target missing `BLOCKED`; context/consensus incomplete `WATCH` | T-6h or registered source event |
 | `distant_pregame` | around T-6h | slate, pitcher, game status, target/comparisons, registered operational risk | quote pilot limits; sport facts per registry | `WATCH` when required evidence is unavailable | lineup/pitcher release window |
-| `official_release_window` | T-4h until confirmed lineup | lineup and pitcher every 10-15 minutes when event data is unavailable; no unrelated static polling | lineup/starter 600 seconds and postdate latest change | unconfirmed lineup `WATCH`; unresolved final requirement `BLOCKED` | confirmation, amendment, or next check |
+| `official_release_window` | human-requested refresh from T-4h until confirmed lineup | current lineup and pitcher evidence; no background or unrelated static polling | lineup/starter 600 seconds and postdate latest change | unconfirmed lineup `WATCH`; unresolved final requirement `BLOCKED` | confirmation, amendment, or next requested check |
 | `material_change` | any registered material event | invalidate affected quotes; refresh target, complete comparisons, and affected status facts | target 180 seconds; comparisons 300 seconds; configured skew | `WATCH`; final unavailable synchronized batch `BLOCKED` | synchronized post-change batch |
 | `shortlist_check` | around T-30m | shortlist, lineup, pitcher, game/roof, operational weather, target/comparisons | registry ages and quote pilot limits | `WATCH` or `BLOCKED` under failed gate | final synchronized check |
 | `final_sync` | immediately before human placement | promotion, event/player/lineup/starter/roof/weather status, target, comparisons, jurisdiction, settlement, and QA | all final recommendation-grade limits | any fatal, stale, or conflicting input `BLOCKED` | none; new evidence requires a new run |
 
-Closing-price capture remains future evaluation work and is not active in this adapter.
+Closing-price capture remains non-authorizing future evaluation work under `ROADMAP.md` and is not active in this adapter.
 
 If provider limits prevent the required cadence or freshness, keep the candidate `WATCH` or `BLOCKED`. Do not silently substitute older data.
 
-### 6.8 MLB 18-group signal map and Tier D boundaries
+### 6.8 MLB 18-group signal map and non-authorizing Tier D boundaries
 
-The MLB design recognizes 18 conceptual baseball signal groups. The six active groups below summarize existing Section 6.2 registry entries; they do not create duplicate signals or additional polling. The remaining 12 groups are disabled Tier D model families.
+The MLB design recognizes 18 conceptual baseball signal groups. The six active groups below summarize existing Section 6.2 registry entries; they do not create duplicate signals or additional polling. The remaining 12 groups are disabled, non-authorizing Tier D model families. Their inclusion is roadmap inventory only and does not permit collection, modeling, narration, probability, ranking, or candidate generation.
 
 Shared promotion and Tier B quote signals in Section 5 are separate from these baseball-specific groups. Consumer mappings beyond `mlb.player_hits` document future compatibility only; they do not activate another market profile.
 
@@ -483,50 +477,15 @@ Use deterministic promotion, odds, no-vig, EV, expected-dollar, freshness, and r
 
 ---
 
-## 7. Delegated basketball, football, and Golf lifecycle registry
+## 7. Delegated basketball, football, and Golf boundaries
 
-`SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, `SPORT_ADAPTERS/NFL.md`, and `SPORT_ADAPTERS/GOLF.md` are the authoritative delegated capability contracts. They define exact market identities, complete ten-field Tier A/B/C signal registries, source compliance, sport-specific refresh behavior, model-only and noise boundaries, provider-validation evidence, and fixtures. This section records lifecycle state only; do not duplicate or weaken adapter rules here.
+Canonical adapter/profile identity, lifecycle, implementation status, and source readiness are recorded only in `SPORT_ADAPTERS/catalog.yaml`; this section intentionally does not duplicate the profile table or counts. `SPORT_ADAPTERS/README.md` provides the synchronized human-readable presentation.
 
-| Profile | Status | Current boundary |
-|---|---|---|
-| `wnba.full_game.moneyline` | `pilot_enabled` | pregame, full game, exact overtime/settlement match |
-| `wnba.full_game.spread` | `pilot_enabled` | pregame, full game, no push probability |
-| `wnba.full_game.total` | `pilot_enabled` | pregame, full game, no push probability |
-| `wnba.player.points` | `disabled_provider_validation` | no polling or candidate generation |
-| `wnba.player.rebounds` | `disabled_provider_validation` | no polling or candidate generation |
-| `wnba.player.assists` | `disabled_provider_validation` | no polling or candidate generation |
-| `wnba.player.made_threes` | `disabled_provider_validation` | no polling or candidate generation |
-| `nba.full_game.moneyline` | `disabled_provider_validation` | pregame, full game, exact overtime/settlement match; no polling or candidate generation |
-| `nba.full_game.spread` | `disabled_provider_validation` | pregame, full game, principal reciprocal half-point line only; no polling or candidate generation |
-| `nba.full_game.total` | `disabled_provider_validation` | pregame, full game, principal half-point total only; no polling or candidate generation |
-| `nba.player.points` | `disabled_provider_validation` | exact non-push full-game over/under or conditionally equivalent milestone; no polling or candidate generation |
-| `nfl.full_game.moneyline` | `disabled_provider_validation` | pregame, full game, tie and push proven impossible; no polling or candidate generation |
-| `nfl.full_game.spread` | `disabled_provider_validation` | pregame, full game, principal reciprocal half-point line only; no polling or candidate generation |
-| `nfl.full_game.total` | `disabled_provider_validation` | pregame, full game, principal half-point total only; no polling or candidate generation |
-| `golf.player.make_cut` | `disabled_provider_validation` | pregame Yes/No on the first official cut; no polling or candidate generation |
-| `golf.player.round_score_total` | `disabled_provider_validation` | exact player, round, course, and half-point 18-hole total; no polling or candidate generation |
-| `golf.player.round_matchup` | `disabled_provider_validation` | exact two-player pre-round matchup with two-way, tie-refund, and three-way shapes kept distinct; no polling or candidate generation |
-| `golf.player.tournament_matchup` | `disabled_provider_validation` | exact whole-tournament matchup with cut, completion, WD/DQ, and tie treatment; no polling or candidate generation |
-| `golf.player.top_n_finish` | `disabled_provider_validation` | exact Top 5/10/20 wrapper and dead-heat/boundary treatment; no polling or candidate generation |
-| `golf.tournament.outright_winner` | `disabled_provider_validation` | exact exhaustive field version and playoff/dead-heat treatment; no polling or candidate generation |
+`SPORT_ADAPTERS/WNBA.md`, `SPORT_ADAPTERS/NBA.md`, `SPORT_ADAPTERS/NFL.md`, and `SPORT_ADAPTERS/GOLF.md` are the authoritative delegated capability contracts. They own their exact market and settlement identities, Tier A/B/C signal applications, source gates, six-phase cadence, provider-validation evidence, fixtures, and sport-local audit fields. They inherit but may not weaken Section 4's target exclusion, two-independent-origin minimum, per-book de-vigging, 180/300/300-second limits, synchronized post-change refresh, formulas, reason codes, `promotion_decision_brief_v2`, and human-control boundary.
 
-Together with `mlb.player_hits` in Section 6, the registry contains exactly twenty-one profiles across five adapters: one `active`, three `pilot_enabled`, and seventeen `disabled_provider_validation`. No disabled profile may poll sources, produce candidates, generate alerts, calculate recommendation-grade probability or EV, rank candidates, or become actionable. WNBA pilot profiles run only on demand and produce a local decision brief; their `pilot_enabled` state does not activate recurring schedules, background monitoring, or outbound alerts.
+A catalog-disabled profile remains non-authorizing even when its adapter contains a complete contract or fixture. It may not poll sources, produce candidates, generate alerts, calculate recommendation-grade probability or EV, rank candidates, or become actionable. Tier D model inventories and Tier X examples in every delegated adapter are likewise non-authorizing. Provider exposure, a sportsbook listing, or a successful fixture never changes lifecycle, implementation status, or source readiness.
 
-For WNBA game lines, a current official injury-report submission and post-change price batch are critical, while a league-wide confirmed starting five is not. Any official availability, roster, transaction, game-status, or confirmed role change newer than the quote batch changes affected candidates to `WATCH` and triggers synchronized target/comparison refreshes. The fact itself never changes probability. Exact WNBA player availability becomes a hard gate when a player-prop profile is later activated.
-
-Whole-number spread and total lines remain disabled until deterministic push-aware fair-probability and EV math is separately implemented and tested. The binary win/loss calculation must not silently treat push probability as zero.
-
-All WNBA statistical features remain Tier D and uncollected until a named, calibrated model, licensed/permitted source, leak-free historical evaluation, and separate activation approval exist. Game-line movement may be registered as a future player-prop refresh trigger, but it may not substitute for exact prop consensus or create a narrative adjustment.
-
-`nba_official_injury_report_2025_26` is a historical season artifact and cannot clear a later-season gate; the applicable source and policy must be reverified before any NBA activation. `SPORT_ADAPTERS/NBA.md` owns the NBA operational injury, availability, roster, role, player-status, settlement-equivalence, and post-change synchronization rules. Official NBA statistics remain excluded from gambling-related model use under `nba_terms_of_use`. NBA rebounds, assists, and made-threes are unavailable by catalog absence.
-
-`SPORT_ADAPTERS/NFL.md` owns the NFL event, injury-report, availability, quarterback, inactive-list, roster, venue, operational-weather, tie-treatment, and post-change synchronization rules. NFL.com sources remain manual/on-demand references unless licensed. Schedule or flex changes are material event changes. NFL player props, including passing- and rushing-yard props, are unregistered.
-
-NBA and NFL adapters inherit the shared signals in Section 5, the 180-second target and 300-second comparison limits, the configured 300-second collection-skew limit, target exclusion, two independent pricing origins, per-book de-vigging, and all six standard refresh phases. They extend those rules through league-local signals and identity fields; they do not redefine the shared signals, global formulas, reason codes, `promotion_decision_brief_v2`, or the human-control boundary.
-
-`SPORT_ADAPTERS/GOLF.md` owns Golf organizer/tour, competition edition, individual-stroke-play format, scheduled-hole, field-version, player/tee-time, round/course, cut, participant-set, DNS/WD/DQ, tie/playoff/dead-heat, shortening, house-rule, and official-finality rules. Tournament discovery is limited to events offered by FanDuel or DraftKings in Missouri, but book availability creates only a slate candidate and never activates a profile. FanDuel Missouri house rules are the FanDuel settlement authority; DraftKings Golf rules remain a reference pending exact Missouri terms and bet-slip evidence. Official organizer pages are manual/on-demand references unless their terms permit automation, and PGA TOUR public pages are not an automated source under the current terms. NWS may provide permitted U.S. operational-weather facts only.
-
-Golf structurally inherits the shared signals in Section 5, target exclusion, the two-independent-origin minimum, 180-second target age, 300-second comparison age, 300-second collection skew, synchronized post-change refreshes, and all six phase IDs: `intake`, `distant_pregame`, `official_release_window`, `material_change`, `shortlist_check`, and `final_sync`. Those inherited contracts are fixture specifications while all six profiles remain disabled. Golf's participant fields and complete outcome vectors remain adapter-local audit data; `promotion_decision_brief_v2` and persisted schemas are unchanged, and activation requires separate schema evolution.
+Season, jurisdiction, source-permission, and market-specific restrictions remain owned by the source registry and selected adapter. Do not restate or weaken them here.
 
 ---
 
@@ -557,11 +516,11 @@ Secondary or social reporting may create `WATCH` only when it plausibly invalida
 
 ---
 
-## 9. Local decision briefs and future alerts
+## 9. Local decision briefs and roadmap-only alerts
 
-The active profiles and experimental WNBA pilot produce on-demand local decision briefs only. They do not run a scheduler, background poller, automatic alert, or outbound notification. The alert contract below is reserved for a later approved phase and also defines which changes deserve emphasis when a human requests a refreshed brief.
+Lifecycle-enabled profiles permit only on-demand local decision-brief contracts. This checkout does not implement retrieval, calculation, ranking, a scheduler, background poller, automatic alert, or outbound notification. Automatic alerting is non-authorizing future context in `ROADMAP.md`; it requires a separately approved implementation phase.
 
-When separately activated, generate an alert only when at least one registered event occurs:
+For a current human-requested refreshed brief, emphasize a change only when at least one registered event occurs:
 
 - candidate state changes;
 - ranking leader changes;
@@ -571,7 +530,7 @@ When separately activated, generate an alert only when at least one registered e
 - provider health or freshness fails;
 - promotion expiration enters a configured warning window.
 
-Deduplicate by candidate, signal, and new value. Every alert must state what changed from the previous snapshot.
+Deduplicate the change summary by candidate, signal, and new value. Every refreshed brief must state what changed from the previous snapshot.
 
 The decision brief is a promotion-placement brief, not a sports-news digest. For sport context, include only:
 
@@ -587,7 +546,7 @@ Do not include Tier D or Tier X material as persuasive narrative.
 
 ## 10. Adding a new sport or market profile
 
-A new profile must be registered in `SPORT_ADAPTERS/README.md` and implemented from `SPORT_ADAPTERS/ADAPTER_TEMPLATE.md`. It remains disabled until it defines:
+A new profile must be registered canonically in `SPORT_ADAPTERS/catalog.yaml`, presented consistently in `SPORT_ADAPTERS/README.md`, and specified from `SPORT_ADAPTERS/ADAPTER_TEMPLATE.md`. It remains disabled until it defines:
 
 1. exact canonical and raw market identity;
 2. promotion eligibility inputs;
@@ -598,10 +557,10 @@ A new profile must be registered in `SPORT_ADAPTERS/README.md` and implemented f
 7. explicit Tier D and Tier X boundaries;
 8. event-relative refresh cadence;
 9. defined missing, stale, conflicting, and material-change scenarios for `pilot_enabled`, with credential-free recorded fixtures required before `active` status;
-10. report and alert language;
+10. decision-brief and on-demand change-summary language;
 11. a separate approval to activate the profile.
 
-Do not activate a profile merely because a provider exposes a field. Changing an adapter lifecycle state requires the validation evidence named by that adapter plus a consistent update to this file, the adapter catalog, `AGENTS.md`, and `README.md`.
+Do not activate a profile merely because a provider exposes a field. Changing a profile lifecycle requires the validation evidence named by that adapter plus a consistent canonical catalog and governing-document update. A `ROADMAP.md` entry never activates it.
 
 ---
 
