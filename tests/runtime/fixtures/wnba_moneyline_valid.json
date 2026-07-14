@@ -1,0 +1,220 @@
+{
+  "contract_version": "manual_promo_evaluation_v1",
+  "run_id": "run-wnba-golden",
+  "created_at_utc": "2026-07-14T04:00:00Z",
+  "timezone": "America/Chicago",
+  "jurisdiction": "US-MO",
+  "adapter_id": "wnba.pregame_full_game_v0_1",
+  "adapter_version": "0.2.1",
+  "adapter_contract_version": "adapter_contract_v1",
+  "profile_id": "wnba.full_game.moneyline",
+  "profile_lifecycle": "pilot_enabled",
+  "promotion": {
+    "promo_id": "promo-wnba-golden",
+    "sportsbook_id": "FanDuel",
+    "jurisdiction": "US-MO",
+    "raw_promotion_text": "Synthetic 30% profit boost for WNBA full-game moneyline; maximum $25 stake.",
+    "boost_type": "profit_boost",
+    "boost_percent": "30",
+    "max_stake": "25",
+    "payout_cap": null,
+    "minimum_american_odds": -200,
+    "maximum_american_odds": null,
+    "odds_range_basis": "base_odds",
+    "eligible_event_ids": [
+      "wnba-game-1"
+    ],
+    "eligible_market_keys": [
+      "wnba.full_game.moneyline"
+    ],
+    "expires_at_utc": "2026-07-14T05:00:00Z",
+    "token_count": 1,
+    "void_push_rules": "voids return the token",
+    "verification_status": "confirmed",
+    "ambiguities": []
+  },
+  "candidates": [
+    {
+      "candidate_id": "wnba-home-moneyline",
+      "market_identity": {
+        "jurisdiction": "US-MO",
+        "league": "WNBA",
+        "event_id": "wnba-game-1",
+        "participant_id": "wnba-team-home",
+        "raw_market_label": "Game Moneyline",
+        "raw_selection_label": "Home",
+        "canonical_market_key": "wnba.full_game.moneyline",
+        "outcome_set_id": "wnba-game-1:wnba.full_game.moneyline:none",
+        "outcome_set_type": "binary_pair",
+        "outcome_set_completeness": "complete",
+        "participant_set_version": null,
+        "market_wrapper": "standard",
+        "side": "home",
+        "line": null,
+        "period": "full_game",
+        "overtime_or_extra_innings_treatment": "included",
+        "push_behavior": "impossible",
+        "tie_or_dead_heat_treatment": "not_applicable",
+        "participation_rule": "participant must start",
+        "void_rule": "void if event is canceled",
+        "stat_counting_rule": "official league statistics",
+        "settlement_rule": "official full-game result including overtime",
+        "ap_frankenstein_compatibility": "direct"
+      },
+      "target_quote": {
+        "source_id": "sportsbook_target_manual_evidence",
+        "sportsbook_id": "FanDuel",
+        "pricing_origin_id": "sportsbook_fanduel",
+        "jurisdiction": "US-MO",
+        "american_odds": -110,
+        "market_status": "open",
+        "retrieved_at_utc": "2026-07-14T03:59:30Z",
+        "provider_last_update_utc": null,
+        "evidence_id": "evidence:target:wnba-home-moneyline"
+      },
+      "comparison_pairs": [
+        {
+          "source_id": "sportsbook_comparison_manual_evidence",
+          "sportsbook_id": "Comparison A",
+          "pricing_origin_id": "origin_a",
+          "jurisdiction": "US-MO",
+          "market_identity": {
+            "jurisdiction": "US-MO",
+            "league": "WNBA",
+            "event_id": "wnba-game-1",
+            "participant_id": "wnba-team-home",
+            "raw_market_label": "Game Moneyline",
+            "raw_selection_label": "Home",
+            "canonical_market_key": "wnba.full_game.moneyline",
+            "outcome_set_id": "wnba-game-1:wnba.full_game.moneyline:none",
+            "outcome_set_type": "binary_pair",
+            "outcome_set_completeness": "complete",
+            "participant_set_version": null,
+            "market_wrapper": "standard",
+            "side": "home",
+            "line": null,
+            "period": "full_game",
+            "overtime_or_extra_innings_treatment": "included",
+            "push_behavior": "impossible",
+            "tie_or_dead_heat_treatment": "not_applicable",
+            "participation_rule": "participant must start",
+            "void_rule": "void if event is canceled",
+            "stat_counting_rule": "official league statistics",
+            "settlement_rule": "official full-game result including overtime",
+            "ap_frankenstein_compatibility": "direct"
+          },
+          "outcomes": [
+            {
+              "outcome_id": "Comparison A:candidate",
+              "raw_selection_label": "Home",
+              "side": "home",
+              "line": null,
+              "american_odds": -120
+            },
+            {
+              "outcome_id": "Comparison A:opposing",
+              "raw_selection_label": "Away",
+              "side": "away",
+              "line": null,
+              "american_odds": 100
+            }
+          ],
+          "market_status": "open",
+          "retrieved_at_utc": "2026-07-14T03:59:20Z",
+          "provider_last_update_utc": null,
+          "evidence_id": "evidence:comparison:wnba-home-moneyline:a"
+        },
+        {
+          "source_id": "sportsbook_comparison_manual_evidence",
+          "sportsbook_id": "Comparison B",
+          "pricing_origin_id": "origin_b",
+          "jurisdiction": "US-MO",
+          "market_identity": {
+            "jurisdiction": "US-MO",
+            "league": "WNBA",
+            "event_id": "wnba-game-1",
+            "participant_id": "wnba-team-home",
+            "raw_market_label": "Game Moneyline",
+            "raw_selection_label": "Home",
+            "canonical_market_key": "wnba.full_game.moneyline",
+            "outcome_set_id": "wnba-game-1:wnba.full_game.moneyline:none",
+            "outcome_set_type": "binary_pair",
+            "outcome_set_completeness": "complete",
+            "participant_set_version": null,
+            "market_wrapper": "standard",
+            "side": "home",
+            "line": null,
+            "period": "full_game",
+            "overtime_or_extra_innings_treatment": "included",
+            "push_behavior": "impossible",
+            "tie_or_dead_heat_treatment": "not_applicable",
+            "participation_rule": "participant must start",
+            "void_rule": "void if event is canceled",
+            "stat_counting_rule": "official league statistics",
+            "settlement_rule": "official full-game result including overtime",
+            "ap_frankenstein_compatibility": "direct"
+          },
+          "outcomes": [
+            {
+              "outcome_id": "Comparison B:candidate",
+              "raw_selection_label": "Home",
+              "side": "home",
+              "line": null,
+              "american_odds": -110
+            },
+            {
+              "outcome_id": "Comparison B:opposing",
+              "raw_selection_label": "Away",
+              "side": "away",
+              "line": null,
+              "american_odds": -110
+            }
+          ],
+          "market_status": "open",
+          "retrieved_at_utc": "2026-07-14T03:59:10Z",
+          "provider_last_update_utc": null,
+          "evidence_id": "evidence:comparison:wnba-home-moneyline:b"
+        }
+      ],
+      "material_context": [],
+      "latest_material_context_at_utc": null,
+      "evidence": [
+        {
+          "evidence_id": "evidence:target:wnba-home-moneyline",
+          "source_id": "sportsbook_target_manual_evidence",
+          "source_instance_id": "instance:sportsbook_target_manual_evidence",
+          "jurisdiction": "US-MO",
+          "captured_at_utc": "2026-07-14T03:59:30Z",
+          "provider_published_at_utc": null,
+          "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "source_permission_reviewed": true,
+          "verification_status": "confirmed"
+        },
+        {
+          "evidence_id": "evidence:comparison:wnba-home-moneyline:a",
+          "source_id": "sportsbook_comparison_manual_evidence",
+          "source_instance_id": "instance:sportsbook_comparison_manual_evidence",
+          "jurisdiction": "US-MO",
+          "captured_at_utc": "2026-07-14T03:59:20Z",
+          "provider_published_at_utc": null,
+          "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "source_permission_reviewed": true,
+          "verification_status": "confirmed"
+        },
+        {
+          "evidence_id": "evidence:comparison:wnba-home-moneyline:b",
+          "source_id": "sportsbook_comparison_manual_evidence",
+          "source_instance_id": "instance:sportsbook_comparison_manual_evidence",
+          "jurisdiction": "US-MO",
+          "captured_at_utc": "2026-07-14T03:59:10Z",
+          "provider_published_at_utc": null,
+          "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "source_permission_reviewed": true,
+          "verification_status": "confirmed"
+        }
+      ]
+    }
+  ],
+  "audit_evidence": [],
+  "user_max_stake": "25"
+}

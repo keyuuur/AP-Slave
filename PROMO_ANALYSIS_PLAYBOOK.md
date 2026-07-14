@@ -4,7 +4,7 @@
 **Prepared:** 2026-07-10  
 **Use:** Governing specification for promotion intake, analysis workflow, QA, reason codes, and `promotion_decision_brief_v2`. Do not run the reusable prompt by itself; apply the monitoring playbook, canonical catalog, source registry, and selected sport adapter with it.
 
-> **Current-checkout boundary:** This repository contains documentation and contracts only. It has no executable retrieval, calculation, ranking, scheduling, provider-adapter, alerting, tracking, closing-line, or settlement runtime and certifies no provider. Current review is on demand and may use only explicitly supplied, currently verified evidence. Future runtime, scheduled/live monitoring, automatic alerts, model-based probability, bet tracking, closing-line capture, and settlement work belongs in `ROADMAP.md` and requires separate approval.
+> **Current-checkout boundary:** This repository contains a credential-free manual-input calculator for `mlb.player_hits` and the three pilot-enabled WNBA full-game profiles. It has no executable retrieval, provider integration, scheduling, live monitoring, alerts, statistical model, bet tracking, closing-line capture, settlement, or sportsbook automation and certifies no provider. The calculator uses only explicitly supplied, currently verified evidence; all other runtime work remains in `ROADMAP.md` and requires separate approval.
 
 ---
 
@@ -25,7 +25,7 @@ It is designed to:
 - specify an audit trail;
 - leave the final decision to the user.
 
-It is not designed to let the model invent current lines, invent probabilities, call providers from this documentation-only checkout, or autonomously place wagers.
+It is not designed to let the model invent current lines or probabilities, call providers, extend the four-profile manual runtime, or autonomously place wagers.
 
 ---
 
@@ -37,7 +37,7 @@ Copy the block below into the local agent's primary instruction layer.
 You are ADVANTAGE PLAY INTERN, a human-supervised sports-market research, monitoring, and reporting system.
 
 CURRENT OPERATING BOUNDARY
-The governing repository is documentation/specification only. It does not contain an executable retrieval, calculation, ranking, scheduling, provider-adapter, alerting, tracking, closing-line, or settlement runtime. Do not infer that a provider, sportsbook, market, pricing origin, or automated source is certified. For current on-demand review, use only explicitly supplied, currently verified evidence and fail closed when a required input is absent. Apply the current monitoring playbook, canonical adapter catalog, source registry, and selected sport adapter; this prompt alone never authorizes a run. Scheduled or live monitoring, automatic alerts, statistical/manual probability, bet tracking, closing-line capture, and settlement are non-authorizing future work in ROADMAP.md.
+The governing repository includes only the narrow manual-input calculator described above; it has no retrieval, provider adapter, schedule, alert, live-monitoring, model, tracking, closing-line, or settlement runtime. Do not infer that any provider, sportsbook, market, pricing origin, quote, or automated source is certified. Use only explicitly supplied, currently verified evidence and fail closed when a required input is absent. Apply the monitoring playbook, canonical adapter catalog, source registry, and selected sport adapter; this prompt alone never authorizes a run. All broader automation and statistical/model probability remain non-authorizing future work in ROADMAP.md.
 
 MISSION
 Your purpose is to solve an attention and information-processing problem. On explicit request, evaluate a narrow, registered sports-promotion condition, normalize current supplied evidence, require deterministic calculations where implemented, and produce a decision brief for a human.
@@ -326,6 +326,7 @@ promotion_request:
   payout_cap: null
   minimum_american_odds: null
   maximum_american_odds: null
+  odds_range_basis: null # base_odds | boosted_odds | unknown
   eligible_start_time_min_local: null
   eligible_start_time_max_local: null
   expires_at_local: null
@@ -344,6 +345,7 @@ promotion_request:
 - eligible market;
 - stake or payout cap if either affects ranking;
 - minimum/maximum odds;
+- whether the odds range applies to base or boosted odds;
 - expiration;
 - target line and price.
 
@@ -460,7 +462,7 @@ Rules:
 
 ## 8. Independent QA prompt
 
-Use this checklist for an independent human-supervised review. A future implementation may automate deterministic checks, but this checkout does not provide that runtime.
+Use this checklist for an independent human-supervised review. The four-profile manual runtime automates its deterministic gates and calculations, but human review remains required and every other profile stays outside that runtime.
 
 ```text
 Audit the proposed promotion analysis without trying to defend it.
@@ -567,7 +569,7 @@ Use machine-readable reason codes alongside prose.
 
 ## 10. JSON output contract
 
-The normalized additive output contract is `promotion_decision_brief_v2`. The object below is a specification, not evidence that a local application or serializer exists in this checkout. Existing v1 fields remain present for compatibility; the new adapter, identity, consensus-audit, and monitoring blocks are local output/audit fields, not a persisted-schema migration. Golf tournament-field and complete outcome-vector details remain adapter-local audit annotations during the disabled contract phase; this contract and the canonical persisted schemas are unchanged, and Golf activation requires separately reviewed schema evolution.
+The normalized additive output contract is `promotion_decision_brief_v2`. The manual-input runtime serializes this contract for its four implemented profiles; the broader fields remain compatibility/specification surface and are not a persisted-schema migration. Golf tournament-field and complete outcome-vector details remain adapter-local audit annotations during the disabled contract phase, and Golf activation still requires separately reviewed schema evolution.
 
 ```json
 {

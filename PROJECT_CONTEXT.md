@@ -12,7 +12,7 @@
 
 Advantage Play Intern is a local, human-supervised sports-promotion research system. It acts as an attention, evidence, and calculation intern: it interprets a narrowly defined promotion, collects or accepts current evidence, applies deterministic pricing rules, and returns an auditable decision brief for the user to review.
 
-The repository is currently a **documentation-only contract**. It contains no executable application, provider integration, scheduler, polling service, automated alert channel, statistical model, persistent database, or test runner. Profile lifecycle describes policy eligibility; it does not claim that software or source integrations exist. `SPORT_ADAPTERS/catalog.yaml` records this distinction through separate lifecycle, contract, implementation, and source-readiness fields.
+The repository now contains a narrow **credential-free manual-input runtime** plus its offline validator and tests. The runtime performs deterministic promotion math only for `mlb.player_hits` and the three pilot-enabled WNBA full-game profiles after exact supplied evidence passes every gate. It contains no provider integration, retrieval client, scheduler, polling service, automated alert channel, statistical model, persistent database, sportsbook automation, or settlement system. Profile lifecycle still describes policy eligibility rather than source certification; `SPORT_ADAPTERS/catalog.yaml` records lifecycle, contract, implementation, and source readiness separately.
 
 The only approved operating modes are:
 
@@ -79,12 +79,12 @@ Advantage Play Intern never logs in, clicks, submits, confirms, or represents th
 
 ## 5. Registered capability boundary
 
-The canonical catalog owns the registered adapters, profiles, lifecycle distribution, and readiness fields; `SPORT_ADAPTERS/README.md` presents that data for humans. Numeric totals are not maintained independently here. Every profile currently has `implementation_status: documentation_only`.
+The canonical catalog owns the registered adapters, profiles, lifecycle distribution, and readiness fields; `SPORT_ADAPTERS/README.md` presents that data for humans. Numeric totals are not maintained independently here. Only `mlb.player_hits` and the three pilot-enabled WNBA full-game profiles have `implementation_status: manual_input_runtime`; every other profile remains `documentation_only`.
 
 | Group | Registered profiles | Lifecycle and current behavior |
 |---|---|---|
-| MLB | `mlb.player_hits` | `active`; pregame player hits only; on-demand evidence remains required |
-| WNBA game lines | `wnba.full_game.moneyline`, `wnba.full_game.spread`, `wnba.full_game.total` | `pilot_enabled`; exact pregame full-game non-push identities; each run must independently clear every evidence gate |
+| MLB | `mlb.player_hits` | `active`; pregame player hits only; manual-input runtime; on-demand evidence remains required |
+| WNBA game lines | `wnba.full_game.moneyline`, `wnba.full_game.spread`, `wnba.full_game.total` | `pilot_enabled`; manual-input runtime for exact pregame full-game non-push identities; each run must independently clear every evidence gate |
 | WNBA player props | `wnba.player.points`, `wnba.player.rebounds`, `wnba.player.assists`, `wnba.player.made_threes` | `disabled_provider_validation`; no candidate generation |
 | NBA | `nba.full_game.moneyline`, `nba.full_game.spread`, `nba.full_game.total`, `nba.player.points` | `disabled_provider_validation`; specification and fixtures only |
 | NFL | `nfl.full_game.moneyline`, `nfl.full_game.spread`, `nfl.full_game.total` | `disabled_provider_validation`; specification and fixtures only |
@@ -112,7 +112,7 @@ For each request:
 6. Capture the method-required complete comparison markets from non-target pricing origins.
 7. Capture only the sport facts registered by the selected adapter.
 8. Normalize identities and apply jurisdiction, source, freshness, settlement, market-status, and material-change gates.
-9. Calculate with deterministic code when a runtime exists; during the documentation-only phase, fixtures specify expected behavior but do not produce recommendation-grade results.
+9. For the four `manual_input_runtime` profiles, calculate with the local deterministic engine after every gate passes. For all other profiles, contract scenarios and fixtures specify behavior but do not produce recommendation-grade results.
 10. Rank all eligible candidates, run independent QA, and return `promotion_decision_brief_v2` with passes and blockers.
 11. Save only the local research/evidence snapshot. Do not call or write to AP Frankenstein.
 
@@ -163,6 +163,7 @@ promotion:
   payout_cap: number | null
   min_american_odds: integer | null
   max_american_odds: integer | null
+  odds_range_basis: base_odds | boosted_odds | unknown
   eligible_event_ids: [string] | null
   eligible_start_time_min: datetime | null
   eligible_start_time_max: datetime | null
@@ -175,6 +176,8 @@ promotion:
   parsed_confidence: number
   verification_status: confirmed | needs_review
 ```
+
+The manual runtime supports minimum/maximum odds gates only when `odds_range_basis` is explicitly `base_odds`. `boosted_odds` or `unknown` fails closed with `PROMO_TERMS_AMBIGUOUS`; the runtime never guesses which price the promotion restricts.
 
 ### 8.2 Event
 

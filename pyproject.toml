@@ -17,6 +17,7 @@ test = ["pytest>=8,<9"]
 
 [project.scripts]
 ap-slave-validate = "ap_slave_validation.__main__:main"
+ap-slave-evaluate = "ap_slave_runtime.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

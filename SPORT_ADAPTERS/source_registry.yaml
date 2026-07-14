@@ -38,6 +38,11 @@ pricing_origin_groups:
     known_aliases: [DraftKings, "DraftKings Sportsbook"]
     origin_resolution_status: resolved
     certification_scope: "identity de-duplication only; no feed, market, or jurisdiction certification"
+  - pricing_origin_id: sportsbook_circa
+    canonical_name: Circa Sports
+    known_aliases: [Circa, "Circa Sports"]
+    origin_resolution_status: resolved
+    certification_scope: "identity de-duplication only; Missouri licensure evidence does not certify a quote, market, source, or current availability"
   - pricing_origin_id: unresolved
     canonical_name: "Unresolved pricing origin"
     known_aliases: []
@@ -45,6 +50,8 @@ pricing_origin_groups:
     certification_scope: "counts as zero independent origins"
 
 source_families:
+  - source_family_id: government_regulatory_source
+    purpose: "jurisdiction-specific license and operator identity only; never quote or market coverage"
   - source_family_id: official_league_event_source
     purpose: "official schedule, event identity, venue, and status"
   - source_family_id: official_league_availability_source
@@ -71,6 +78,26 @@ source_families:
     purpose: "event-specific organizer, field, format, cut, tee-time, status, and result facts"
 
 source_records:
+  - source_id: missouri_mgc_circa_mobile_license_2026
+    source_family_id: government_regulatory_source
+    record_type: concrete_source
+    label: "Missouri Gaming Commission Resolution 26-022 - Circa mobile sports wagering license"
+    url: "https://www.mgc.dps.mo.gov/Meetings/2026_ma/04_Apr/ResNo26-022.pdf"
+    facts: [sportsbook_legal_entity, mobile_license_identity, pricing_origin_alias_review]
+    authority_rank: 1
+    access_mode: manual_on_demand
+    automation_permission: prohibited
+    permission_status: conditionally_reviewed
+    coverage_status: exact_scope_documented
+    jurisdiction_scope: "US-MO"
+    season_event_scope: "license granted in 2026; current status requires recheck"
+    last_reviewed_on: "2026-07-14"
+    review_trigger: "license status, brand, operator, alias, ownership, or intended-use change"
+    health_check_method: "manual resolution and current-license review"
+    permitted_use: "pricing-origin identity and alias de-duplication only"
+    prohibited_use: "quote, market, source, automation, availability, independence, or provider-coverage certification"
+    terms_source_id: null
+
   - source_id: nws_weather_api
     source_family_id: government_operational_weather
     record_type: concrete_source

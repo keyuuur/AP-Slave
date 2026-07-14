@@ -1,0 +1,132 @@
+{
+  "contract_version": "promotion_decision_brief_v2",
+  "run": {
+    "run_id": "run-wnba-golden",
+    "created_at_utc": "2026-07-14T04:00:00Z",
+    "timezone": "America/Chicago",
+    "jurisdiction": "US-MO",
+    "adapter_id": "wnba.pregame_full_game_v0_1",
+    "adapter_version": "0.2.1",
+    "adapter_contract_version": "adapter_contract_v1",
+    "profile_id": "wnba.full_game.moneyline",
+    "profile_lifecycle": "pilot_enabled",
+    "overall_status": "actionable_for_review"
+  },
+  "promotion": {
+    "promo_id": "promo-wnba-golden",
+    "sportsbook_id": "FanDuel",
+    "jurisdiction": "US-MO",
+    "boost_type": "profit_boost",
+    "boost_percent": "30",
+    "max_stake": "25",
+    "expires_at_utc": "2026-07-14T05:00:00Z",
+    "verification_status": "confirmed",
+    "ambiguities": []
+  },
+  "freshness": {
+    "target_quote_max_age_seconds": 30,
+    "oldest_material_input_age_seconds": null,
+    "stale_inputs": []
+  },
+  "candidates": [
+    {
+      "candidate_id": "wnba-home-moneyline",
+      "rank": 1,
+      "event_id": "wnba-game-1",
+      "participant_id": "wnba-team-home",
+      "market_key": "wnba.full_game.moneyline",
+      "market_identity": {
+        "jurisdiction": "US-MO",
+        "league": "WNBA",
+        "event_id": "wnba-game-1",
+        "participant_id": "wnba-team-home",
+        "raw_market_label": "Game Moneyline",
+        "raw_selection_label": "Home",
+        "canonical_market_key": "wnba.full_game.moneyline",
+        "outcome_set_id": "wnba-game-1:wnba.full_game.moneyline:none",
+        "outcome_set_type": "binary_pair",
+        "outcome_set_completeness": "complete",
+        "participant_set_version": null,
+        "market_wrapper": "standard",
+        "side": "home",
+        "line": null,
+        "period": "full_game",
+        "overtime_or_extra_innings_treatment": "included",
+        "push_behavior": "impossible",
+        "tie_or_dead_heat_treatment": "not_applicable",
+        "participation_rule": "participant must start",
+        "void_rule": "void if event is canceled",
+        "stat_counting_rule": "official league statistics",
+        "settlement_rule": "official full-game result including overtime",
+        "ap_frankenstein_compatibility": "direct"
+      },
+      "side": "home",
+      "line": null,
+      "target_american_odds": -110,
+      "boosted_decimal_odds": "2.181818181818181818181818182",
+      "break_even_probability": "0.4583333333333333333333333333",
+      "estimated_probability": "0.510869565217391304347826087",
+      "probability_low": null,
+      "probability_method": "market_consensus",
+      "calculation_version": null,
+      "consensus_audit": {
+        "target_sportsbook_id": "FanDuel",
+        "target_excluded": true,
+        "raw_source_count": 2,
+        "usable_book_count": 2,
+        "pricing_origin_group_count": 2,
+        "aggregation_method_version": "wnba_market_consensus_mean_v1",
+        "source_level_probabilities": [
+          {
+            "source_id": "sportsbook_comparison_manual_evidence",
+            "sportsbook_id": "Comparison A",
+            "pricing_origin_id": "origin_a",
+            "fair_probability": "0.5217391304347826086956521739"
+          },
+          {
+            "source_id": "sportsbook_comparison_manual_evidence",
+            "sportsbook_id": "Comparison B",
+            "pricing_origin_id": "origin_b",
+            "fair_probability": "0.5"
+          }
+        ],
+        "dispersion_percentage_points": "2.173913043478260869565217390",
+        "oldest_comparison_age_seconds": 50,
+        "collection_skew_seconds": 20,
+        "excluded_sources": []
+      },
+      "ev_per_unit": "0.114624505928853754940711463",
+      "conservative_ev_per_unit": null,
+      "permitted_stake": "25",
+      "expected_dollars": "2.865612648221343873517786575",
+      "data_quality_score": null,
+      "state": "actionable_for_review",
+      "reason_codes": [],
+      "blockers": [],
+      "invalidation_conditions": [
+        "Any promotion, quote, identity, settlement, market-status, or material-context change requires a new evaluation."
+      ],
+      "monitoring_metadata": {
+        "next_refresh_at": null,
+        "next_refresh_reason": null,
+        "post_material_change_synchronized": true
+      },
+      "source_refs": [
+        "evidence:target:wnba-home-moneyline",
+        "evidence:comparison:wnba-home-moneyline:a",
+        "evidence:comparison:wnba-home-moneyline:b"
+      ]
+    }
+  ],
+  "blockers": [],
+  "qa": {
+    "result": "pass",
+    "issues": []
+  },
+  "change_summary": {
+    "prior_run_id": null,
+    "material_change": false,
+    "changes": []
+  },
+  "human_boundary": "No wager has been placed or confirmed."
+}

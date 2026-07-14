@@ -32,7 +32,7 @@ AP Frankenstein remains a separate downstream system. If the user manually place
 
 Canonical profile identity, lifecycle, implementation status, and source readiness come only from `SPORT_ADAPTERS/catalog.yaml`; this playbook does not maintain a second count or lifecycle registry. Use `SPORT_ADAPTERS/README.md` for the synchronized human-readable presentation and the selected adapter for exact market boundaries.
 
-The catalog-selected policy-enabled surface is limited to pregame MLB player hits and the supervised on-demand WNBA full-game game-line pilot. Lifecycle permission does not imply an executable runtime or certified source. This checkout remains documentation/specification only, so current review requires explicitly supplied, currently verified evidence and fails closed when an implementation or source-readiness gate is unmet.
+The catalog-selected policy-enabled surface is limited to pregame MLB player hits and the supervised on-demand WNBA full-game game-line pilot. Those four profiles now have a credential-free manual-input runtime, but lifecycle and implementation status still do not certify a source. Current review requires explicitly supplied, currently verified evidence and fails closed when a source-readiness, identity, settlement, freshness, origin, or lifecycle gate is unmet.
 
 Shared lifecycle-enabled contract behavior:
 

@@ -83,7 +83,7 @@ profiles:
     adapter_id: mlb.player_hits_v0_1
     lifecycle: active
     contract_status: specified
-    implementation_status: documentation_only
+    implementation_status: manual_input_runtime
     source_readiness: per_run_evidence_required
     exact_current_boundary: "Pregame player hits only"
     activation_blocker: "none within documented stable scope"
@@ -92,7 +92,7 @@ profiles:
     adapter_id: wnba.pregame_full_game_v0_1
     lifecycle: pilot_enabled
     contract_status: specified
-    implementation_status: documentation_only
+    implementation_status: manual_input_runtime
     source_readiness: per_run_evidence_required
     exact_current_boundary: "Pregame, full-game market with exact overtime/settlement match"
     activation_blocker: "stable activation still requires cross-timing provider evidence"
@@ -101,7 +101,7 @@ profiles:
     adapter_id: wnba.pregame_full_game_v0_1
     lifecycle: pilot_enabled
     contract_status: specified
-    implementation_status: documentation_only
+    implementation_status: manual_input_runtime
     source_readiness: per_run_evidence_required
     exact_current_boundary: "Pregame, full-game, reciprocal half-point line only"
     activation_blocker: "push-aware lines disabled; stable activation still requires cross-timing provider evidence"
@@ -110,7 +110,7 @@ profiles:
     adapter_id: wnba.pregame_full_game_v0_1
     lifecycle: pilot_enabled
     contract_status: specified
-    implementation_status: documentation_only
+    implementation_status: manual_input_runtime
     source_readiness: per_run_evidence_required
     exact_current_boundary: "Pregame, full-game, half-point line only"
     activation_blocker: "push-aware lines disabled; stable activation still requires cross-timing provider evidence"

@@ -35,7 +35,7 @@ When authorities, implementation, source behavior, or provider evidence disagree
 
 ## Current readiness and boundaries
 
-This checkout is documentation/specification only. It has no executable retrieval, calculation, ranking, scheduling, provider-adapter, alerting, tracking, or settlement runtime and records no certified provider integration.
+This checkout includes a credential-free, manual-input calculator only for `mlb.player_hits` and the three pilot-enabled WNBA full-game profiles. It has no executable retrieval, provider integration, scheduling, polling, alerts, live markets, statistical model, bet tracking, closing-line capture, settlement, sportsbook automation, or certified provider coverage. NBA, NFL, Golf, and unregistered profiles fail before valuation.
 
 Profile lifecycle is policy permission, not proof of implementation or source certification. Implementation status and source readiness are separate canonical fields. Use `SPORT_ADAPTERS/catalog.yaml` for the registered records and derived distribution; do not maintain another numeric total here.
 

@@ -62,6 +62,8 @@ Every registered profile also carries three orthogonal readiness fields in the c
 
 No readiness field changes lifecycle automatically. A lifecycle change still requires the separate approval and evidence in Section 7.
 
+Current implementation mapping: `mlb.player_hits`, `wnba.full_game.moneyline`, `wnba.full_game.spread`, and `wnba.full_game.total` are `manual_input_runtime`. The other seventeen registered profiles remain `documentation_only`; none is `provider_integrated`.
+
 ## 4. Adapter catalog
 
 Adapter identity and profile lifecycle are separate records. Adapter versions describe a document contract; lifecycle applies to each exact market profile.

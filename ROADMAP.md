@@ -27,14 +27,14 @@ The original product concept addressed an attention problem: prices, availabilit
 
 Potential future modes were:
 
-- **manual-input mode:** a local deterministic calculator using verified structured entry and screenshots;
+- **manual-input mode:** implemented narrowly for `mlb.player_hits` and the three pilot-enabled WNBA full-game profiles using verified structured entry; screenshot capture remains a manual evidence step;
 - **provider-assisted research mode:** on-demand retrieval through approved, tested provider adapters;
 - **scheduled monitoring mode:** event-relative refreshes and local alerts;
 - **event-driven mode:** provider push messages or change feeds that re-evaluate only affected markets;
 - **replay/backtest mode:** reconstruction from data actually available at the historical decision time;
 - **live-trigger mode:** separately validated live-market conditions with measured latency.
 
-Only the first of these is the recommended next implementation milestone. The others remain contingent on evidence and approval.
+Only the first of these has been implemented, and only for the four catalog profiles marked `manual_input_runtime`. The others remain contingent on evidence and approval.
 
 ## 3. Recommended future architecture
 
