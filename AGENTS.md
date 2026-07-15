@@ -53,6 +53,14 @@ Statistical/manual probability overrides, Tier D feature use, live betting, recu
 
 AP Frankenstein remains the separate downstream receipt, spreadsheet, tracking, and settlement owner after the user manually places a wager. This project must not call it, edit it, write its spreadsheets, create a bridge, or infer that a researched candidate became a wager.
 
+## Durable orchestration memory
+
+- Decide automatically at task startup whether durable memory is needed. It applies to multi-phase/session work, role-based review, durable product/adapter/architecture/data decisions, release or validation gates, recovery/external-service dependencies, relevant branch/worktree ambiguity, and major strategy changes or rejected approaches.
+- Use `docs/handoffs/PROJECT_CONTEXT.md` for stable decision memory and `docs/handoffs/CURRENT_STATUS.md` for current verified posture when the protocol is triggered. The root `PROJECT_CONTEXT.md` is the authoritative product requirements document and must not be repurposed, renamed, or treated as either handoff file.
+- The coordinator owns these handoffs, verifies them against live Git/source/tests/current instructions, gives helpers only role-relevant excerpts, and records helper findings only after synthesis. Current evidence overrides stale handoff prose, and handoffs never authorize polling, provider calls, activation, deployment, or live betting behavior.
+- Update stable memory only for durable decisions. Update current status after material phases, strategy changes, significant blockers, useful checkpoints, validation/release results, interruptions, or pauses likely to resume.
+- Skip handoff creation for a narrow single-session task with no durable consequence. Under read-only/no-edit scope, report the deferred handoff delta in chat rather than writing files.
+
 ## Non-negotiable analysis rules
 
 1. **Human control:** Never place, submit, confirm, or pretend to place a wager. Never automate sportsbook account actions or handle sportsbook credentials.
